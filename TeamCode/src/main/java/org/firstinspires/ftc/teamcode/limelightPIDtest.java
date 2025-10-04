@@ -21,14 +21,9 @@ public class limelightPIDtest extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         DcMotor turret = this.hardwareMap.get(DcMotor.class, "turret");
+        turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         telemetry.setMsTransmissionInterval(11);
         limelight.pipelineSwitch(0);
-
-        p = 0.01;
-        i = 0;
-        d = 0.0075;
-        pidController = new PIDController(p, i, d);
-        pidController.setPID(p, i, d);
 
         limelight.start();
 
@@ -57,6 +52,13 @@ public class limelightPIDtest extends LinearOpMode {
              */
 
             // APRIL TAG TRACKING
+            // KNOWN WORKING VALUES: p = 0.01;  i = 0;  d = 0.0075
+            p = 0.0075;
+            i = 0.025;
+            d = 0.01;
+            pidController = new PIDController(p, i, d);
+            pidController.setPID(p, i, d);
+
             if (result.isValid()){
                 for (LLResultTypes.FiducialResult fiducial : fiducials) {
                     int id = fiducial.getFiducialId();
