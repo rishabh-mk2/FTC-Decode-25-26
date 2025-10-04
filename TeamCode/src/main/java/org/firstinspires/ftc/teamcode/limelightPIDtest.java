@@ -11,8 +11,8 @@ import com.arcrobotics.ftclib.controller.PIDController;
 
 import java.util.List;
 
-@TeleOp(name = "LL AprilTag Test", group = "TeleOp")
-public class limelightAprilTagTest extends LinearOpMode {
+@TeleOp(name = "LL PID Test", group = "TeleOp")
+public class limelightPIDtest extends LinearOpMode {
     public Limelight3A limelight;
 
     PIDController pidController;
@@ -24,9 +24,9 @@ public class limelightAprilTagTest extends LinearOpMode {
         telemetry.setMsTransmissionInterval(11);
         limelight.pipelineSwitch(0);
 
-        p = 0;
+        p = 0.01;
         i = 0;
-        d = 0;
+        d = 0.0075;
         pidController = new PIDController(p, i, d);
         pidController.setPID(p, i, d);
 
@@ -61,15 +61,9 @@ public class limelightAprilTagTest extends LinearOpMode {
                 for (LLResultTypes.FiducialResult fiducial : fiducials) {
                     int id = fiducial.getFiducialId();
                     double currentTargetDeg = fiducial.getTargetXDegrees();
-                    double pid = pidController.calculate(currentTargetDeg, 0);
-                    double turretPower = pid;
-                    if (currentTargetDeg <= -1) {
-                        turret.setPower(-0.15); // MOVE TURRET TO THE RIGHT (NEGATIVE MOTOR POWER)
-                    } else if (currentTargetDeg >= 1) {
-                        turret.setPower(0.15); // MOVE TURRET TO THE LEFT (POSITIVE MOTOR POWER)
-                    } else {
-                        turret.setPower(0); // STOP TURRET MOVEMENT
-                    }
+                    double turretPos = turret.getCurrentPosition();
+                    double pid = pidController.calculate(turretPos, turretPos + 537.7*currentTargetDeg/360.0); // NOTE FOR SELF: Adding/Subtracting the TICK VAL. of the DEG VAL. from the current motor pos. basically doing -> currentMotorTickVal +- (motorTickPerRevolution*givenDegVal/totalDegInCircle)
+                    turret.setPower(pid);
                     telemetry.addData("Fiducial " + id, " is " + currentTargetDeg + " degrees");
                 }
             } else {
