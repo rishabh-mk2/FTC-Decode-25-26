@@ -24,19 +24,65 @@ public class limelightPIDtest extends LinearOpMode {
         turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         telemetry.setMsTransmissionInterval(11);
         limelight.pipelineSwitch(0);
+        telemetry.setAutoClear(true);
 
         limelight.start();
 
         telemetry.addData(">", "Robot ready!!!.  Press Play!!!!!");
-        telemetry.update();
+        boolean AisPressed = false;
+        boolean BisPressed = false;
+        boolean XisPressed = false;
+        boolean YisPressed = false;
+        boolean dPadUpIsPressed = false;
+        boolean dPadDownIsPressed = false;
         waitForStart();
 
+
+        p = 0.009;
+        i = 0;
+        d = 0.0015;
         while (opModeIsActive()) {
             LLStatus status = limelight.getStatus();
             telemetry.addData("Name", "%s",
                     status.getName());
             telemetry.addData("Pipeline", "Index: %d, Type: %s",
                     status.getPipelineIndex(), status.getPipelineType());
+
+            // KNOWN WORKING VALUES: p = 0.0091;  i = 0;  d = 0.0015
+
+            pidController = new PIDController(p, i, d);
+            pidController.setPID(p, i, d);
+            if(gamepad1.a && !AisPressed){
+                AisPressed = true;
+            }
+            if (!gamepad1.a && AisPressed) {
+                p += 0.0001;
+                AisPressed = false;
+            } if(gamepad1.b && !BisPressed){
+                BisPressed = true;
+            } if(!gamepad1.b && BisPressed){
+                p -= 0.0001;
+                BisPressed = false;
+            }
+
+
+
+            if(gamepad1.x && !XisPressed){
+                XisPressed = true;
+            }
+            if (!gamepad1.x && XisPressed) {
+                d += 0.0001;
+                XisPressed = false;
+            } if(gamepad1.y && !YisPressed){
+                YisPressed = true;
+            } if(!gamepad1.y && YisPressed){
+                d -= 0.0001;
+                YisPressed = false;
+            }
+            telemetry.addData("kP val:", p);
+            telemetry.addData("kI val:", i);
+            telemetry.addData("kD val:", d);
+
 
             LLResult result = limelight.getLatestResult();
             List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
@@ -52,12 +98,6 @@ public class limelightPIDtest extends LinearOpMode {
              */
 
             // APRIL TAG TRACKING
-            // KNOWN WORKING VALUES: p = 0.01;  i = 0;  d = 0.0075
-            p = 0.0075;
-            i = 0.025;
-            d = 0.01;
-            pidController = new PIDController(p, i, d);
-            pidController.setPID(p, i, d);
 
             if (result.isValid()){
                 for (LLResultTypes.FiducialResult fiducial : fiducials) {
