@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.graphics.Color;
 import android.util.Size;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -14,17 +13,18 @@ import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
 import org.firstinspires.ftc.vision.opencv.ColorRange;
 import org.firstinspires.ftc.vision.opencv.ImageRegion;
 
+import java.util.ArrayList;
 import java.util.List;
 
-@TeleOp(name = "WebCam OPEN CV Test", group = "TeleOp")
+@TeleOp(name = "WebCam Circle Detection", group = "TeleOp")
 public class easyOpenCVTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
 
-         // Don't clear telemetry each loop
         telemetry.setMsTransmissionInterval(100);
         telemetry.setDisplayFormat(Telemetry.DisplayFormat.MONOSPACE);
+        telemetry.setAutoClear(true);
 
         // --- PURPLE PROCESSOR ---
         ColorBlobLocatorProcessor purpleColorLocator = new ColorBlobLocatorProcessor.Builder()
@@ -34,8 +34,8 @@ public class easyOpenCVTest extends LinearOpMode {
                 .setDrawContours(true)
                 .setBoxFitColor(1)
                 .setBlurSize(5)
-                .setDilateSize(15)
-                .setErodeSize(15)
+                .setDilateSize(10)
+                .setErodeSize(10)
                 .setMorphOperationType(ColorBlobLocatorProcessor.MorphOperationType.CLOSING)
                 .build();
 
@@ -47,74 +47,78 @@ public class easyOpenCVTest extends LinearOpMode {
                 .setDrawContours(true)
                 .setBoxFitColor(1)
                 .setBlurSize(5)
-                .setDilateSize(15)
-                .setErodeSize(15)
+                .setDilateSize(10)
+                .setErodeSize(10)
                 .setMorphOperationType(ColorBlobLocatorProcessor.MorphOperationType.CLOSING)
                 .build();
 
-        // --- BUILD VISION PORTAL ---
+        // --- VISION PORTAL ---
         VisionPortal portal = new VisionPortal.Builder()
                 .addProcessor(purpleColorLocator)
                 .addProcessor(greenColorLocator)
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
-                .setCameraResolution(new Size(640, 480)) // Lower resolution = faster updates
+                .setCameraResolution(new Size(640, 480))
                 .build();
 
-        // Make sure both processors stay enabled
         portal.setProcessorEnabled(purpleColorLocator, true);
         portal.setProcessorEnabled(greenColorLocator, true);
-
-        telemetry.setAutoClear(true);
 
         waitForStart();
 
         while (opModeIsActive()) {
 
-            // --- READ BLOBS ---
-            List<ColorBlobLocatorProcessor.Blob> purpleBlobs = purpleColorLocator.getBlobs();
-            List<ColorBlobLocatorProcessor.Blob> greenBlobs = greenColorLocator.getBlobs();
+            // Clear previous detections
+            List<Circle> detectedPurpleCircles = new ArrayList<>();
+            List<Circle> detectedGreenCircles = new ArrayList<>();
 
-            // --- FILTER BLOBS ---
-            ColorBlobLocatorProcessor.Util.filterByCriteria(
-                    ColorBlobLocatorProcessor.BlobCriteria.BY_CONTOUR_AREA,
-                    50, 20000, purpleBlobs);
-            ColorBlobLocatorProcessor.Util.filterByCriteria(
-                    ColorBlobLocatorProcessor.BlobCriteria.BY_CIRCULARITY,
-                    0.3, 1, purpleBlobs);
-
-            ColorBlobLocatorProcessor.Util.filterByCriteria(
-                    ColorBlobLocatorProcessor.BlobCriteria.BY_CONTOUR_AREA,
-                    50, 20000, greenBlobs);
-            ColorBlobLocatorProcessor.Util.filterByCriteria(
-                    ColorBlobLocatorProcessor.BlobCriteria.BY_CIRCULARITY,
-                    0.3, 1, greenBlobs);
+            detectedPurpleCircles = processBlobs(purpleColorLocator.getBlobs());
+            detectedGreenCircles = processBlobs(greenColorLocator.getBlobs());
 
             // --- TELEMETRY OUTPUT ---
-            telemetry.addLine("=== PURPLE BLOBS ===");
-            for (ColorBlobLocatorProcessor.Blob p : purpleBlobs) {
-                Circle circle = p.getCircle();
-                telemetry.addData("Circularity", "%.2f", p.getCircularity());
-                telemetry.addData("Radius", "%.2f", circle.getRadius());
-                telemetry.addData("Center (X,Y)", "(%.1f, %.1f)", circle.getX(), circle.getY());
-                telemetry.addLine();
+            telemetry.addLine("=== PURPLE CIRCLES ===");
+            for (Circle c : detectedPurpleCircles) {
+                telemetry.addData("Center (X,Y)", "(%.1f, %.1f)", c.getX(), c.getY());
+                telemetry.addData("Radius", "%.2f", c.getRadius());
             }
 
-            telemetry.addLine("=== GREEN BLOBS ===");
-            for (ColorBlobLocatorProcessor.Blob g : greenBlobs) {
-                Circle circle = g.getCircle();
-                telemetry.addData("Circularity", "%.2f", g.getCircularity());
-                telemetry.addData("Radius", "%.2f", circle.getRadius());
-                telemetry.addData("Center (X,Y)", "(%.1f, %.1f)", circle.getX(), circle.getY());
-                telemetry.addLine();
+            telemetry.addLine("=== GREEN CIRCLES ===");
+            for (Circle c : detectedGreenCircles) {
+                telemetry.addData("Center (X,Y)", "(%.1f, %.1f)", c.getX(), c.getY());
+                telemetry.addData("Radius", "%.2f", c.getRadius());
             }
 
             telemetry.update();
-
-            // Small delay to sync with frame rate
             sleep(50);
         }
 
-        // Stop vision portal cleanly when OpMode ends
         portal.close();
     }
+
+    // --- HELPER FUNCTION TO PROCESS BLOBS ---
+    private List<Circle> processBlobs(List<ColorBlobLocatorProcessor.Blob> blobs) {
+        List<Circle> circles = new ArrayList<>();
+
+        for (ColorBlobLocatorProcessor.Blob b : blobs) {
+            float cx = (float)b.getCircle().getX();
+            float cy = (float)b.getCircle().getY();
+            float r = (float)b.getCircle().getRadius();
+
+            if (r < 50f) continue; // skip small circles
+
+            if (b.getCircularity() > 0.7) {
+                // Single circle
+                circles.add(new Circle(cx, cy, r));
+            } else {
+                // Approximate overlapping circles: split horizontally
+                float splitOffset = r * 0.5f; // adjust spacing as needed
+                float splitRadius = r * 0.8f;
+
+                circles.add(new Circle(cx - splitOffset, cy, splitRadius));
+                circles.add(new Circle(cx + splitOffset, cy, splitRadius));
+            }
+        }
+
+        return circles;
+    }
+
 }
