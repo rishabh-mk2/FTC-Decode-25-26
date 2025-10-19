@@ -26,6 +26,7 @@ public class easyOpenCVTest extends LinearOpMode {
         telemetry.setDisplayFormat(Telemetry.DisplayFormat.MONOSPACE);
         telemetry.setAutoClear(true);
 
+
         // --- PURPLE PROCESSOR ---
         ColorBlobLocatorProcessor purpleColorLocator = new ColorBlobLocatorProcessor.Builder()
                 .setTargetColorRange(ColorRange.ARTIFACT_PURPLE)
@@ -34,8 +35,8 @@ public class easyOpenCVTest extends LinearOpMode {
                 .setDrawContours(true)
                 .setBoxFitColor(1)
                 .setBlurSize(5)
-                .setDilateSize(10)
-                .setErodeSize(10)
+                .setErodeSize(15)
+                .setDilateSize(15)
                 .setMorphOperationType(ColorBlobLocatorProcessor.MorphOperationType.CLOSING)
                 .build();
 
@@ -47,8 +48,8 @@ public class easyOpenCVTest extends LinearOpMode {
                 .setDrawContours(true)
                 .setBoxFitColor(1)
                 .setBlurSize(5)
-                .setDilateSize(10)
-                .setErodeSize(10)
+                .setErodeSize(15)
+                .setDilateSize(15)
                 .setMorphOperationType(ColorBlobLocatorProcessor.MorphOperationType.CLOSING)
                 .build();
 
@@ -71,20 +72,23 @@ public class easyOpenCVTest extends LinearOpMode {
             List<Circle> detectedPurpleCircles = new ArrayList<>();
             List<Circle> detectedGreenCircles = new ArrayList<>();
 
-            detectedPurpleCircles = processBlobs(purpleColorLocator.getBlobs());
-            detectedGreenCircles = processBlobs(greenColorLocator.getBlobs());
+            detectedPurpleCircles = processpurple(purpleColorLocator.getBlobs());
+            detectedGreenCircles = processgreen(greenColorLocator.getBlobs());
 
+            //List<ColorBlobLocatorProcessor.Blob> detectedPurpleCircles=purpleColorLocator.getBlobs();
+            //List<ColorBlobLocatorProcessor.Blob> detectedGreenCircles=greenColorLocator.getBlobs();
             // --- TELEMETRY OUTPUT ---
+
             telemetry.addLine("=== PURPLE CIRCLES ===");
             for (Circle c : detectedPurpleCircles) {
-                telemetry.addData("Center (X,Y)", "(%.1f, %.1f)", c.getX(), c.getY());
-                telemetry.addData("Radius", "%.2f", c.getRadius());
+                    telemetry.addData("Center (X,Y)", "(%.1f, %.1f)", c.getX(), c.getY());
+                    telemetry.addData("Radius", "%.2f", c.getRadius());
             }
 
             telemetry.addLine("=== GREEN CIRCLES ===");
             for (Circle c : detectedGreenCircles) {
-                telemetry.addData("Center (X,Y)", "(%.1f, %.1f)", c.getX(), c.getY());
-                telemetry.addData("Radius", "%.2f", c.getRadius());
+                    telemetry.addData("Center (X,Y)", "(%.1f, %.1f)", c.getX(), c.getY());
+                    telemetry.addData("Radius", "%.2f", c.getRadius());
             }
 
             telemetry.update();
@@ -95,7 +99,7 @@ public class easyOpenCVTest extends LinearOpMode {
     }
 
     // --- HELPER FUNCTION TO PROCESS BLOBS ---
-    private List<Circle> processBlobs(List<ColorBlobLocatorProcessor.Blob> blobs) {
+    private List<Circle> processpurple(List<ColorBlobLocatorProcessor.Blob> blobs) {
         List<Circle> circles = new ArrayList<>();
 
         for (ColorBlobLocatorProcessor.Blob b : blobs) {
@@ -103,9 +107,9 @@ public class easyOpenCVTest extends LinearOpMode {
             float cy = (float)b.getCircle().getY();
             float r = (float)b.getCircle().getRadius();
 
-            if (r < 50f) continue; // skip small circles
+            if (r < 40f) continue;
 
-            if (b.getCircularity() > 0.7) {
+            if (b.getCircularity() > 0.8) {
                 // Single circle
                 circles.add(new Circle(cx, cy, r));
             } else {
@@ -113,8 +117,33 @@ public class easyOpenCVTest extends LinearOpMode {
                 float splitOffset = r * 0.5f; // adjust spacing as needed
                 float splitRadius = r * 0.8f;
 
-                circles.add(new Circle(cx - splitOffset, cy, splitRadius));
-                circles.add(new Circle(cx + splitOffset, cy, splitRadius));
+                circles.add(new Circle(cx - splitOffset, cy +splitOffset, splitRadius));
+                circles.add(new Circle(cx + splitOffset, cy - splitOffset, splitRadius));
+            }
+        }
+
+        return circles;
+    }
+    private List<Circle> processgreen(List<ColorBlobLocatorProcessor.Blob> blobs) {
+        List<Circle> circles = new ArrayList<>();
+
+        for (ColorBlobLocatorProcessor.Blob b : blobs) {
+            float cx = (float)b.getCircle().getX();
+            float cy = (float)b.getCircle().getY();
+            float r = (float)b.getCircle().getRadius();
+
+            if (r < 40f) continue;
+
+            if (b.getCircularity() > 0.8) {
+                // Single circle
+                circles.add(new Circle(cx, cy, r));
+            } else {
+                // Approximate overlapping circles: split horizontally
+                float splitOffset = r * 0.5f; // adjust spacing as needed
+                float splitRadius = r * 0.8f;
+
+                circles.add(new Circle(cx - splitOffset, cy -splitOffset, splitRadius));
+                circles.add(new Circle(cx + splitOffset, cy + splitOffset, splitRadius));
             }
         }
 
