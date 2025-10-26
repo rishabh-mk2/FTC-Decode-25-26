@@ -16,7 +16,7 @@ import org.firstinspires.ftc.vision.opencv.ImageRegion;
 import java.util.ArrayList;
 import java.util.List;
 
-@TeleOp(name = "WebCam Circle Detection", group = "TeleOp")
+@TeleOp(name = "WebCam Circle Detection updted", group = "TeleOp")
 public class easyOpenCVTest extends LinearOpMode {
 
     @Override
@@ -83,6 +83,8 @@ public class easyOpenCVTest extends LinearOpMode {
             for (Circle c : detectedPurpleCircles) {
                     telemetry.addData("Center (X,Y)", "(%.1f, %.1f)", c.getX(), c.getY());
                     telemetry.addData("Radius", "%.2f", c.getRadius());
+                    double distance = -0.000001152*Math.pow(c.getY(),3) + 0.0014257 * Math.pow(c.getY(), 2) - 0.6473 * c.getY() + 127.58;
+                    telemetry.addData("distance: ",distance);
             }
 
             telemetry.addLine("=== GREEN CIRCLES ===");
@@ -107,7 +109,10 @@ public class easyOpenCVTest extends LinearOpMode {
             float cy = (float)b.getCircle().getY();
             float r = (float)b.getCircle().getRadius();
 
-            if (r < 40f) continue;
+            if (r < 1f) continue;
+            if(1f <r && r <200f){
+                circles.add(new Circle(cx, cy, r));
+                continue;}
 
             if (b.getCircularity() > 0.8) {
                 // Single circle
@@ -132,7 +137,10 @@ public class easyOpenCVTest extends LinearOpMode {
             float cy = (float)b.getCircle().getY();
             float r = (float)b.getCircle().getRadius();
 
-            if (r < 40f) continue;
+            if (r < 30f) continue;
+            if(30f <r && r <60f){
+                circles.add(new Circle(cx, cy, r));
+                continue;}
 
             if (b.getCircularity() > 0.8) {
                 // Single circle
