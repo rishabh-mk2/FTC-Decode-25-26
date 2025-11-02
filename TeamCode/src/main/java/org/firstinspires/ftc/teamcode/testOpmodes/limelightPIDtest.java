@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.testOpmodes;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
@@ -51,7 +51,6 @@ public class limelightPIDtest extends LinearOpMode {
         boolean dPadDownIsPressed = false;
         waitForStart();
 
-
         p = 0.009;
         i = 0;
         d = 0.0015;
@@ -79,8 +78,6 @@ public class limelightPIDtest extends LinearOpMode {
                 BisPressed = false;
             }
 
-
-
             if(gamepad1.x && !XisPressed){
                 XisPressed = true;
             }
@@ -103,16 +100,7 @@ public class limelightPIDtest extends LinearOpMode {
 
             result = limelight.getLatestResult();
             List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
-            // RANDOM DATA
-            /*
-            double captureLatency = result.getCaptureLatency();
-            double targetingLatency = result.getTargetingLatency();
-            double parseLatency = result.getParseLatency();
 
-            telemetry.addData("LL Latency", captureLatency + targetingLatency);
-            telemetry.addData("Parse Latency", parseLatency);
-            telemetry.addData("PythonOutput", java.util.Arrays.toString(result.getPythonOutput()));
-             */
             // APRIL TAG TRACKING
             if (result.isValid()){
                 for (LLResultTypes.FiducialResult fiducial : fiducials) {
@@ -138,20 +126,3 @@ public class limelightPIDtest extends LinearOpMode {
         limelight.stop();
     }
 }
-
-// EXAMPLE PID WITH MOTOR
-/*
-    public void moveOuttakeSlides(int target, int offset, boolean down) {
-        int slidesPos = getOuttakeSlidesPosition();
-        double pid = pidController.calculate(slidesPos, -target + offset);
-        double slidesPower = pid + f;
-
-        if(down) {
-            getDcMotorEx(IntakeOuttake.MotorNames.leftOuttake).setPower(-slidesPower * 0.1);
-            getDcMotorEx(IntakeOuttake.MotorNames.rightOuttake).setPower(slidesPower * 0.1);
-        } else {
-            getDcMotorEx(IntakeOuttake.MotorNames.leftOuttake).setPower(-slidesPower);
-            getDcMotorEx(IntakeOuttake.MotorNames.rightOuttake).setPower(slidesPower);
-        }
-    }
- */
