@@ -16,11 +16,11 @@ import org.firstinspires.ftc.vision.opencv.ImageRegion;
 import java.util.ArrayList;
 import java.util.List;
 
-@TeleOp(name = "WebCam Circle Detection updted", group = "TeleOp")
+@TeleOp(name = "Circle Detection Webcam", group = "TeleOp")
 public class easyOpenCVTest extends LinearOpMode {
 
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException{
 
         telemetry.setMsTransmissionInterval(100);
         telemetry.setDisplayFormat(Telemetry.DisplayFormat.MONOSPACE);
@@ -74,7 +74,8 @@ public class easyOpenCVTest extends LinearOpMode {
 
             detectedPurpleCircles = processpurple(purpleColorLocator.getBlobs());
             detectedGreenCircles = processgreen(greenColorLocator.getBlobs());
-
+            double testingAspectRatio = testAspectRatio(purpleColorLocator.getBlobs());
+            double testingCircularity = testCircularity(purpleColorLocator.getBlobs());
             //List<ColorBlobLocatorProcessor.Blob> detectedPurpleCircles=purpleColorLocator.getBlobs();
             //List<ColorBlobLocatorProcessor.Blob> detectedGreenCircles=greenColorLocator.getBlobs();
             // --- TELEMETRY OUTPUT ---
@@ -91,7 +92,11 @@ public class easyOpenCVTest extends LinearOpMode {
             for (Circle c : detectedGreenCircles) {
                     telemetry.addData("Center (X,Y)", "(%.1f, %.1f)", c.getX(), c.getY());
                     telemetry.addData("Radius", "%.2f", c.getRadius());
+                    double distance = -0.000001152*Math.pow(c.getY(),3) + 0.0014257 * Math.pow(c.getY(), 2) - 0.6473 * c.getY() + 127.58;
+                     telemetry.addData("distance: ",distance);
             }
+            telemetry.addLine("=== TESTING ASPECT RATIO ===");
+            telemetry.addData("Aspect Ratio -> ", testingAspectRatio);
 
             telemetry.update();
             sleep(50);
@@ -109,12 +114,12 @@ public class easyOpenCVTest extends LinearOpMode {
             float cy = (float)b.getCircle().getY();
             float r = (float)b.getCircle().getRadius();
 
-            if (r < 1f) continue;
-            if(1f <r && r <200f){
+            if (r < 30f) continue;
+            if(30f < r && r < 60f){
                 circles.add(new Circle(cx, cy, r));
                 continue;}
 
-            if (b.getCircularity() > 0.8) {
+            if ((b.getAspectRatio() <= 1.1 ) || (b.getAspectRatio() > 1.1 && r <= 80 && (cy >= 420 || cy <= 60)|| (b.getAspectRatio() > 1.1 && r <= 80 && (cx <= 40 || cx >= 570)))){
                 // Single circle
                 circles.add(new Circle(cx, cy, r));
             } else {
@@ -122,11 +127,10 @@ public class easyOpenCVTest extends LinearOpMode {
                 float splitOffset = r * 0.5f; // adjust spacing as needed
                 float splitRadius = r * 0.8f;
 
-                circles.add(new Circle(cx - splitOffset, cy +splitOffset, splitRadius));
+                circles.add(new Circle(cx - splitOffset, cy + splitOffset, splitRadius));
                 circles.add(new Circle(cx + splitOffset, cy - splitOffset, splitRadius));
             }
         }
-
         return circles;
     }
     private List<Circle> processgreen(List<ColorBlobLocatorProcessor.Blob> blobs) {
@@ -136,13 +140,14 @@ public class easyOpenCVTest extends LinearOpMode {
             float cx = (float)b.getCircle().getX();
             float cy = (float)b.getCircle().getY();
             float r = (float)b.getCircle().getRadius();
+            double aspectRatio = b.getAspectRatio();
 
             if (r < 30f) continue;
-            if(30f <r && r <60f){
+            if(30f < r && r < 60f){
                 circles.add(new Circle(cx, cy, r));
                 continue;}
 
-            if (b.getCircularity() > 0.8) {
+            if ((b.getAspectRatio() <= 1.1 ) || (b.getAspectRatio() > 1.1 && r < 76 && (cy > 420 || cy < 60)|| (b.getAspectRatio() > 1.1 && r < 76 && (cx < 40 || cx > 570)))){
                 // Single circle
                 circles.add(new Circle(cx, cy, r));
             } else {
@@ -150,12 +155,26 @@ public class easyOpenCVTest extends LinearOpMode {
                 float splitOffset = r * 0.5f; // adjust spacing as needed
                 float splitRadius = r * 0.8f;
 
-                circles.add(new Circle(cx - splitOffset, cy -splitOffset, splitRadius));
-                circles.add(new Circle(cx + splitOffset, cy + splitOffset, splitRadius));
+                circles.add(new Circle(cx - splitOffset, cy + splitOffset, splitRadius));
+                circles.add(new Circle(cx + splitOffset, cy - splitOffset, splitRadius));
             }
         }
 
         return circles;
+    }
+    public double aspectRatio;
+    public double circularity;
+    private double testAspectRatio(List<ColorBlobLocatorProcessor.Blob> blobs) {
+        for (ColorBlobLocatorProcessor.Blob b : blobs) {
+            aspectRatio = b.getAspectRatio();
+        };
+        return aspectRatio;
+    }
+    private double testCircularity(List<ColorBlobLocatorProcessor.Blob> blobs) {
+        for (ColorBlobLocatorProcessor.Blob b : blobs) {
+            circularity = b.getCircularity();
+        };
+        return circularity;
     }
 
 }

@@ -4,26 +4,40 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.qualcomm.robotcore.hardware.IMU;
 
 import java.util.List;
 
 @TeleOp(name = "LL PID Test", group = "TeleOp")
 public class limelightPIDtest extends LinearOpMode {
-    public Limelight3A limelight;
-
-    PIDController pidController;
+    private Limelight3A limelight;
+    private PIDController pidController;
+    private DcMotor turret;
+    private IMU imu;
+    public LLResult result;
     double p, i, d;
 
     public void runOpMode() throws InterruptedException {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        DcMotor turret = this.hardwareMap.get(DcMotor.class, "turret");
-        turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        telemetry.setMsTransmissionInterval(11);
+        imu = hardwareMap.get(IMU.class, "imu");
+        turret = this.hardwareMap.get(DcMotor.class, "turret");
+
         limelight.pipelineSwitch(0);
+        turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //TODO: Change the LogoFacingDirection & UsbFacingDirection when applying to actual robot
+        RevHubOrientationOnRobot revHubOrientationOnRobot = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD);
+        imu.initialize(new IMU.Parameters(revHubOrientationOnRobot));
+
+        telemetry.setMsTransmissionInterval(11);
         telemetry.setAutoClear(true);
 
         limelight.start();
@@ -83,8 +97,11 @@ public class limelightPIDtest extends LinearOpMode {
             telemetry.addData("kI val:", i);
             telemetry.addData("kD val:", d);
 
+            //TODO: Add the distance to the april tag stuff
+            YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+            limelight.updateRobotOrientation(orientation.getYaw(AngleUnit.DEGREES));
 
-            LLResult result = limelight.getLatestResult();
+            result = limelight.getLatestResult();
             List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
             // RANDOM DATA
             /*
@@ -96,17 +113,19 @@ public class limelightPIDtest extends LinearOpMode {
             telemetry.addData("Parse Latency", parseLatency);
             telemetry.addData("PythonOutput", java.util.Arrays.toString(result.getPythonOutput()));
              */
-
             // APRIL TAG TRACKING
-
             if (result.isValid()){
                 for (LLResultTypes.FiducialResult fiducial : fiducials) {
+                    Pose3D botpose = result.getBotpose_MT2();
                     int id = fiducial.getFiducialId();
                     double currentTargetDeg = fiducial.getTargetXDegrees();
                     double turretPos = turret.getCurrentPosition();
                     double pid = pidController.calculate(turretPos, turretPos + 537.7*currentTargetDeg/360.0); // NOTE FOR SELF: Adding/Subtracting the TICK VAL. of the DEG VAL. from the current motor pos. basically doing -> currentMotorTickVal +- (motorTickPerRevolution*givenDegVal/totalDegInCircle)
-                    turret.setPower(pid);
+                    //turret.setPower(pid);
                     telemetry.addData("Fiducial " + id, " is " + currentTargetDeg + " degrees");
+                    telemetry.addData("Target X", result.getTx());
+                    telemetry.addData("Target Area", result.getTa());
+                    telemetry.addData("Botpose", botpose.toString());
                 }
             } else {
                 telemetry.addData("info", "no april tag being detected");
