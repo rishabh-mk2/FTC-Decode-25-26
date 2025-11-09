@@ -24,15 +24,9 @@ import com.pedropathing.util.*;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+
 import java.util.ArrayList;
 import java.util.List;
-
-/**
- * This is the Tuning class. It contains a selection menu for various tuning OpModes.
- *
- * @author Baron Henderson - 20077 The Indubitables
- * @version 1.0, 6/26/2025
- */
 @Configurable
 @TeleOp(name = "Tuning", group = "Pedro Pathing")
 public class Tuning extends SelectableOpMode {
@@ -114,16 +108,6 @@ public class Tuning extends SelectableOpMode {
         follower.setTeleOpDrive(0,0,0,true);
     }
 }
-
-/**
- * This is the LocalizationTest OpMode. This is basically just a simple mecanum drive attached to a
- * PoseUpdater. The OpMode will print out the robot's pose to telemetry as well as draw the robot.
- * You should use this to check the robot's localization.
- *
- * @author Anyi Lin - 10158 Scott's Bots
- * @author Baron Henderson - 20077 The Indubitables
- * @version 1.0, 5/6/2024
- */
 class LocalizationTest extends OpMode {
     @Override
     public void init() {}
@@ -162,20 +146,6 @@ class LocalizationTest extends OpMode {
         drawCurrentAndHistory();
     }
 }
-
-/**
- * This is the ForwardTuner OpMode. This tracks the forward movement of the robot and displays the
- * necessary ticks to inches multiplier. This displayed multiplier is what's necessary to scale the
- * robot's current distance in ticks to the specified distance in inches. So, to use this, run the
- * tuner, then pull/push the robot to the specified distance using a ruler on the ground. When you're
- * at the end of the distance, record the ticks to inches multiplier. Feel free to run multiple trials
- * and average the results. Then, input the multiplier into the forward ticks to inches in your
- * localizer of choice.
- *
- * @author Anyi Lin - 10158 Scott's Bots
- * @author Baron Henderson - 20077 The Indubitables
- * @version 1.0, 5/6/2024
- */
 class ForwardTuner extends OpMode {
     public static double DISTANCE = 48;
 
@@ -209,20 +179,6 @@ class ForwardTuner extends OpMode {
         drawCurrentAndHistory();
     }
 }
-
-/**
- * This is the LateralTuner OpMode. This tracks the strafe movement of the robot and displays the
- * necessary ticks to inches multiplier. This displayed multiplier is what's necessary to scale the
- * robot's current distance in ticks to the specified distance in inches. So, to use this, run the
- * tuner, then pull/push the robot to the specified distance using a ruler on the ground. When you're
- * at the end of the distance, record the ticks to inches multiplier. Feel free to run multiple trials
- * and average the results. Then, input the multiplier into the strafe ticks to inches in your
- * localizer of choice.
- *
- * @author Anyi Lin - 10158 Scott's Bots
- * @author Baron Henderson - 20077 The Indubitables
- * @version 2.0, 6/26/2025
- */
 class LateralTuner extends OpMode {
     public static double DISTANCE = 48;
 
@@ -256,20 +212,6 @@ class LateralTuner extends OpMode {
         drawCurrentAndHistory();
     }
 }
-
-/**
- * This is the TurnTuner OpMode. This tracks the turning movement of the robot and displays the
- * necessary ticks to inches multiplier. This displayed multiplier is what's necessary to scale the
- * robot's current angle in ticks to the specified angle in radians. So, to use this, run the
- * tuner, then pull/push the robot to the specified angle using a protractor or lines on the ground.
- * When you're at the end of the angle, record the ticks to inches multiplier. Feel free to run
- * multiple trials and average the results. Then, input the multiplier into the turning ticks to
- * radians in your localizer of choice.
- *
- * @author Anyi Lin - 10158 Scott's Bots
- * @author Baron Henderson - 20077 The Indubitables
- * @version 1.0, 5/6/2024
- */
 class TurnTuner extends OpMode {
     public static double ANGLE = 2 * Math.PI;
 
@@ -304,22 +246,6 @@ class TurnTuner extends OpMode {
         drawCurrentAndHistory();
     }
 }
-
-/**
- * This is the ForwardVelocityTuner autonomous follower OpMode. This runs the robot forwards at max
- * power until it reaches some specified distance. It records the most recent velocities, and on
- * reaching the end of the distance, it averages them and prints out the velocity obtained. It is
- * recommended to run this multiple times on a full battery to get the best results. What this does
- * is, when paired with StrafeVelocityTuner, allows FollowerConstants to create a Vector that
- * empirically represents the direction your mecanum wheels actually prefer to go in, allowing for
- * more accurate following.
- *
- * @author Anyi Lin - 10158 Scott's Bots
- * @author Aaron Yang - 10158 Scott's Bots
- * @author Harrison Womack - 10158 Scott's Bots
- * @author Baron Henderson - 20077 The Indubitables
- * @version 1.0, 3/13/2024
- */
 class ForwardVelocityTuner extends OpMode {
     private final ArrayList<Double> velocities = new ArrayList<>();
     public static double DISTANCE = 48;
@@ -409,22 +335,6 @@ class ForwardVelocityTuner extends OpMode {
         }
     }
 }
-
-/**
- * This is the StrafeVelocityTuner autonomous follower OpMode. This runs the robot right at max
- * power until it reaches some specified distance. It records the most recent velocities, and on
- * reaching the end of the distance, it averages them and prints out the velocity obtained. It is
- * recommended to run this multiple times on a full battery to get the best results. What this does
- * is, when paired with ForwardVelocityTuner, allows FollowerConstants to create a Vector that
- * empirically represents the direction your mecanum wheels actually prefer to go in, allowing for
- * more accurate following.
- *
- * @author Anyi Lin - 10158 Scott's Bots
- * @author Aaron Yang - 10158 Scott's Bots
- * @author Harrison Womack - 10158 Scott's Bots
- * @author Baron Henderson - 20077 The Indubitables
- * @version 1.0, 3/13/2024
- */
 class LateralVelocityTuner extends OpMode {
     private final ArrayList<Double> velocities = new ArrayList<>();
 
@@ -509,22 +419,6 @@ class LateralVelocityTuner extends OpMode {
         }
     }
 }
-
-/**
- * This is the ForwardZeroPowerAccelerationTuner autonomous follower OpMode. This runs the robot
- * forward until a specified velocity is achieved. Then, the robot cuts power to the motors, setting
- * them to zero power. The deceleration, or negative acceleration, is then measured until the robot
- * stops. The accelerations across the entire time the robot is slowing down is then averaged and
- * that number is then printed. This is used to determine how the robot will decelerate in the
- * forward direction when power is cut, making the estimations used in the calculations for the
- * drive Vector more accurate and giving better braking at the end of Paths.
- *
- * @author Anyi Lin - 10158 Scott's Bots
- * @author Baron Henderson - 20077 The Indubitables
- * @author Aaron Yang - 10158 Scott's Bots
- * @author Harrison Womack - 10158 Scott's Bots
- * @version 1.0, 3/13/2024
- */
 class ForwardZeroPowerAccelerationTuner extends OpMode {
     private final ArrayList<Double> accelerations = new ArrayList<>();
     public static double VELOCITY = 30;
@@ -613,22 +507,6 @@ class ForwardZeroPowerAccelerationTuner extends OpMode {
         }
     }
 }
-
-/**
- * This is the LateralZeroPowerAccelerationTuner autonomous follower OpMode. This runs the robot
- * to the right until a specified velocity is achieved. Then, the robot cuts power to the motors, setting
- * them to zero power. The deceleration, or negative acceleration, is then measured until the robot
- * stops. The accelerations across the entire time the robot is slowing down is then averaged and
- * that number is then printed. This is used to determine how the robot will decelerate in the
- * forward direction when power is cut, making the estimations used in the calculations for the
- * drive Vector more accurate and giving better braking at the end of Paths.
- *
- * @author Anyi Lin - 10158 Scott's Bots
- * @author Aaron Yang - 10158 Scott's Bots
- * @author Harrison Womack - 10158 Scott's Bots
- * @author Baron Henderson - 20077 The Indubitables
- * @version 1.0, 3/13/2024
- */
 class LateralZeroPowerAccelerationTuner extends OpMode {
     private final ArrayList<Double> accelerations = new ArrayList<>();
     public static double VELOCITY = 30;
@@ -715,17 +593,6 @@ class LateralZeroPowerAccelerationTuner extends OpMode {
         }
     }
 }
-
-/**
- * This is the Translational PIDF Tuner OpMode. It will keep the robot in place.
- * The user should push the robot laterally to test the PIDF and adjust the PIDF values accordingly.
- *
- * @author Baron Henderson - 20077 The Indubitables
- * @author Anyi Lin - 10158 Scott's Bots
- * @author Aaron Yang - 10158 Scott's Bots
- * @author Harrison Womack - 10158 Scott's Bots
- * @version 1.0, 3/12/2024
- */
 class TranslationalTuner extends OpMode {
     public static double DISTANCE = 40;
     private boolean forward = true;
@@ -778,18 +645,6 @@ class TranslationalTuner extends OpMode {
         telemetryM.update(telemetry);
     }
 }
-
-/**
- * This is the Heading PIDF Tuner OpMode. It will keep the robot in place.
- * The user should try to turn the robot to test the PIDF and adjust the PIDF values accordingly.
- * It will try to keep the robot at a constant heading while the user tries to turn it.
- *
- * @author Baron Henderson - 20077 The Indubitables
- * @author Anyi Lin - 10158 Scott's Bots
- * @author Aaron Yang - 10158 Scott's Bots
- * @author Harrison Womack - 10158 Scott's Bots
- * @version 1.0, 3/12/2024
- */
 class HeadingTuner extends OpMode {
     public static double DISTANCE = 40;
     private boolean forward = true;
@@ -848,16 +703,6 @@ class HeadingTuner extends OpMode {
         telemetryM.update(telemetry);
     }
 }
-
-/**
- * This is the Drive PIDF Tuner OpMode. It will run the robot in a straight line going forward and back.
- *
- * @author Baron Henderson - 20077 The Indubitables
- * @author Anyi Lin - 10158 Scott's Bots
- * @author Aaron Yang - 10158 Scott's Bots
- * @author Harrison Womack - 10158 Scott's Bots
- * @version 1.0, 3/12/2024
- */
 class DriveTuner extends OpMode {
     public static double DISTANCE = 40;
     private boolean forward = true;
@@ -925,17 +770,6 @@ class DriveTuner extends OpMode {
         telemetryM.update(telemetry);
     }
 }
-
-/**
- * This is the Line Test Tuner OpMode. It will drive the robot forward and back
- * The user should push the robot laterally and angular to test out the drive, heading, and translational PIDFs.
- *
- * @author Baron Henderson - 20077 The Indubitables
- * @author Anyi Lin - 10158 Scott's Bots
- * @author Aaron Yang - 10158 Scott's Bots
- * @author Harrison Womack - 10158 Scott's Bots
- * @version 1.0, 3/12/2024
- */
 class Line extends OpMode {
     public static double DISTANCE = 40;
     private boolean forward = true;
@@ -987,20 +821,6 @@ class Line extends OpMode {
         telemetryM.update(telemetry);
     }
 }
-
-/**
- * This is the Centripetal Tuner OpMode. It runs the robot in a specified distance
- * forward and to the left. On reaching the end of the forward Path, the robot runs the backward
- * Path the same distance back to the start. Rinse and repeat! This is good for testing a variety
- * of Vectors, like the drive Vector, the translational Vector, the heading Vector, and the
- * centripetal Vector.
- *
- * @author Baron Henderson - 20077 The Indubitables
- * @author Anyi Lin - 10158 Scott's Bots
- * @author Aaron Yang - 10158 Scott's Bots
- * @author Harrison Womack - 10158 Scott's Bots
- * @version 1.0, 3/13/2024
- */
 class CentripetalTuner extends OpMode {
     public static double DISTANCE = 20;
     private boolean forward = true;
@@ -1059,15 +879,6 @@ class CentripetalTuner extends OpMode {
         telemetryM.update(telemetry);
     }
 }
-
-/**
- * This is the Triangle autonomous OpMode.
- * It runs the robot in a triangle, with the starting point being the bottom-middle point.
- *
- * @author Baron Henderson - 20077 The Indubitables
- * @author Samarth Mahapatra - 1002 CircuitRunners Robotics Surge
- * @version 1.0, 12/30/2024
- */
 class Triangle extends OpMode {
 
     private final Pose startPose = new Pose(0, 0, Math.toRadians(0));
@@ -1119,18 +930,6 @@ class Triangle extends OpMode {
         follower.followPath(triangle);
     }
 }
-
-/**
- * This is the Circle autonomous OpMode. It runs the robot in a PathChain that's actually not quite
- * a circle, but some Bezier curves that have control points set essentially in a square. However,
- * it turns enough to tune your centripetal force correction and some of your heading. Some lag in
- * heading is to be expected.
- *
- * @author Anyi Lin - 10158 Scott's Bots
- * @author Aaron Yang - 10158 Scott's Bots
- * @author Harrison Womack - 10158 Scott's Bots
- * @version 1.0, 3/12/2024
- */
 class Circle extends OpMode {
     public static double RADIUS = 10;
     private PathChain circle;
@@ -1177,12 +976,6 @@ class Circle extends OpMode {
     }
 }
 
-/**
- * This is the Drawing class. It handles the drawing of stuff on Panels Dashboard, like the robot.
- *
- * @author Lazar - 19234
- * @version 1.1, 5/19/2025
- */
 class Drawing {
     public static final double ROBOT_RADIUS = 9; // woah
     private static final FieldManager panelsField = PanelsField.INSTANCE.getField();
@@ -1203,7 +996,7 @@ class Drawing {
 
     /**
      * This draws everything that will be used in the Follower's telemetryDebug() method. This takes
-     * a Follower as an input, so an instance of the DashbaordDrawingHandler class is not needed.
+     * a Follower as an input, so an instance of the DashboardDrawingHandler class is not needed.
      *
      * @param follower Pedro Follower instance.
      */

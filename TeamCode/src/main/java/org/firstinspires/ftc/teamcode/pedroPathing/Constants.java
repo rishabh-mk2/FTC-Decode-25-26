@@ -36,15 +36,15 @@ public class Constants {
             * */
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(-5) // TODO: find y-offset in inches from center of robot (+y = left, -y = right)
-            .strafePodX(0.5) // TODO: same as above but from x-offset (+x = towards front, -x = towards back)
+            .forwardPodY(5) // TODO: find y-offset in inches from center of robot (+y = left, -y = right)
+            .strafePodX(-5)// TODO: same as above but from x-offset (+x = towards front, -x = towards back)
             .distanceUnit(DistanceUnit.INCH)
             .hardwareMapName("pinpoint")
             .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD) //TODO: find out whether we changed encoder resolution (if so, replace line with .customEncoderResolution)
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
             .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD);
-    //TODO: run LocalizationTest under Tuning.java --> move robot forward (if x is not increasing, forwardEncoderDirection should be reverse)
-    //TODO: move robot left (if y is not increasing, strafeEncoderDirection should be reversed)
+    // TODO: run LocalizationTest under Tuning.java --> move robot forward (if x is not increasing, forwardEncoderDirection should be reverse)
+    // TODO: move robot left (if y is not increasing, strafeEncoderDirection should be reversed)
 
     public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);
 

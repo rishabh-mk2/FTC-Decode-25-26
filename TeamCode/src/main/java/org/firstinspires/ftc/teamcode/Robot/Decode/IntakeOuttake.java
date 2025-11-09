@@ -1,18 +1,30 @@
 package org.firstinspires.ftc.teamcode.Robot.Decode;
 
-import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
+
+import java.util.ArrayList;
 
 
-public class Intake {
+public class IntakeOuttake {
+    public ArrayList<DcMotor> DcMotors;
+    public ArrayList<DcMotorEx> DcMotorsEx;
+    public ArrayList<Servo> Servos;
+    public ArrayList<CRServo> CRServos;
+    public ArrayList<HardwareDevice> Sensors;
+
     public OpMode opmode;
     public Telemetry telemetry;
     public boolean isTelemetryEnabled = true;
     public HardwareMap hardwareMap;
 
-    //TODO: Create enums for Motors, Servos, CRServos, inake modes,
+    //TODO: Create enums for Motors, Servos, CRServos, intake modes, artifact order, servo modes etc.
     public void addTelemetry(String caption, Object value) {
         if (this.isTelemetryEnabled) {
             this.telemetry.addData(caption, value);
@@ -22,7 +34,7 @@ public class Intake {
     //TODO: Unhide this after making sure test velocityPID works
     //PIDController pidController;
     //double p, i, d, f;
-    public Intake(OpMode opmode){
+    public IntakeOuttake(OpMode opmode){
         this.opmode = opmode;
         this.telemetry = opmode.telemetry;
         this.hardwareMap = opmode.hardwareMap;
@@ -53,5 +65,23 @@ public class Intake {
         */
 
         addTelemetry("Intake", "Ready");
+
+        //TODO: add the cases for the intake/spindexer/outtake
     }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // TODO: Add the code/cases for the intake
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // TODO: Add the code/cases for the transfer through spindexer
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // TODO: Add the code/cases for the outtake
+
+
+
 }
