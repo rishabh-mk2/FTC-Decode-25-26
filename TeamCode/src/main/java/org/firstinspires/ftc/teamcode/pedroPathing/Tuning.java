@@ -28,7 +28,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import java.util.ArrayList;
 import java.util.List;
 @Configurable
-@TeleOp(name = "Tuning", group = "Pedro Pathing")
+@TeleOp(name = "Tuning", group = "TeleOp")
 public class Tuning extends SelectableOpMode {
     public static Follower follower;
 
@@ -246,6 +246,7 @@ class TurnTuner extends OpMode {
         drawCurrentAndHistory();
     }
 }
+
 class ForwardVelocityTuner extends OpMode {
     private final ArrayList<Double> velocities = new ArrayList<>();
     public static double DISTANCE = 48;
