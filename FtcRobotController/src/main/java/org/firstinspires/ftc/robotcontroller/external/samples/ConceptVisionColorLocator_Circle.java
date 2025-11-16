@@ -103,7 +103,7 @@ public class ConceptVisionColorLocator_Circle extends LinearOpMode {
          *        .setBoxFitColor(int color)            Draws a rectangle around each contour. 0 to disable. ON by default.
          *
          *
-         * - include any pre-processing of the image or mask before looking for Blobs.
+         * - include any pre-process    ing of the image or mask before looking for Blobs.
          *     There are some extra processing you can include to improve the formation of blobs.
          *     Using these features requires an understanding of how they may effect the final
          *     blobs.  The "pixels" argument sets the NxN kernel size.
