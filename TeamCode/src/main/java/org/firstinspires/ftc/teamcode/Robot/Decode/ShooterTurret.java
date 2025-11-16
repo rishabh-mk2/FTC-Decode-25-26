@@ -49,21 +49,25 @@ public class ShooterTurret {
             Servo servoMotor = this.hardwareMap.servo.get(servoName.toString());
             this.Servos.add(servoMotor);
         }
+
+        this.DcMotorsEx = new ArrayList<>();
+        for (MotorNames motorName : MotorNames.values()) {
+            DcMotorEx motor = (DcMotorEx) hardwareMap.dcMotor.get(motorName.toString());
+            motor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+            motor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+            motor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+            this.DcMotorsEx.add(motor);
+        }
         /*
         p = 0.01;
         i = 0.00;
         d = 0.0005;
         f = 0.00;
-
         pidController = new PIDController(p, i, d);
         pidController.setPID(p, i, d);
-
          */
         addTelemetry("ShooterTurret", "Ready");
-
     }
-
-    // Get Hardware Object
 
     public Servo getServo(ServoNames servoName) {
         return this.Servos.get(servoName.ordinal());
