@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode.Robot.Decode;
 
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -10,6 +12,7 @@ import java.util.ArrayList;
 
 public class Spindexer {
     public ArrayList<CRServo> CRServos;
+    public ArrayList<HardwareDevice> Sensors;
 
     public OpMode opmode;
     public Telemetry telemetry;
@@ -24,7 +27,10 @@ public class Spindexer {
     }
 
     public enum CRServoNames {
-        rightservo, leftservo
+        spinningServo, shooterServo
+    }
+    public enum SensorNames{
+        color
     }
 
     public enum SpindexerMode {
@@ -40,6 +46,12 @@ public class Spindexer {
             CRServo servoMotor = this.hardwareMap.crservo.get(servoName.toString());
             this.CRServos.add(servoMotor);
         }
+
+        this.Sensors = new ArrayList<>();
+        for (SensorNames sensorName : SensorNames.values()) {
+            RevColorSensorV3 colorSensor = (RevColorSensorV3) this.hardwareMap.colorSensor.get(sensorName.toString());
+            this.Sensors.add(colorSensor);
+        }
         addTelemetry("Spindexer", "Ready");
 
     }
@@ -53,12 +65,11 @@ public class Spindexer {
                 //getCRServo(CRServoNames.leftservo).setPosition();
                 break;
             case OFF:
-                //getCRServo(CRServoNames.rightservo).setPosition();
-                //getCRServo(CRServoNames.leftservo).setPosition();
+                //getCRServo(CRServoNames.spinningServo).setPower(0);
                 break;
             case INTAKE_3:
-                //getCRServo(CRServoNames.rightservo).setPosition();
-                //getCRServo(CRServoNames.leftservo).setPosition();
+                //getCRServo(CRServoNames.spinningServo).setDirection(getCRServo(CRServoNames.spinningServo).getPosition() + x);
+                // TODO: change the "x" val to however much we need to move the servo
         }
     }
 }

@@ -9,6 +9,7 @@ import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
@@ -17,6 +18,7 @@ public class testRedSideAuto extends OpMode {
 
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
+    ElapsedTime waitTimer = new ElapsedTime();
 
     private int pathState;
     private final Pose startPose = new Pose(124, 122, Math.toRadians(215));
@@ -57,7 +59,7 @@ public class testRedSideAuto extends OpMode {
 
         // Curve to pickup second pair of balls
         pickup2 = follower.pathBuilder()
-                .addPath(new BezierCurve(scorePose, new Pose(72.798, 66.615), pickup2Pose))
+                .addPath(new BezierCurve(scorePose, new Pose(72.797, 66.615), pickup2Pose))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), pickup2Pose.getHeading())
                 .build();
 
@@ -84,52 +86,52 @@ public class testRedSideAuto extends OpMode {
         switch (pathState) {
             case 0:
                 follower.followPath(scorePreload);
-                setPathState(1);
+                        setPathState(8);
                 break;
             case 1:
-                if(!follower.isBusy()) {
-                    follower.followPath(pickup1,true);
-                    setPathState(2);
+                if (!follower.isBusy()) {
+                        follower.followPath(pickup1, true);
+                        setPathState(2);
                 }
                 break;
             case 2:
-                if(!follower.isBusy()) {
-                    follower.followPath(releasePreload,true);
-                    setPathState(3);
+                if (!follower.isBusy()) {
+                        follower.followPath(releasePreload, true);
+                        setPathState(3);
                 }
                 break;
             case 3:
-                if(!follower.isBusy()) {
-                    follower.followPath(scorePickup1,true);
-                    setPathState(4);
+                if (!follower.isBusy()) {
+                        follower.followPath(scorePickup1, true);
+                        setPathState(4);
                 }
                 break;
             case 4:
-                if(!follower.isBusy()) {
-                    follower.followPath(pickup2,true);
-                    setPathState(5);
+                if (!follower.isBusy()) {
+                        follower.followPath(pickup2, true);
+                        setPathState(5);
                 }
                 break;
             case 5:
-                if(!follower.isBusy()) {
-                    follower.followPath(scorePickup2,true);
-                    setPathState(6);
+                if (!follower.isBusy()) {
+                        follower.followPath(scorePickup2, true);
+                        setPathState(6);
                 }
                 break;
             case 6:
-                if(!follower.isBusy()) {
-                    follower.followPath(pickup3, true);
-                    setPathState(7);
+                if (!follower.isBusy()) {
+                        follower.followPath(pickup3, true);
+                        setPathState(7);
                 }
                 break;
             case 7:
-                if(!follower.isBusy()) {
-                    follower.followPath(scorePickup3, true);
-                    setPathState(7);
+                if (!follower.isBusy()) {
+                        follower.followPath(scorePickup3, true);
+                        setPathState(8);
                 }
                 break;
             case 8:
-                if(!follower.isBusy()) {
+                if (!follower.isBusy()) {
                     setPathState(-1);
                 }
                 break;

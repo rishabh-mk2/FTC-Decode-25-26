@@ -7,7 +7,7 @@ import com.pedropathing.ftc.drivetrains.MecanumConstants;
 import com.pedropathing.ftc.localization.constants.PinpointConstants;
 import com.pedropathing.paths.PathConstraints;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -19,16 +19,15 @@ public class Constants {
 
     // TODO: Add the PID tuners after decided which PID tuner we will use for the robot
     public static MecanumConstants driveConstants = new MecanumConstants()
-            //TODO: change the direction of motors as needed
             .maxPower(1)
             .rightFrontMotorName("rF")
             .rightRearMotorName("rR")
             .leftRearMotorName("lR")
             .leftFrontMotorName("lF")
-            .leftFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
-            .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
-            .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD);
+            .leftFrontMotorDirection(DcMotorEx.Direction.REVERSE)
+            .leftRearMotorDirection(DcMotorEx.Direction.REVERSE)
+            .rightFrontMotorDirection(DcMotorEx.Direction.FORWARD)
+            .rightRearMotorDirection(DcMotorEx.Direction.FORWARD);
             /*
             * TODO: for automatic tuners, follow the steps on Pedropathing tutorial
             * TODO: .xVelocity(velocity), .yVelocity(velocity) in MecanumConstants
@@ -40,10 +39,9 @@ public class Constants {
             .strafePodX(-7.435)
             .distanceUnit(DistanceUnit.INCH)
             .hardwareMapName("pinpoint")
-            .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD) //TODO: find out whether we changed encoder resolution (if so, replace line with .customEncoderResolution)
+            .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
-            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD);
-    // TODO: run LocalizationTest under Tuning.java --> move robot forward (if x is not increasing, forwardEncoderDirection should be reverse)
+            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
     // TODO: move robot left (if y is not increasing, strafeEncoderDirection should be reversed)
 
     public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);

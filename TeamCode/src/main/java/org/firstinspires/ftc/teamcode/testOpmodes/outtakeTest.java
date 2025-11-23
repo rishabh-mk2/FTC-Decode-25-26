@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-@TeleOp(name = "Velocity PID", group = "TeleOp")
+@TeleOp(name = "Velocity PID", group = "Test")
 public class outtakeTest extends LinearOpMode {
 
     PIDController pidController;
