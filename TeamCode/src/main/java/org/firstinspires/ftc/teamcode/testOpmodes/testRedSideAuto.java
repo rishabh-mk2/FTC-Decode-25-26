@@ -22,6 +22,7 @@ public class testRedSideAuto extends OpMode {
 
     private int pathState;
     private final Pose startPose = new Pose(124, 122, Math.toRadians(215));
+    private final Pose testForwardPose = new Pose(100, 98, Math.toRadians(215));
     private final Pose scorePose = new Pose(104, 105, Math.toRadians(-131)); // Scoring Pose (Facing away from goal)
     private final Pose pickup1Pose = new Pose(120, 84, Math.toRadians(0)); // Closest to the goal
     private final Pose pickup2Pose = new Pose(120, 60, Math.toRadians(0)); // Middle
@@ -30,13 +31,17 @@ public class testRedSideAuto extends OpMode {
 
 
     private Path scorePreload;
-    private PathChain pickup1, releasePreload, scorePickup1, pickup2, scorePickup2, pickup3, scorePickup3;
+    private PathChain testForwardPath, pickup1, releasePreload, scorePickup1, pickup2, scorePickup2, pickup3, scorePickup3;
 
     public void buildPaths() {
 
         // Preload stuff
         scorePreload = new Path(new BezierLine(startPose, scorePose));
         scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading());
+
+        testForwardPath = follower.pathBuilder().addPath(new BezierLine(new Pose(0, 24), new Pose(0, 0)))
+                .setLinearHeadingInterpolation(0, 0)
+                .build();
 
         // Using a curve to pickup the first set of balls
         pickup1 = follower.pathBuilder()
@@ -85,7 +90,7 @@ public class testRedSideAuto extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-                follower.followPath(scorePreload);
+                follower.followPath(testForwardPath);
                         setPathState(8);
                 break;
             case 1:

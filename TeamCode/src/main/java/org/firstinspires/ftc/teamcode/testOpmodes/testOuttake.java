@@ -16,8 +16,8 @@ public class testOuttake extends LinearOpMode {
         motor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         waitForStart();
         while (opModeIsActive()) {
-            motor1.setPower(-0.3);
-            motor2.setPower(0.3);
+            motor1.setPower(-1);
+            motor2.setPower(1);
         }
     }
 }
