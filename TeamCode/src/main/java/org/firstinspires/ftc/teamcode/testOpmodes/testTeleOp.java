@@ -24,6 +24,7 @@ public class testTeleOp extends OpMode {
         automatedDrive = false;
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(startingPose == null ? new Pose() : startingPose);
+
         follower.update();
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
     }
@@ -40,8 +41,8 @@ public class testTeleOp extends OpMode {
         if (!automatedDrive) {
             follower.setTeleOpDrive(
                     -gamepad1.left_stick_y,
-                    gamepad1.left_stick_x,
-                    gamepad1.right_stick_x,
+                    -gamepad1.left_stick_x,
+                    -gamepad1.right_stick_x,
                     true
             );
             // follower.startTeleopDrive(false);
@@ -50,7 +51,7 @@ public class testTeleOp extends OpMode {
         telemetryM.debug("velocity", follower.getVelocity());
         telemetryM.debug("x:" + follower.getPose().getX());
         telemetryM.debug("y:" + follower.getPose().getY());
-        telemetryM.debug("heading:" + follower.getPose().getHeading());
+        telemetryM.debug("heading:" + Math.toDegrees(follower.getPose().getHeading()));
         //telemetryM.debug("total heading:" + follower.getTotalHeading());
         telemetryM.update(telemetry);
 

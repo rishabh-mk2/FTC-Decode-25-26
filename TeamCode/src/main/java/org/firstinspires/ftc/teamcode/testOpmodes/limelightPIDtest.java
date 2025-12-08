@@ -24,6 +24,8 @@ public class limelightPIDtest extends LinearOpMode {
     private IMU imu;
     public LLResult result;
     double p, i, d;
+    public int id;
+
 
     public void runOpMode() throws InterruptedException {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
@@ -105,11 +107,11 @@ public class limelightPIDtest extends LinearOpMode {
             if (result.isValid()){
                 for (LLResultTypes.FiducialResult fiducial : fiducials) {
                     Pose3D botpose = result.getBotpose_MT2();
-                    int id = fiducial.getFiducialId();
+                    id = fiducial.getFiducialId();
                     double currentTargetDeg = fiducial.getTargetXDegrees();
                     double turretPos = turret.getCurrentPosition();
                     double pid = pidController.calculate(turretPos, turretPos + 537.7*currentTargetDeg/360.0); // NOTE FOR SELF: Adding/Subtracting the TICK VAL. of the DEG VAL. from the current motor pos. basically doing -> currentMotorTickVal +- (motorTickPerRevolution*givenDegVal/totalDegInCircle)
-                    //turret.setPower(pid);
+                    turret.setPower(pid);
                     telemetry.addData("Fiducial " + id, " is " + currentTargetDeg + " degrees");
                     telemetry.addData("Target X", result.getTx());
                     telemetry.addData("Target Area", result.getTa());

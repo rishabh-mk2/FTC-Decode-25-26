@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 
+import com.pedropathing.control.FilteredPIDFCoefficients;
+import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.FollowerBuilder;
@@ -14,10 +16,18 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
-            //TODO: update robot mass (in kg) (used to compensate centripetal force)
-            .mass(5);
+            .mass(11.15837)
+            .headingPIDFCoefficients(new PIDFCoefficients(1, 0, 0.025, 0.025))
+            .translationalPIDFCoefficients(new PIDFCoefficients(0.15, 0, 0.01, 0.023))
+            .forwardZeroPowerAcceleration(-56.06986250680692)
+            .lateralZeroPowerAcceleration(-86)
+            .centripetalScaling(0.000001);
+    /*
+     * TODO: for automatic tuners, follow the steps on Pedropathing tutorial
+     * TODO: .forwardZeroPowerAcceleration(acceleration), .lateralZeroPowerAcceleration(acceleration) in FollowerConstants
+     * */
 
-    // TODO: Add the PID tuners after decided which PID tuner we will use for the robot
+
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
             .rightFrontMotorName("rF")
@@ -27,22 +37,18 @@ public class Constants {
             .leftFrontMotorDirection(DcMotorEx.Direction.REVERSE)
             .leftRearMotorDirection(DcMotorEx.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorEx.Direction.FORWARD)
-            .rightRearMotorDirection(DcMotorEx.Direction.FORWARD);
-            /*
-            * TODO: for automatic tuners, follow the steps on Pedropathing tutorial
-            * TODO: .xVelocity(velocity), .yVelocity(velocity) in MecanumConstants
-            * TODO: .forwardZeroPowerAcceleration(acceleration), .lateralZeroPowerAcceleration(acceleration) in FollowerConstants
-            * */
+            .rightRearMotorDirection(DcMotorEx.Direction.FORWARD)
+            .xVelocity(72.85834028589444)
+            .yVelocity(58.96647583968998);
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(5.5122)
-            .strafePodX(-7.435)
+            .forwardPodY(5.52244094)
+            .strafePodX(-7.14988189)
             .distanceUnit(DistanceUnit.INCH)
             .hardwareMapName("pinpoint")
             .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
             .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
-    // TODO: move robot left (if y is not increasing, strafeEncoderDirection should be reversed)
 
     public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);
 
