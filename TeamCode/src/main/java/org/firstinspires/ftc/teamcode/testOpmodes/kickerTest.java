@@ -12,15 +12,11 @@ public class kickerTest extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         CRServo top = this.hardwareMap.get(CRServo.class, "topServo");
         CRServo bottom = this.hardwareMap.get(CRServo.class, "bottomServo");
-        DcMotorEx intakeMotor = this.hardwareMap.get(DcMotorEx.class, "intakeMotor");
-
-        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         waitForStart();
         while (opModeIsActive()) {
             top.setPower(1);
             bottom.setPower(1);
-            intakeMotor.setPower(0.25);
         }
     }
 }

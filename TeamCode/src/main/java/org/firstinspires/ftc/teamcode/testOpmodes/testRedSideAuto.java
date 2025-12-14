@@ -22,7 +22,7 @@ public class testRedSideAuto extends OpMode {
 
     private int pathState;
     private final Pose startPose = new Pose(122, 122, Math.toRadians(225));
-    private final Pose scorePose = new Pose(104, 105, Math.toRadians(-131)); // Scoring Pose (Facing away from goal)
+    private final Pose scorePose = new Pose(104, 104, Math.toRadians(225)); // Scoring Pose (Facing away from goal)
     private final Pose pickup1Pose = new Pose(120, 84, Math.toRadians(0)); // Closest to the goal
     private final Pose pickup2Pose = new Pose(120, 60, Math.toRadians(0)); // Middle
     private final Pose pickup3Pose = new Pose(120, 36, Math.toRadians(0)); // Furthest from goal
