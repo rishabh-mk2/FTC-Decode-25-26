@@ -21,23 +21,35 @@ public class testRedSideAuto extends OpMode {
     ElapsedTime waitTimer = new ElapsedTime();
 
     private int pathState;
+<<<<<<< HEAD
     private final Pose startPose = new Pose(124, 122, Math.toRadians(215));
     private final Pose testForwardPose = new Pose(100, 98, Math.toRadians(215));
     private final Pose scorePose = new Pose(104, 105, Math.toRadians(-131)); // Scoring Pose (Facing away from goal)
+=======
+    private final Pose startPose = new Pose(122, 122, Math.toRadians(225));
+    private final Pose scorePose = new Pose(104, 104, Math.toRadians(225)); // Scoring Pose (Facing away from goal)
+>>>>>>> b8e0ab54a06cdc272495bf95bb9a0751408d8be4
     private final Pose pickup1Pose = new Pose(120, 84, Math.toRadians(0)); // Closest to the goal
     private final Pose pickup2Pose = new Pose(120, 60, Math.toRadians(0)); // Middle
     private final Pose pickup3Pose = new Pose(120, 36, Math.toRadians(0)); // Furthest from goal
     private final Pose releasePose = new Pose(126, 72, Math.toRadians(180));
 
+<<<<<<< HEAD
 
     private Path scorePreload;
     private PathChain testForwardPath, pickup1, releasePreload, scorePickup1, pickup2, scorePickup2, pickup3, scorePickup3;
+=======
+    private PathChain scorePreload, pickup1, releasePreload, scorePickup1, pickup2, scorePickup2, pickup3, scorePickup3;
+>>>>>>> b8e0ab54a06cdc272495bf95bb9a0751408d8be4
 
     public void buildPaths() {
+        follower.setMaxPower(0.5);
 
         // Preload stuff
-        scorePreload = new Path(new BezierLine(startPose, scorePose));
-        scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading());
+        scorePreload = follower.pathBuilder()
+                .addPath(new BezierLine(startPose, scorePose))
+                .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
+                .build();
 
         testForwardPath = follower.pathBuilder().addPath(new BezierLine(new Pose(0, 24), new Pose(0, 0)))
                 .setLinearHeadingInterpolation(0, 0)
@@ -90,48 +102,53 @@ public class testRedSideAuto extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
+<<<<<<< HEAD
                 follower.followPath(testForwardPath);
                         setPathState(8);
+=======
+                follower.followPath(scorePreload, 0.7, true);
+                        setPathState(1);
+>>>>>>> b8e0ab54a06cdc272495bf95bb9a0751408d8be4
                 break;
             case 1:
                 if (!follower.isBusy()) {
-                        follower.followPath(pickup1, true);
-                        setPathState(2);
+                        follower.followPath(pickup1, 0.7,true);
+                        setPathState(8);
                 }
                 break;
             case 2:
                 if (!follower.isBusy()) {
-                        follower.followPath(releasePreload, true);
+                        follower.followPath(releasePreload, 0.7,true);
                         setPathState(3);
                 }
                 break;
             case 3:
                 if (!follower.isBusy()) {
-                        follower.followPath(scorePickup1, true);
+                        follower.followPath(scorePickup1, 0.7, true);
                         setPathState(4);
                 }
                 break;
             case 4:
                 if (!follower.isBusy()) {
-                        follower.followPath(pickup2, true);
+                        follower.followPath(pickup2, 0.7,true);
                         setPathState(5);
                 }
                 break;
             case 5:
                 if (!follower.isBusy()) {
-                        follower.followPath(scorePickup2, true);
+                        follower.followPath(scorePickup2, 0.7,true);
                         setPathState(6);
                 }
                 break;
             case 6:
                 if (!follower.isBusy()) {
-                        follower.followPath(pickup3, true);
+                        follower.followPath(pickup3, 0.7,true);
                         setPathState(7);
                 }
                 break;
             case 7:
                 if (!follower.isBusy()) {
-                        follower.followPath(scorePickup3, true);
+                        follower.followPath(scorePickup3, 0.7,true);
                         setPathState(8);
                 }
                 break;

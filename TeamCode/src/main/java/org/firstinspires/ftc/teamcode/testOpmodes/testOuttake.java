@@ -9,15 +9,20 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 public class testOuttake extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        DcMotorEx motor1 = this.hardwareMap.get(DcMotorEx.class, "rightMotor");
-        DcMotorEx motor2 = this.hardwareMap.get(DcMotorEx.class, "leftMotor");
+        DcMotorEx rightMotor = this.hardwareMap.get(DcMotorEx.class, "rightMotor");
+        DcMotorEx leftMotor = this.hardwareMap.get(DcMotorEx.class, "leftMotor");
 
-        motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         waitForStart();
         while (opModeIsActive()) {
+<<<<<<< HEAD
             motor1.setPower(-1);
             motor2.setPower(1);
+=======
+            rightMotor.setPower(-0.9);
+            leftMotor.setPower(0.9);
+>>>>>>> b8e0ab54a06cdc272495bf95bb9a0751408d8be4
         }
     }
 }
