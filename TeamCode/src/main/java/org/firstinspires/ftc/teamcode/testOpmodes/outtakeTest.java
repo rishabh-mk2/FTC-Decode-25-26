@@ -1,28 +1,25 @@
 package org.firstinspires.ftc.teamcode.testOpmodes;
 
-import com.bylazar.configurables.annotations.Configurable;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 @TeleOp(name = "Velocity PID", group = "Test")
-@Configurable
-public class velocityPID extends LinearOpMode {
+public class outtakeTest extends LinearOpMode {
 
     PIDController pidController;
-    double p = 0.0100, i = 0, d = 0.0000;
-    double targetRPM = 100;
+    double p = 0.0000, i = 0, d = 0.0000;
+    double targetRPM = 6000;
     final double TICKS_PER_REV = 537.7;
-    public static double currentRpm;
 
     @Override
     public void runOpMode() throws InterruptedException {
-        DcMotorEx outtake1 = hardwareMap.get(DcMotorEx.class, "outtake1");
-        DcMotorEx outtake2 = hardwareMap.get(DcMotorEx.class, "outtake2");
+        DcMotorEx outtake1 = hardwareMap.get(DcMotorEx.class, "intake1");
+        DcMotorEx outtake2 = hardwareMap.get(DcMotorEx.class, "intake2");
 
         outtake1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        outtake1.setDirection(DcMotorEx.Direction.FORWARD);
+        outtake1.setDirection(DcMotorEx.Direction.REVERSE);
         outtake2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         outtake2.setDirection(DcMotorEx.Direction.REVERSE);
 
@@ -42,26 +39,14 @@ public class velocityPID extends LinearOpMode {
         boolean dPadDownIsPressed = false;
 
         waitForStart();
+
+        // immediately spin up to full power
+        outtake1.setPower(1);
+        outtake2.setPower(1);
+
+        // small delay to let the motors start before PID correction
+        sleep(10);
         while (opModeIsActive()) {
-
-
-            // turn on/off motors
-            if(gamepad1.dpad_up && !dPadUpIsPressed){
-                dPadUpIsPressed = true;
-            }
-            if (!gamepad1.dpad_up && dPadUpIsPressed) {
-                outtake1.setVelocity(100);
-                outtake2.setVelocity(100);
-                dPadUpIsPressed = false;
-            }
-
-            if(gamepad1.dpad_down && !dPadDownIsPressed){
-                dPadDownIsPressed = true;
-            } if(!gamepad1.dpad_down && dPadDownIsPressed){
-                outtake1.setVelocity(0);
-                outtake2.setVelocity(0);
-                dPadDownIsPressed = false;
-            }
 
             if(gamepad1.a && !AisPressed){
                 AisPressed = true;
@@ -98,28 +83,29 @@ public class velocityPID extends LinearOpMode {
             double rpm2 = velTicksPerSec2 * 60.0 / TICKS_PER_REV;
 
             // averaging the motor RPM since they need to move at the same speed -> gives a stable feedback instead of possibly 2 different values
-            currentRpm = Math.abs((rpm1 - rpm2) / 2.0);
+            double currentRPM = (rpm1 + rpm2) / 2.0;
 
             // PID calculates using the (measured, target))
-            double pidOut = pidController.calculate(currentRpm, targetRPM);
+            double pidOut = pidController.calculate(currentRPM, targetRPM);
 
-            double power = pidOut * 0.001;
+            // add a small base power to make sure it never goes to 0
+            double basePower = 1.0; // start strong
+            double power = basePower + pidOut * 0.001;
 
             // make sure power is never negative (so it doesnt reverse the direction)
             if (power < 0) power = 0;
             if (power > 1.0) power = 1.0;
 
             // set both motors to the power
-            //outtake1.setPower(0.6);
-            //outtake2.setPower(0.6);
-
+            outtake1.setPower(power);
+            outtake2.setPower(power);
 
             telemetry.addData("Target RPM", targetRPM);
-            telemetry.addData("Current RPM (avg)", currentRpm);
-            telemetry.addData("RPM1", rpm1);
-            telemetry.addData("RPM2", rpm2);
+            telemetry.addData("Current RPM (avg)", "%.1f", currentRPM);
+            telemetry.addData("RPM1", "%.1f", rpm1);
+            telemetry.addData("RPM2", "%.1f", rpm2);
             telemetry.addData("PID output", pidOut);
-            telemetry.addData("Applied Power", power);
+            telemetry.addData("Applied Power", "%.3f", power);
             telemetry.addData("kP", p);
             telemetry.addData("kI", i);
             telemetry.addData("kD", d);
