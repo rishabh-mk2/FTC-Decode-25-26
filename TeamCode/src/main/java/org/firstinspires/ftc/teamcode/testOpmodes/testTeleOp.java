@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode.testOpmodes;
 
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.bylazar.configurables.annotations.Configurable;
-import com.bylazar.telemetry.PanelsTelemetry;
-import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -15,8 +13,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Configurable
@@ -28,27 +24,30 @@ public class testTeleOp extends OpMode {
     private Follower follower;
     public static Pose startingPose;
     private boolean automatedDrive;
-    Telemetry telemetry;
+
+    double p;
+    double i;
+    double d;
+    PIDController pidController;
 
     DcMotorEx intake;
     DcMotorEx leftShooter;
     DcMotorEx rightShooter;
     DcMotorEx turret;
 
-    Servo spindexer1;
-    Servo spindexer2;
+    Servo spin1;
+    Servo spin2;
     Servo kicker;
     Servo hood;
 
     Limelight3A limelight;
-    PIDController pidController;
 
     RevColorSensorV3 front;
     RevColorSensorV3 back1;
     RevColorSensorV3 back2;
 
     boolean intaking = false;
-    boolean spindexing = false;
+    boolean spindexing = true;
 
     boolean kickerUp1 = false;
     boolean kickerDown1 = false;
@@ -71,6 +70,8 @@ public class testTeleOp extends OpMode {
     double time = 0.0;
     double frontDistance = 0.0;
 
+    boolean AisPressed = false;
+
     @Override
     public void init() {
         automatedDrive = false;
@@ -82,17 +83,17 @@ public class testTeleOp extends OpMode {
         rightShooter = this.hardwareMap.get(DcMotorEx.class, "rightShooter");
         turret = this.hardwareMap.get(DcMotorEx.class, "turret");
 
-        spindexer1 = this.hardwareMap.get(Servo.class, "spin1");
-        spindexer2 = this.hardwareMap.get(Servo.class, "spin2");
+        spin1 = this.hardwareMap.get(Servo.class, "spin1");
+        spin2 = this.hardwareMap.get(Servo.class, "spin2");
         kicker = this.hardwareMap.get(Servo.class, "kicker");
         hood = this.hardwareMap.get(Servo.class, "hood");
 
         limelight = this.hardwareMap.get(Limelight3A.class, "limelight");
         limelight.pipelineSwitch(0);
 
-        front = this.hardwareMap.get(RevColorSensorV3.class, "front");
-        back1 = this.hardwareMap.get(RevColorSensorV3.class, "back1");
-        back2 = this.hardwareMap.get(RevColorSensorV3.class, "back2");
+//        front = this.hardwareMap.get(RevColorSensorV3.class, "front");
+//        back1 = this.hardwareMap.get(RevColorSensorV3.class, "back1");
+//        back2 = this.hardwareMap.get(RevColorSensorV3.class, "back2");
 
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftShooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -106,7 +107,16 @@ public class testTeleOp extends OpMode {
         leftShooter.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         rightShooter.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
 
-        telemetry.setAutoClear(true);
+//        telemetry.setAutoClear(true);
+
+        p = 0.02;
+        i = 0.0;
+        d = 0.5;
+        pidController = new PIDController(p, i, d);
+        pidController.setPID(p, i, d);
+
+        spin1.setPosition(0.06 + 0.169*1.5);
+        spin2.setPosition(0.06 + 0.169*1.5);
 
         limelight.start();
 
@@ -114,8 +124,8 @@ public class testTeleOp extends OpMode {
 
         runtime.reset();
 
-        telemetry.addData("Status", "Initialized");
-        telemetry.update();
+//        telemetry.addData("Status", "Initialized");
+//        telemetry.update();
     }
 
     @Override
@@ -137,13 +147,21 @@ public class testTeleOp extends OpMode {
 
         if(intaking) {
             intake.setPower(0.8);
-            if(Math.abs(front.getDistance(DistanceUnit.MM) - frontDistance) > 50) {
-                //TODO: ROTATE SPINDEXER 120 DEG
-            }
+//            if(Math.abs(front.getDistance(DistanceUnit.MM) - frontDistance) > 50) {
+//                //TODO: ROTATE SPINDEXER 120 DEG
+//            }
         } else if (spindexing) {
             intake.setPower(0.5);
         } else {
             intake.setPower(0.0);
+        }
+
+        if(gamepad1.a && !AisPressed) {
+            AisPressed = true;
+        }
+        if(!gamepad1.a && AisPressed) {
+            AisPressed = false;
+            shoot = true;
         }
 
         // SHOOT SEQUENCE
@@ -156,7 +174,7 @@ public class testTeleOp extends OpMode {
             spindexing = true;
         }
         // FIRST SHOT
-        if(kickerUp1 && runtime.milliseconds() - time > 3500) {
+        if(kickerUp1 && runtime.milliseconds() - time > 1000) {
             leftShooter.setVelocity(-2250);
             rightShooter.setVelocity(-2250);
             kicker.setPosition(0.4);
@@ -164,7 +182,7 @@ public class testTeleOp extends OpMode {
             time = runtime.milliseconds();
             kickerDown1 = true;
         }
-        if(kickerDown1 && runtime.milliseconds() - time > 1000) {
+        if(kickerDown1 && runtime.milliseconds() - time > 100) {
             leftShooter.setVelocity(-2250);
             rightShooter.setVelocity(-2250);
             kicker.setPosition(0.225);
@@ -172,59 +190,61 @@ public class testTeleOp extends OpMode {
             time = runtime.milliseconds();
             rotateSpin120_1 = true;
         }
-        if(rotateSpin120_1 && runtime.milliseconds() - time > 2000) {
+        if(rotateSpin120_1 && runtime.milliseconds() - time > 10) {
             leftShooter.setVelocity(-2250);
             rightShooter.setVelocity(-2250);
             //TODO: ROTATE SPINDEXER 120 DEG
+            spin1.setPosition(spin1.getPosition() + 0.169);
+            spin2.setPosition(spin2.getPosition() + 0.169);
             rotateSpin120_1 = false;
             time = runtime.milliseconds();
             kickerUp2 = true;
         }
 
-        // SECOND SHOT
-        if(kickerUp2 && runtime.milliseconds() - time > 3500) {
-            leftShooter.setVelocity(-2250);
-            rightShooter.setVelocity(-2250);
-            kicker.setPosition(0.4);
-            kickerUp2 = false;
-            time = runtime.milliseconds();
-            kickerDown2 = true;
-        }
-        if(kickerDown2 && runtime.milliseconds() - time > 1000) {
-            leftShooter.setVelocity(-2250);
-            rightShooter.setVelocity(-2250);
-            kicker.setPosition(0.225);
-            kickerDown2 = false;
-            time = runtime.milliseconds();
-            rotateSpin120_2 = true;
-        }
-        if(rotateSpin120_2 && runtime.milliseconds() - time > 2000) {
-            leftShooter.setVelocity(-2250);
-            rightShooter.setVelocity(-2250);
-            //TODO: ROTATE SPINDEXER 120 DEG
-            rotateSpin120_2 = false;
-            time = runtime.milliseconds();
-            kickerUp3 = true;
-        }
+//        // SECOND SHOT
+//        if(kickerUp2 && runtime.milliseconds() - time > 3500) {
+//            leftShooter.setVelocity(-2250);
+//            rightShooter.setVelocity(-2250);
+//            kicker.setPosition(0.4);
+//            kickerUp2 = false;
+//            time = runtime.milliseconds();
+//            kickerDown2 = true;
+//        }
+//        if(kickerDown2 && runtime.milliseconds() - time > 1000) {
+//            leftShooter.setVelocity(-2250);
+//            rightShooter.setVelocity(-2250);
+//            kicker.setPosition(0.225);
+//            kickerDown2 = false;
+//            time = runtime.milliseconds();
+//            rotateSpin120_2 = true;
+//        }
+//        if(rotateSpin120_2 && runtime.milliseconds() - time > 2000) {
+//            leftShooter.setVelocity(-2250);
+//            rightShooter.setVelocity(-2250);
+//            //TODO: ROTATE SPINDEXER 120 DEG
+//            rotateSpin120_2 = false;
+//            time = runtime.milliseconds();
+//            kickerUp3 = true;
+//        }
+//
+//        // THIRD SHOT
+//        if(kickerUp3 && runtime.milliseconds() - time > 3500) {
+//            leftShooter.setVelocity(-2250);
+//            rightShooter.setVelocity(-2250);
+//            kicker.setPosition(0.4);
+//            kickerUp3 = false;
+//            time = runtime.milliseconds();
+//            kickerDown3 = true;
+//        }
+//        if(kickerDown3 && runtime.milliseconds() - time > 1000) {
+//            leftShooter.setVelocity(0);
+//            rightShooter.setVelocity(0);
+//            kicker.setPosition(0.225);
+//            kickerDown3 = false;
+//        }
 
-        // THIRD SHOT
-        if(kickerUp3 && runtime.milliseconds() - time > 3500) {
-            leftShooter.setVelocity(-2250);
-            rightShooter.setVelocity(-2250);
-            kicker.setPosition(0.4);
-            kickerUp3 = false;
-            time = runtime.milliseconds();
-            kickerDown3 = true;
-        }
-        if(kickerDown3 && runtime.milliseconds() - time > 1000) {
-            leftShooter.setVelocity(0);
-            rightShooter.setVelocity(0);
-            kicker.setPosition(0.225);
-            kickerDown3 = false;
-        }
 
-
-        frontDistance = front.getDistance(DistanceUnit.MM);
-        telemetry.update();
+//        frontDistance = front.getDistance(DistanceUnit.MM);
+//        telemetry.update();
     }
 }
