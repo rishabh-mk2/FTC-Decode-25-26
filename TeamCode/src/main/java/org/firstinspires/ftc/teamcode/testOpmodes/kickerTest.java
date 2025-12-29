@@ -26,14 +26,14 @@ public class kickerTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        CRServo spin1 = this.hardwareMap.get(CRServo.class, "spinServo1");
-        CRServo spin2 = this.hardwareMap.get(CRServo.class, "spinServo2");
+        CRServo spin1 = this.hardwareMap.get(CRServo.class, "spin1");
+        CRServo spin2 = this.hardwareMap.get(CRServo.class, "spin2");
         AnalogInput analog = this.hardwareMap.get(AnalogInput.class, "analog");
-        DcMotorEx intake = this.hardwareMap.get(DcMotorEx.class, "intakeMotor");
+        DcMotorEx intake = this.hardwareMap.get(DcMotorEx.class, "intake");
 
         Servo kicker = this.hardwareMap.get(Servo.class, "kicker");
-        DcMotorEx outtake1 = this.hardwareMap.get(DcMotorEx.class, "outtake1");
-        DcMotorEx outtake2 = this.hardwareMap.get(DcMotorEx.class, "outtake2");
+        DcMotorEx outtake1 = this.hardwareMap.get(DcMotorEx.class, "leftShooter");
+        DcMotorEx outtake2 = this.hardwareMap.get(DcMotorEx.class, "rightShooter");
 
         outtake1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         outtake1.setDirection(DcMotorEx.Direction.FORWARD);

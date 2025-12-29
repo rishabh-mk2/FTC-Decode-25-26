@@ -4,32 +4,32 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Test Red Side Auto", group = "Auto")
-public class testRedSideAuto extends OpMode {
+@Autonomous(name = "Test Auto", group = "Auto")
+public class testAuto extends OpMode {
 
     private Follower follower;
-    private double speed = 0.7;
+    private double speed = 0.5;
     private Timer pathTimer, actionTimer, opmodeTimer;
     ElapsedTime waitTimer = new ElapsedTime();
 
     private int pathState;
     private final Pose startPose = new Pose(122, 122, Math.toRadians(225));
-    private final Pose scorePose = new Pose(104, 104, Math.toRadians(225)); // Scoring Pose (Facing away from goal)
+    private final Pose scorePose = new Pose(90, 90, Math.toRadians(225));   // Scoring Pose (Facing away from goal)
+    private final Pose turnToPickup1 = new Pose(84, 84, Math.toRadians(340));
     private final Pose pickup1Pose = new Pose(120, 84, Math.toRadians(0)); // Closest to the goal
     private final Pose pickup2Pose = new Pose(120, 60, Math.toRadians(0)); // Middle
     private final Pose pickup3Pose = new Pose(120, 36, Math.toRadians(0)); // Furthest from goal
     private final Pose releasePose = new Pose(126, 72, Math.toRadians(180));
 
-    private PathChain scorePreload, pickup1, releasePreload, scorePickup1, pickup2, scorePickup2, pickup3, scorePickup3;
+    private PathChain scorePreload, turnPickup1, pickup1, releasePreload, scorePickup1, pickup2, scorePickup2, pickup3, scorePickup3;
 
     public void buildPaths() {
 
@@ -37,6 +37,10 @@ public class testRedSideAuto extends OpMode {
         scorePreload = follower.pathBuilder()
                 .addPath(new BezierLine(startPose, scorePose))
                 .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
+                .build();
+        turnPickup1 = follower.pathBuilder()
+                .addPath(new BezierLine(scorePose, scorePose))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), 340)
                 .build();
 
         // Using a curve to pickup the first set of balls
@@ -87,47 +91,11 @@ public class testRedSideAuto extends OpMode {
         switch (pathState) {
             case 0:
                 follower.followPath(scorePreload, speed, true);
-                        setPathState(1);
+                        setPathState(8);
                 break;
             case 1:
                 if (!follower.isBusy()) {
-                        follower.followPath(pickup1, speed,true);
-                        setPathState(8);
-                }
-                break;
-            case 2:
-                if (!follower.isBusy()) {
-                        follower.followPath(releasePreload, speed,true);
-                        setPathState(3);
-                }
-                break;
-            case 3:
-                if (!follower.isBusy()) {
-                        follower.followPath(scorePickup1, speed, true);
-                        setPathState(4);
-                }
-                break;
-            case 4:
-                if (!follower.isBusy()) {
-                        follower.followPath(pickup2, speed,true);
-                        setPathState(5);
-                }
-                break;
-            case 5:
-                if (!follower.isBusy()) {
-                        follower.followPath(scorePickup2, speed,true);
-                        setPathState(6);
-                }
-                break;
-            case 6:
-                if (!follower.isBusy()) {
-                        follower.followPath(pickup3, speed,true);
-                        setPathState(7);
-                }
-                break;
-            case 7:
-                if (!follower.isBusy()) {
-                        follower.followPath(scorePickup3, speed,true);
+                        follower.followPath(turnPickup1, speed,true);
                         setPathState(8);
                 }
                 break;
