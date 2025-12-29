@@ -20,8 +20,9 @@ public class Constants {
             .headingPIDFCoefficients(new PIDFCoefficients(1, 0, 0.025, 0.025))
             .translationalPIDFCoefficients(new PIDFCoefficients(0.15, 0, 0.01, 0.023))
             .forwardZeroPowerAcceleration(-56.06986250680692)
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.025,0,0.00001,0.6,0.007))
             .lateralZeroPowerAcceleration(-86)
-            .centripetalScaling(0.000001);
+            .centripetalScaling(0.0005);
     /*
      * TODO: for automatic tuners, follow the steps on Pedropathing tutorial
      * TODO: .forwardZeroPowerAcceleration(acceleration), .lateralZeroPowerAcceleration(acceleration) in FollowerConstants

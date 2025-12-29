@@ -43,8 +43,8 @@ public class spindexer extends LinearOpMode {
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftShooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightShooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-
+        spin1.setPosition(0);
+        spin2.setPosition(0);
         waitForStart();
 
         runtime.reset();
