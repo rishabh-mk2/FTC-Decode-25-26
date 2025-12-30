@@ -15,7 +15,8 @@ public class shreyasTeleOp extends OpMode {
     Follower follower;
     shreyas_TurretShooter turretShooter;
     shreyas_IntakeSpindexer intakeSpindexer;
-    boolean intakeHeld = gamepad1.right_bumper;
+    //boolean intakeHeld = gamepad1.right_bumper;
+    double speed = 0.5;
 
     @Override
     public void init() {
@@ -43,7 +44,7 @@ public class shreyasTeleOp extends OpMode {
         );
 
         // --- INTAKE ---
-        intakeSpindexer.runIntake(intakeHeld);
+        intakeSpindexer.runIntake(gamepad1.a);
 
         telemetry.addLine("TeleOp Running");
         telemetry.update();

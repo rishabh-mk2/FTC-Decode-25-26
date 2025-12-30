@@ -1,148 +1,190 @@
-package org.firstinspires.ftc.teamcode.testOpmodes; // make sure this aligns with class location
+package org.firstinspires.ftc.teamcode.testOpmodes;
 
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import org.opencv.core.Mat;
 
-@Autonomous(name = "Test Auto", group = "Auto")
+@Autonomous(name = "Red Side Pathing", group = "Autonomous")
 public class testAuto extends OpMode {
 
     private Follower follower;
-    private double speed = 0.5;
-    private Timer pathTimer, actionTimer, opmodeTimer;
-    ElapsedTime waitTimer = new ElapsedTime();
-
+    private Timer pathTimer, opmodeTimer;
     private int pathState;
-    private final Pose startPose = new Pose(122, 122, Math.toRadians(225));
-    private final Pose scorePose = new Pose(90, 90, Math.toRadians(225));   // Scoring Pose (Facing away from goal)
-    private final Pose turnToPickup1 = new Pose(84, 84, Math.toRadians(340));
-    private final Pose pickup1Pose = new Pose(120, 84, Math.toRadians(0)); // Closest to the goal
-    private final Pose pickup2Pose = new Pose(120, 60, Math.toRadians(0)); // Middle
-    private final Pose pickup3Pose = new Pose(120, 36, Math.toRadians(0)); // Furthest from goal
-    private final Pose releasePose = new Pose(126, 72, Math.toRadians(180));
+    private double speed = 0.5;
 
-    private PathChain scorePreload, turnPickup1, pickup1, releasePreload, scorePickup1, pickup2, scorePickup2, pickup3, scorePickup3;
+    /* ---------- Poses ---------- */
+    private final Pose startPose   = new Pose(122, 122, Math.toRadians(270));
+    private final Pose scorePose1  = new Pose(98, 98, Math.toRadians(270));
+    private final Pose scorePose2  = new Pose(94, 79, Math.toRadians(0));
+    private final Pose scorePose3  = new Pose(89, 74, Math.toRadians(270));
+    private final Pose scorePose4  = new Pose(85, 73, Math.toRadians(270));
+    private final Pose last = new Pose(88, 66, Math.toRadians(270));
 
+
+
+    private final Pose pickup1Pose = new Pose(126, 77, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(122, 52.5, Math.toRadians(270));
+    private final Pose pickup3Pose = new Pose(121, 35, Math.toRadians(307));
+    private final Pose releasePose = new Pose(132, 70, Math.toRadians(0));
+    private final Pose pushReleasePose = new Pose(138.5, 69, Math.toRadians(0));
+
+
+    /* ---------- Paths ---------- */
+    private PathChain scorePreload;
+    private PathChain pickup1, releasePreload, pushReleaseHook, scorePickup1;
+    private PathChain pickup2, scorePickup2;
+    private PathChain pickup3, scorePickup3, leaveTriangle;
+
+    /* ---------- Build Paths ---------- */
     public void buildPaths() {
 
-        // Preload stuff
         scorePreload = follower.pathBuilder()
-                .addPath(new BezierLine(startPose, scorePose))
-                .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
-                .build();
-        turnPickup1 = follower.pathBuilder()
-                .addPath(new BezierLine(scorePose, scorePose))
-                .setLinearHeadingInterpolation(scorePose.getHeading(), 340)
+                .addPath(new BezierLine(new Pose(122, 122), scorePose1))
+                .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(270))
                 .build();
 
-        // Using a curve to pickup the first set of balls
         pickup1 = follower.pathBuilder()
-                .addPath(new BezierCurve(scorePose, new Pose(83.767, 86.759), pickup1Pose))
-                .setLinearHeadingInterpolation(scorePose.getHeading(), pickup1Pose.getHeading())
+                .addPath(new BezierLine(scorePose1, pickup1Pose))
+                .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(0))
                 .build();
 
-        // Simple line to release the balls from the thing
-        // TODO: may need to add another position to move the robot back into the lever
         releasePreload = follower.pathBuilder()
                 .addPath(new BezierLine(pickup1Pose, releasePose))
-                .setLinearHeadingInterpolation(pickup1Pose.getHeading(), releasePose.getHeading())
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
 
-        // Going to scoring position with a simple line
+        pushReleaseHook = follower.pathBuilder()
+                .addPath(new BezierLine(releasePose, pushReleasePose))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .build();
+
         scorePickup1 = follower.pathBuilder()
-                .addPath(new BezierLine(releasePose, scorePose))
-                .setLinearHeadingInterpolation(releasePose.getHeading(), scorePose.getHeading())
+                .addPath(new BezierLine(releasePose, scorePose2))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(330))
                 .build();
 
-        // Curve to pickup second pair of balls
         pickup2 = follower.pathBuilder()
-                .addPath(new BezierCurve(scorePose, new Pose(72.797, 66.615), pickup2Pose))
-                .setLinearHeadingInterpolation(scorePose.getHeading(), pickup2Pose.getHeading())
+                .addPath(new BezierLine(scorePose2, pickup2Pose))
+                .setLinearHeadingInterpolation(Math.toRadians(330), Math.toRadians(330))
                 .build();
 
-        // Going to scoring position with a simple line
         scorePickup2 = follower.pathBuilder()
-                .addPath(new BezierLine(pickup2Pose, scorePose))
-                .setLinearHeadingInterpolation(pickup2Pose.getHeading(), scorePose.getHeading())
+                .addPath(new BezierLine(pickup2Pose, scorePose3))
+                .setLinearHeadingInterpolation(Math.toRadians(330), Math.toRadians(308))
                 .build();
 
-        // Curve to pickup third pair of balls
         pickup3 = follower.pathBuilder()
-                .addPath(new BezierCurve(scorePose, new Pose(77.584, 37.496), pickup3Pose))
-                .setLinearHeadingInterpolation(scorePose.getHeading(), pickup3Pose.getHeading())
+                .addPath(new BezierLine(scorePose3, pickup3Pose))
+                .setLinearHeadingInterpolation(Math.toRadians(308), Math.toRadians(308))
                 .build();
 
-        // Going to scoring position with a simple line
         scorePickup3 = follower.pathBuilder()
-                .addPath(new BezierLine(pickup3Pose, scorePose))
-                .setLinearHeadingInterpolation(pickup3Pose.getHeading(), scorePose.getHeading())
+                .addPath(new BezierLine(pickup3Pose, scorePose4))
+                .setLinearHeadingInterpolation(Math.toRadians(308), Math.toRadians(308))
+                .build();
+
+        leaveTriangle = follower.pathBuilder()
+                .addPath(new BezierLine(scorePose4, last))
+                .setLinearHeadingInterpolation(Math.toRadians(308), Math.toRadians(308))
                 .build();
     }
 
+    /* ---------- State Machine ---------- */
     public void autonomousPathUpdate() {
         switch (pathState) {
+
             case 0:
                 follower.followPath(scorePreload, speed, true);
-                        setPathState(8);
+                setPathState(1);
                 break;
+
             case 1:
                 if (!follower.isBusy()) {
-                        follower.followPath(turnPickup1, speed,true);
-                        setPathState(8);
+                    follower.followPath(pickup1, speed, true);
+                    setPathState(2);
                 }
                 break;
+
+            case 2:
+                if (!follower.isBusy()) {
+                    follower.followPath(releasePreload, speed, true);
+                    setPathState(3);
+                }
+                break;
+
+            case 3:
+                if (!follower.isBusy()) {
+                    follower.followPath(pushReleaseHook, 0.35, true);
+                    setPathState(4);
+                }
+                break;
+
+            case 4:
+                if (!follower.isBusy()) {
+                    follower.followPath(scorePickup1, speed, true);
+                    setPathState(5);
+                }
+                break;
+
+            case 5:
+                if (!follower.isBusy()) {
+                    follower.followPath(pickup2, speed, true);
+                    setPathState(6);
+                }
+                break;
+
+            case 6:
+                if (!follower.isBusy()) {
+                    follower.followPath(scorePickup2, speed, true);
+                    setPathState(7);
+                }
+                break;
+
+            case 7:
+                if (!follower.isBusy()) {
+                    follower.followPath(pickup3, speed, true);
+                    setPathState(8);
+                }
+                break;
+
             case 8:
                 if (!follower.isBusy()) {
+                    follower.followPath(scorePickup3, speed, true);
+                    setPathState(9);
+                }
+                break;
+            case 9:
+                if (!follower.isBusy()) {
+                    follower.followPath(leaveTriangle, speed, true);
                     setPathState(-1);
                 }
                 break;
         }
     }
-    /** These change the states of the paths and actions. It will also reset the timers of the individual switches **/
-    public void setPathState(int pState) {
-        pathState = pState;
+
+    /* ---------- Helpers ---------- */
+    public void setPathState(int state) {
+        pathState = state;
         pathTimer.resetTimer();
     }
 
-    /** This is the main loop of the OpMode, it will run repeatedly after clicking "Play". **/
-    @Override
-    public void loop() {
-
-        // These loop the movements of the robot, these must be called continuously in order to work
-        follower.update();
-        autonomousPathUpdate();
-
-        // Feedback to Driver Hub for debugging
-        telemetry.addData("path state", pathState);
-        telemetry.addData("x", follower.getPose().getX());
-        telemetry.addData("y", follower.getPose().getY());
-        telemetry.addData("heading", follower.getPose().getHeading());
-        telemetry.update();
-    }
-
+    /* ---------- OpMode ---------- */
     @Override
     public void init() {
         pathTimer = new Timer();
         opmodeTimer = new Timer();
-        opmodeTimer.resetTimer();
-
 
         follower = Constants.createFollower(hardwareMap);
-        buildPaths();
         follower.setStartingPose(startPose);
-
+        buildPaths();
     }
-
-    @Override
-    public void init_loop() {}
 
     @Override
     public void start() {
@@ -151,5 +193,14 @@ public class testAuto extends OpMode {
     }
 
     @Override
-    public void stop() {}
+    public void loop() {
+        follower.update();
+        autonomousPathUpdate();
+
+        telemetry.addData("Path State", pathState);
+        telemetry.addData("X", follower.getPose().getX());
+        telemetry.addData("Y", follower.getPose().getY());
+        telemetry.addData("Heading", follower.getPose().getHeading());
+        telemetry.update();
+    }
 }
