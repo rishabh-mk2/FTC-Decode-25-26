@@ -21,21 +21,25 @@ public class IntakeSpindexer {
 
     public boolean isTelemetryEnabled = true;
 
-    RevColorSensorV3 frontSensor;
+    RevColorSensorV3 frontSensor1;
+    RevColorSensorV3 frontSensor2;
 
-    static final double BALL_DIST_MM = 30;
-    static final double SPIN_STEP = 0.169;
+    static final double BALL_DIST_MM = 20;
+    static final double SPIN_STEP = 0.194;
 
     int ballsLoaded = 0;
     boolean lastBallDetected = false;
 
-    enum IntakeState {
+    public enum IntakeState {
         IDLE,
         INTAKING,
         INDEXING
     }
 
-    IntakeState state = IntakeState.INTAKING;
+    IntakeState state = IntakeState.IDLE;
+    public void setIntakeState(IntakeState State){
+        state = State;
+    }
     long indexStartTime = 0;
 
     public enum MotorNames {
@@ -68,11 +72,12 @@ public class IntakeSpindexer {
             Servos.add(servo);
         }
 
-        getServo(ServoNames.spin1).setPosition(0.06);
-        getServo(ServoNames.spin2).setPosition(0.06);
+        getServo(ServoNames.spin1).setPosition(0.0);
+        getServo(ServoNames.spin2).setPosition(0.0);
         getServo(ServoNames.kicker).setPosition(0.225);
 
-        frontSensor = hardwareMap.get(RevColorSensorV3.class, "front");
+        frontSensor1 = hardwareMap.get(RevColorSensorV3.class, "front1");
+        frontSensor2= hardwareMap.get(RevColorSensorV3.class, "front2");
 
         addTelemetry("IntakeSpindexer", "Ready");
     }
@@ -91,23 +96,29 @@ public class IntakeSpindexer {
         getServo(ServoNames.spin2)
                 .setPosition(getServo(ServoNames.spin2).getPosition() + SPIN_STEP);
     }
+    public void rotateSpindexer60() {
+        getServo(ServoNames.spin1)
+                .setPosition(getServo(ServoNames.spin1).getPosition() + SPIN_STEP/2);
+        getServo(ServoNames.spin2)
+                .setPosition(getServo(ServoNames.spin2).getPosition() + SPIN_STEP/2);
+    }
 
     public void update() {
-        double dist = frontSensor.getDistance(DistanceUnit.MM);
+        double dist = frontSensor1.getDistance(DistanceUnit.MM);
         boolean ballDetected = dist < BALL_DIST_MM;
 
         switch (state) {
 
             case INTAKING:
-                getMotor(MotorNames.intake).setPower(0.8);
+                getMotor(MotorNames.intake).setPower(0.7);
 
                 if (ballDetected && !lastBallDetected && ballsLoaded < 3) {
                     ballsLoaded++;
                     rotateSpindexer120();
                     getMotor(MotorNames.intake).setPower(0);
-                    getServo(ServoNames.kicker).setPosition(0.4); // kick up
+                    //getServo(ServoNames.kicker).setPosition(0.4); // kick up
                     indexStartTime = System.currentTimeMillis();
-                    state = IntakeState.INDEXING;
+                    //state = IntakeState.INDEXING;
                 }
                 break;
 
@@ -152,4 +163,13 @@ public class IntakeSpindexer {
             telemetry.update();
         }
     }
+    public RevColorSensorV3 getColorSensor1() {
+        return frontSensor1;
+    }
+
+    public RevColorSensorV3 getColorSensor2() {
+        return frontSensor2;
+    }
+
+
 }

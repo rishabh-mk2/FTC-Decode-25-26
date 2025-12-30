@@ -56,8 +56,10 @@ public class kickerTestonly extends LinearOpMode {
         if (move== Math.abs(move)) moveClockwise(spin1,spin2,analog,move*720/3.3);
         if (move != Math.abs(move)) moveClockwise(spin1,spin2,analog,move*720/3.3);
         waitForStart();*/
-        spin1.setPosition(0.08);
-        spin2.setPosition(0.08);
+        //spin1.setPosition(0.08);
+        //spin2.setPosition(0.08);
+        spin1.setPosition(0.0);
+        spin2.setPosition(0.0);
 
         waitForStart();
         runtime.reset();

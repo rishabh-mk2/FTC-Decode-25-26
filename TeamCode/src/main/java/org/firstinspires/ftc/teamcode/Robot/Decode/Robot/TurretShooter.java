@@ -6,6 +6,7 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -58,8 +59,8 @@ public class TurretShooter {
             Servos.add(servo);
         }
 
-        getMotor(MotorNames.leftShooter).setDirection(DcMotorEx.Direction.FORWARD);
-        getMotor(MotorNames.rightShooter).setDirection(DcMotorEx.Direction.REVERSE);
+        getMotor(MotorNames.leftShooter).setDirection(DcMotorEx.Direction.REVERSE);
+        getMotor(MotorNames.rightShooter).setDirection(DcMotorEx.Direction.FORWARD);
 
         turretPID = new PIDController(0.02, 0, 0.5);
 
@@ -89,8 +90,13 @@ public class TurretShooter {
         getMotor(MotorNames.leftShooter).setVelocity(velocity);
         getMotor(MotorNames.rightShooter).setVelocity(velocity);
     }
-
+    public void shoot(double velocity, double hoodPosition){
+        getServo(ServoNames.hood).setPosition(hoodPosition);
+        getMotor(MotorNames.leftShooter).setVelocity(velocity);
+        getMotor(MotorNames.rightShooter).setVelocity(velocity);
+    }
     public void stopShooter() {
+        getServo(ServoNames.hood).setPosition(0);
         getMotor(MotorNames.leftShooter).setVelocity(0);
         getMotor(MotorNames.rightShooter).setVelocity(0);
     }
