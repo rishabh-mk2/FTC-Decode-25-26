@@ -30,7 +30,7 @@ public class kickerTestonly extends LinearOpMode {
         Servo spin1 = this.hardwareMap.get(Servo.class, "spin1");
         Servo spin2 = this.hardwareMap.get(Servo.class, "spin2");
         Servo hood = this.hardwareMap.get(Servo.class, "hood");
-        DcMotorEx intake = this.hardwareMap.get(DcMotorEx.class, "intake");
+        DcMotorEx intake = this.hardwareMap.get(DcMotorEx.class, "intakeMotor");
         AnalogInput analog = this.hardwareMap.get(AnalogInput.class, "analog");
         DcMotorEx turret = this.hardwareMap.get(DcMotorEx.class,"turret");
         Servo kicker = this.hardwareMap.get(Servo.class, "kicker");

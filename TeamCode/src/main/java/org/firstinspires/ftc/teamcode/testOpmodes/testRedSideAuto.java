@@ -28,6 +28,7 @@ public class testRedSideAuto extends OpMode {
     private final Pose pickup2Pose = new Pose(120, 60, Math.toRadians(0)); // Middle
     private final Pose pickup3Pose = new Pose(120, 36, Math.toRadians(0)); // Furthest from goal
     private final Pose releasePose = new Pose(126, 72, Math.toRadians(180));
+    private double waitTest;
 
     private PathChain scorePreload, pickup1, releasePreload, scorePickup1, pickup2, scorePickup2, pickup3, scorePickup3;
 
@@ -44,6 +45,8 @@ public class testRedSideAuto extends OpMode {
                 .addPath(new BezierCurve(scorePose, new Pose(83.767, 86.759), pickup1Pose))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), pickup1Pose.getHeading())
                 .build();
+
+        waitTest = 3000;
 
         // Simple line to release the balls from the thing
         // TODO: may need to add another position to move the robot back into the lever
