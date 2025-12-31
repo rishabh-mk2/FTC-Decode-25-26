@@ -50,11 +50,15 @@ public class Teleop_shreyas extends OpMode {
         // --- INTAKE TOGGLE (Button X) ---
         if (gamepad1.x && !XisPressed) {
             XisPressed = true;
-            if (intakeSpindexer.state == IntakeSpindexer_shreyas.IntakeState.INTAKING) { // if its running and clicked again, it stops
+            if (intakeSpindexer.state == IntakeSpindexer_shreyas.IntakeState.INTAKING) {
+                // if its running and clicked again, it stops
                 intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.IDLE);
             } else {
                 if (intakeSpindexer.getBallCount() < 3) { // keeps running if more balls can be loaded / till 3 balls are loaded
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
+                } else if (intakeSpindexer.getBallCount() ==  3) {
+                    intakeSpindexer.getMotor(IntakeSpindexer_shreyas.MotorNames.intake).setPower(1);
+                    intakeSpindexer.rotateSpindexer120(1, false);
                 }
             }
         } else if (!gamepad1.x) {
@@ -87,6 +91,9 @@ public class Teleop_shreyas extends OpMode {
         // --- TELEMETRY ---
         telemetry.addData("Balls Loaded", intakeSpindexer.getBallCount());
         telemetry.addData("Intake State", intakeSpindexer.hasBalls());
+        if (!intakeSpindexer.ballColors.isEmpty()) {
+            telemetry.addData("Color Array List", intakeSpindexer.ballColors.get(0));
+        }
         telemetry.update();
     }
 

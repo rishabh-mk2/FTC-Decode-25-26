@@ -16,7 +16,7 @@ public class redSidePathing extends OpMode {
     private Follower follower;
     private Timer pathTimer, opmodeTimer;
     private int pathState;
-    private double speed = 0.5;
+    private double speed = 0.9;
 
     /* ---------- Poses ---------- */
     private final Pose startPose   = new Pose(122, 122, Math.toRadians(270));
@@ -120,7 +120,7 @@ public class redSidePathing extends OpMode {
 
             case 3:
                 if (!follower.isBusy()) {
-                    follower.followPath(pushReleaseHook, 0.35, true);
+                    follower.followPath(pushReleaseHook, 0.7, true);
                     setPathState(4);
                 }
                 break;
@@ -168,13 +168,11 @@ public class redSidePathing extends OpMode {
         }
     }
 
-    /* ---------- Helpers ---------- */
     public void setPathState(int state) {
         pathState = state;
         pathTimer.resetTimer();
     }
 
-    /* ---------- OpMode ---------- */
     @Override
     public void init() {
         pathTimer = new Timer();
