@@ -27,7 +27,7 @@ public class IntakeSpindexer {
     static final double BALL_DIST_MM = 20;
     static final double SPIN_STEP = 0.194;
 
-    int ballsLoaded = 0;
+    public static int ballsLoaded = 0;
     boolean lastBallDetected = false;
 
     public enum IntakeState {
@@ -78,7 +78,7 @@ public class IntakeSpindexer {
 
         frontSensor1 = hardwareMap.get(RevColorSensorV3.class, "front1");
         frontSensor2= hardwareMap.get(RevColorSensorV3.class, "front2");
-
+        ballsLoaded = 0;
         addTelemetry("IntakeSpindexer", "Ready");
     }
 
@@ -98,9 +98,9 @@ public class IntakeSpindexer {
     }
     public void rotateSpindexer60() {
         getServo(ServoNames.spin1)
-                .setPosition(getServo(ServoNames.spin1).getPosition() + SPIN_STEP/2);
+                .setPosition(getServo(ServoNames.spin1).getPosition() + 0.096);
         getServo(ServoNames.spin2)
-                .setPosition(getServo(ServoNames.spin2).getPosition() + SPIN_STEP/2);
+                .setPosition(getServo(ServoNames.spin2).getPosition() + 0.096);
     }
 
     public void update() {
@@ -138,8 +138,8 @@ public class IntakeSpindexer {
 
         lastBallDetected = ballDetected;
 
-        addTelemetry("Balls Loaded", ballsLoaded);
-        addTelemetry("Intake State", state);
+        //addTelemetry("Balls Loaded", ballsLoaded);
+        //addTelemetry("Intake State", state);
     }
 
     public boolean hasBalls() {
@@ -153,7 +153,7 @@ public class IntakeSpindexer {
         }
     }
 
-    public int getBallCount() {
+    public static int getBallCount() {
         return ballsLoaded;
     }
 

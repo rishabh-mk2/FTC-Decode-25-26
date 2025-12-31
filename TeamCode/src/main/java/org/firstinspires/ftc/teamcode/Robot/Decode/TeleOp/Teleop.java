@@ -1,8 +1,11 @@
 package org.firstinspires.ftc.teamcode.Robot.Decode.TeleOp;
 
+import static org.firstinspires.ftc.teamcode.Robot.Decode.Robot.IntakeSpindexer.ballsLoaded;
+
 import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Robot.Decode.Alliance;
@@ -18,8 +21,9 @@ public class Teleop extends OpMode {
     IntakeSpindexer intakeSpindexer;
 
     boolean shootPressed = false;
-    public int ballsToShoot = 0;
-    long shootStartTime = 0;
+    private final ElapsedTime runtime = new ElapsedTime();
+    int ballsToShoot = IntakeSpindexer.ballsLoaded;
+    double shootStartTime = 0;
     boolean intake=false;
 
     boolean XisPressed = false;
@@ -28,6 +32,7 @@ public class Teleop extends OpMode {
     public void init() {
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(Constants.createFollower(hardwareMap).getPose());
+        runtime.reset();
 
         turretShooter = new TurretShooter(this, Alliance.RED); // change alliance if needed
         intakeSpindexer = new IntakeSpindexer(this);
@@ -69,16 +74,17 @@ public class Teleop extends OpMode {
 
         if(gamepad1.y && !YisPressed) {
             YisPressed = true;
-            shootStartTime = System.currentTimeMillis();
-
+            shootStartTime = runtime.milliseconds();
         }
         if(!gamepad1.y && YisPressed) {
-            long elapsed = System.currentTimeMillis() - shootStartTime;
-            intakeSpindexer.rotateSpindexer60();
-            switch(ballsToShoot) {
+            double elapsed = runtime.milliseconds() - shootStartTime;
+            if(intakeSpindexer.getServo(IntakeSpindexer.ServoNames.spin1).getPosition() < 0.65){
+                intakeSpindexer.rotateSpindexer60();
+            }
+            turretShooter.shoot(1700, 0.95);
+            switch(ballsLoaded) {
                 case 3:
-                    turretShooter.shoot(1700, 0.95);
-                    if (elapsed > 500 && elapsed < 900) {
+                    if (elapsed > 800) {
                         intakeSpindexer.getServo(IntakeSpindexer.ServoNames.kicker).setPosition(0.4);
                     }
                     if (elapsed > 1200) {
@@ -87,13 +93,13 @@ public class Teleop extends OpMode {
                         intakeSpindexer.consumeBall();
                     }
             }
-            YisPressed = false;
         }
-        telemetry.addData("distance1",intakeSpindexer.getColorSensor1().getDistance(DistanceUnit.MM));
-        telemetry.addData("distance2",intakeSpindexer.getColorSensor2().getDistance(DistanceUnit.MM));
-        telemetry.addData("position",intakeSpindexer.getServo(IntakeSpindexer.ServoNames.spin2).getPosition());
-        telemetry.addData("balls to shoot",ballsToShoot);
+        //telemetry.addData("distance1",intakeSpindexer.getColorSensor1().getDistance(DistanceUnit.MM));
+        //telemetry.addData("distance2",intakeSpindexer.getColorSensor2().getDistance(DistanceUnit.MM));
+        //telemetry.addData("position",intakeSpindexer.getServo(IntakeSpindexer.ServoNames.spin2).getPosition());
+        telemetry.addData("balls to shoot",ballsLoaded);
         telemetry.update();
+
     }
 
     @Override
