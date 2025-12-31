@@ -8,8 +8,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 public class colorSensorTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        RevColorSensorV3 color1 = this.hardwareMap.get(RevColorSensorV3.class, "front");
-        RevColorSensorV3 color2 = this.hardwareMap.get(RevColorSensorV3.class, "second");
+        RevColorSensorV3 color1 = this.hardwareMap.get(RevColorSensorV3.class, "frontSensor1");
+        RevColorSensorV3 color2 = this.hardwareMap.get(RevColorSensorV3.class, "frontSensor2");
 
         waitForStart();
         while (opModeIsActive()) {

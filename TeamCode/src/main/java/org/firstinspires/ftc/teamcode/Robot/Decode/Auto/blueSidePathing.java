@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.testOpmodes;
+package org.firstinspires.ftc.teamcode.Robot.Decode.Auto;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
@@ -9,10 +9,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import org.opencv.core.Mat;
 
-@Autonomous(name = "Red Side Pathing", group = "Autonomous")
-public class testAuto extends OpMode {
+@Autonomous(name = "Blue Side Pathing", group = "Autonomous")
+public class blueSidePathing extends OpMode {
 
     private Follower follower;
     private Timer pathTimer, opmodeTimer;
@@ -20,20 +19,20 @@ public class testAuto extends OpMode {
     private double speed = 0.5;
 
     /* ---------- Poses ---------- */
-    private final Pose startPose   = new Pose(122, 122, Math.toRadians(270));
-    private final Pose scorePose1  = new Pose(98, 98, Math.toRadians(270));
-    private final Pose scorePose2  = new Pose(94, 79, Math.toRadians(0));
-    private final Pose scorePose3  = new Pose(89, 74, Math.toRadians(270));
-    private final Pose scorePose4  = new Pose(85, 73, Math.toRadians(270));
-    private final Pose last = new Pose(88, 66, Math.toRadians(270));
+    private final Pose startPose   = new Pose(22, 122, Math.toRadians(270));
+    private final Pose scorePose1  = new Pose(46, 98, Math.toRadians(270));
+    private final Pose scorePose2  = new Pose(50, 79, Math.toRadians(0));
+    private final Pose scorePose3  = new Pose(55, 74, Math.toRadians(270));
+    private final Pose scorePose4  = new Pose(59, 73, Math.toRadians(270));
+    private final Pose last = new Pose(56, 66, Math.toRadians(270));
 
 
 
-    private final Pose pickup1Pose = new Pose(126, 77, Math.toRadians(0));
-    private final Pose pickup2Pose = new Pose(122, 52.5, Math.toRadians(270));
-    private final Pose pickup3Pose = new Pose(121, 35, Math.toRadians(307));
-    private final Pose releasePose = new Pose(132, 70, Math.toRadians(0));
-    private final Pose pushReleasePose = new Pose(138.5, 69, Math.toRadians(0));
+    private final Pose pickup1Pose = new Pose(18, 77, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(22, 52.5, Math.toRadians(270));
+    private final Pose pickup3Pose = new Pose(23, 35, Math.toRadians(307));
+    private final Pose releasePose = new Pose(12, 70, Math.toRadians(0));
+    private final Pose pushReleasePose = new Pose(5.5, 69, Math.toRadians(0));
 
 
     /* ---------- Paths ---------- */
@@ -46,53 +45,53 @@ public class testAuto extends OpMode {
     public void buildPaths() {
 
         scorePreload = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(122, 122), scorePose1))
+                .addPath(new BezierLine(startPose, scorePose1))
                 .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(270))
                 .build();
 
         pickup1 = follower.pathBuilder()
                 .addPath(new BezierLine(scorePose1, pickup1Pose))
-                .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(180))
                 .build();
 
         releasePreload = follower.pathBuilder()
                 .addPath(new BezierLine(pickup1Pose, releasePose))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
 
         pushReleaseHook = follower.pathBuilder()
                 .addPath(new BezierLine(releasePose, pushReleasePose))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
 
         scorePickup1 = follower.pathBuilder()
-                .addPath(new BezierLine(releasePose, scorePose2))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(330))
+                .addPath(new BezierLine(pushReleasePose, scorePose2))
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(210))
                 .build();
 
         pickup2 = follower.pathBuilder()
                 .addPath(new BezierLine(scorePose2, pickup2Pose))
-                .setLinearHeadingInterpolation(Math.toRadians(330), Math.toRadians(330))
+                .setLinearHeadingInterpolation(Math.toRadians(210), Math.toRadians(210))
                 .build();
 
         scorePickup2 = follower.pathBuilder()
                 .addPath(new BezierLine(pickup2Pose, scorePose3))
-                .setLinearHeadingInterpolation(Math.toRadians(330), Math.toRadians(308))
+                .setLinearHeadingInterpolation(Math.toRadians(210), Math.toRadians(232))
                 .build();
 
         pickup3 = follower.pathBuilder()
                 .addPath(new BezierLine(scorePose3, pickup3Pose))
-                .setLinearHeadingInterpolation(Math.toRadians(308), Math.toRadians(308))
+                .setLinearHeadingInterpolation(Math.toRadians(232), Math.toRadians(232))
                 .build();
 
         scorePickup3 = follower.pathBuilder()
                 .addPath(new BezierLine(pickup3Pose, scorePose4))
-                .setLinearHeadingInterpolation(Math.toRadians(308), Math.toRadians(308))
+                .setLinearHeadingInterpolation(Math.toRadians(232), Math.toRadians(232))
                 .build();
 
         leaveTriangle = follower.pathBuilder()
                 .addPath(new BezierLine(scorePose4, last))
-                .setLinearHeadingInterpolation(Math.toRadians(308), Math.toRadians(308))
+                .setLinearHeadingInterpolation(Math.toRadians(232), Math.toRadians(232))
                 .build();
     }
 
@@ -108,7 +107,7 @@ public class testAuto extends OpMode {
             case 1:
                 if (!follower.isBusy()) {
                     follower.followPath(pickup1, speed, true);
-                    setPathState(2);
+                    setPathState(-1);
                 }
                 break;
 
