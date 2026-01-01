@@ -159,6 +159,10 @@ public class TurretShooter_shreyas {
         IntakeSpindexer_shreyas.BallColor first  = balls.get(0);
         IntakeSpindexer_shreyas.BallColor second = balls.get(1);
 
+        if (first == null || second == null) {
+            return intakedOrder.GG;  // default behavior
+        }
+
         if (first == IntakeSpindexer_shreyas.BallColor.P && second == IntakeSpindexer_shreyas.BallColor.P) {
             return intakedOrder.PP;
         }
@@ -170,7 +174,6 @@ public class TurretShooter_shreyas {
         if (first == IntakeSpindexer_shreyas.BallColor.G && second == IntakeSpindexer_shreyas.BallColor.P) {
             return intakedOrder.GP;
         }
-
         return intakedOrder.GG;
     }
     public void shootIndexed(ShootCase shootCase) {
@@ -189,8 +192,8 @@ public class TurretShooter_shreyas {
                 switch(shootCase) {
                     case PPG:
                         //region PPG cases
-                        getMotor(MotorNames.leftShooter).setVelocity(2500);
-                        getMotor(MotorNames.rightShooter).setVelocity(2500);
+                        getMotor(MotorNames.leftShooter).setVelocity(1000);
+                        getMotor(MotorNames.rightShooter).setVelocity(1000);
                         if (intakeOrder == intakedOrder.PP){
                             Thread.sleep(100);
                             shootCW(); // first shoot
@@ -230,10 +233,10 @@ public class TurretShooter_shreyas {
                     //endregion
                     case PGP:
                         //region PGP cases
-                        getMotor(MotorNames.leftShooter).setVelocity(2500);
-                        getMotor(MotorNames.rightShooter).setVelocity(2500);
+                        getMotor(MotorNames.leftShooter).setVelocity(1000);
+                        getMotor(MotorNames.rightShooter).setVelocity(1000);
                         if (intakeOrder == intakedOrder.PP){
-                            Thread.sleep(100);
+                            Thread.sleep(500);
                             shootCCW(); // first shoot
                             Thread.sleep(500);
                             shootCCW(); // second shoot
@@ -256,7 +259,7 @@ public class TurretShooter_shreyas {
                             intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin2).setPosition(0.0);
                             intakeSpindexer.ballColors.clear();
                         } else if (intakeOrder == intakedOrder.GP) {
-                            Thread.sleep(100);
+                            Thread.sleep(500);
                             shootCW(); // first shoot
                             Thread.sleep(500);
                             shootCW(); // second shoot
@@ -271,8 +274,8 @@ public class TurretShooter_shreyas {
                     //endregion
                     case GPP:
                         //region GPP cases
-                        getMotor(MotorNames.leftShooter).setVelocity(2500);
-                        getMotor(MotorNames.rightShooter).setVelocity(2500);
+                        getMotor(MotorNames.leftShooter).setVelocity(1000);
+                        getMotor(MotorNames.rightShooter).setVelocity(1000);
                         if (intakeOrder == intakedOrder.PP){
                             intakeSpindexer.rotateSpindexer120(1, false);
                             Thread.sleep(100);
@@ -286,7 +289,7 @@ public class TurretShooter_shreyas {
                             intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin2).setPosition(0.0);
                             intakeSpindexer.ballColors.clear();
                         } else if (intakeOrder == intakedOrder.PG) {
-                            Thread.sleep(100);
+                            Thread.sleep(500);
                             shootCW(); // first shoot
                             Thread.sleep(500);
                             shootCW(); // second shoot

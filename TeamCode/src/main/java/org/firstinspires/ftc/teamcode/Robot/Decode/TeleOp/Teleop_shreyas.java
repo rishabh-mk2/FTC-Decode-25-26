@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.Robot.Decode.TeleOp;
 
 import com.pedropathing.follower.Follower;
-import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Robot.Decode.Alliance;
@@ -17,6 +16,9 @@ public class Teleop_shreyas extends OpMode {
     private boolean XisPressed = false;
     private boolean YisPressed = false;
     private boolean BisPressed = false;
+    private boolean AisPressed = false;
+    private boolean isShooterSpinning = false;
+
 
     @Override
     public void init() {
@@ -52,13 +54,31 @@ public class Teleop_shreyas extends OpMode {
             XisPressed = true;
             if (intakeSpindexer.state == IntakeSpindexer_shreyas.IntakeState.INTAKING) {
                 // if its running and clicked again, it stops
-                intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.IDLE);
+                intakeSpindexer.getMotor(IntakeSpindexer_shreyas.MotorNames.intake).setPower(1);
+                intakeSpindexer.rotateSpindexer60();
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(200);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    } finally {
+                        intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.IDLE);
+                    }
+                }).start();
             } else {
                 if (intakeSpindexer.getBallCount() < 3) { // keeps running if more balls can be loaded / till 3 balls are loaded
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
-                } else if (intakeSpindexer.getBallCount() ==  3) {
+                } else if (intakeSpindexer.getBallCount() == 3) {
                     intakeSpindexer.getMotor(IntakeSpindexer_shreyas.MotorNames.intake).setPower(1);
-                    intakeSpindexer.rotateSpindexer120(1, false);
+                    intakeSpindexer.rotateSpindexer60();
+                    new Thread(() -> {
+                        try {
+                            Thread.sleep(200);
+                            intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.IDLE);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }).start();
                 }
             }
         } else if (!gamepad1.x) {
@@ -88,12 +108,52 @@ public class Teleop_shreyas extends OpMode {
             BisPressed = false;
         }
 
+        if (gamepad1.a && !AisPressed && intakeSpindexer.ballsLoaded > 0) {
+            AisPressed = true;
+            isShooterSpinning = true;
+            turretShooter.getMotor(TurretShooter_shreyas.MotorNames.leftShooter).setVelocity(1900);
+            turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).setVelocity(1900);
+            turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(0.95);
+
+            new Thread(() -> {
+                try {
+                    Thread.sleep(500);
+                    turretShooter.shootCCW();
+                    intakeSpindexer.ballsLoaded--;
+                    Thread.sleep(500);
+                    turretShooter.shootCCW();
+                    intakeSpindexer.ballsLoaded--;
+                    Thread.sleep(500);
+                    turretShooter.shootCCW();
+                    intakeSpindexer.ballsLoaded--;
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    isShooterSpinning = false;
+                }
+            }).start();
+        } else if (!gamepad1.a) {
+            AisPressed = false;
+        }
+
+        if ((!isShooterSpinning && !gamepad1.a) || intakeSpindexer.ballsLoaded == 0) {
+            turretShooter.getMotor(TurretShooter_shreyas.MotorNames.leftShooter).setVelocity(0);
+            turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).setVelocity(0);
+        }
+
+        //TODO: fix the intake motor not spinning (possible fix below)
+        if (intakeSpindexer.ballsLoaded > 0 &&
+                intakeSpindexer.state == IntakeSpindexer_shreyas.IntakeState.IDLE) {
+            intakeSpindexer.getMotor(IntakeSpindexer_shreyas.MotorNames.intake).setPower(0.6);
+        } // hopefully a fix for the intake not spinning
+
+
         // --- TELEMETRY ---
         telemetry.addData("Balls Loaded", intakeSpindexer.getBallCount());
         telemetry.addData("Intake State", intakeSpindexer.hasBalls());
-        if (!intakeSpindexer.ballColors.isEmpty()) {
-            telemetry.addData("Color Array List", intakeSpindexer.ballColors.get(0));
-        }
+        /*for (IntakeSpindexer_shreyas.BallColor color : intakeSpindexer.ballColors) {
+            telemetry.addData("color:", color.ordinal());
+        }*/
         telemetry.update();
     }
 

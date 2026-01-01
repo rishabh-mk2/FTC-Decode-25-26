@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 public class testRedSideAuto extends OpMode {
 
     private Follower follower;
-    private double speed = 0.7;
+    private double speed = 0.9;
     private Timer pathTimer, actionTimer, opmodeTimer;
     ElapsedTime waitTimer = new ElapsedTime();
 
