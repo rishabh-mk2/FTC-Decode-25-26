@@ -195,7 +195,7 @@ public class TurretShooter_shreyas {
                         getMotor(MotorNames.leftShooter).setVelocity(1000);
                         getMotor(MotorNames.rightShooter).setVelocity(1000);
                         if (intakeOrder == intakedOrder.PP){
-                            Thread.sleep(100);
+                            Thread.sleep(1000);
                             shootCW(); // first shoot
                             Thread.sleep(500);
                             shootCW(); // second shoot
@@ -218,7 +218,7 @@ public class TurretShooter_shreyas {
                             intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin2).setPosition(0.0);
                             intakeSpindexer.ballColors.clear();
                         } else if (intakeOrder == intakedOrder.GP) {
-                            Thread.sleep(100);
+                            Thread.sleep(1000);
                             shootCCW(); // first shoot
                             Thread.sleep(500);
                             shootCCW(); // second shoot
@@ -236,7 +236,7 @@ public class TurretShooter_shreyas {
                         getMotor(MotorNames.leftShooter).setVelocity(1000);
                         getMotor(MotorNames.rightShooter).setVelocity(1000);
                         if (intakeOrder == intakedOrder.PP){
-                            Thread.sleep(500);
+                            Thread.sleep(1000);
                             shootCCW(); // first shoot
                             Thread.sleep(500);
                             shootCCW(); // second shoot
@@ -259,7 +259,7 @@ public class TurretShooter_shreyas {
                             intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin2).setPosition(0.0);
                             intakeSpindexer.ballColors.clear();
                         } else if (intakeOrder == intakedOrder.GP) {
-                            Thread.sleep(500);
+                            Thread.sleep(1000);
                             shootCW(); // first shoot
                             Thread.sleep(500);
                             shootCW(); // second shoot
@@ -289,7 +289,7 @@ public class TurretShooter_shreyas {
                             intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin2).setPosition(0.0);
                             intakeSpindexer.ballColors.clear();
                         } else if (intakeOrder == intakedOrder.PG) {
-                            Thread.sleep(500);
+                            Thread.sleep(1000);
                             shootCW(); // first shoot
                             Thread.sleep(500);
                             shootCW(); // second shoot

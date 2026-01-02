@@ -235,6 +235,7 @@ public class IntakeSpindexer_shreyas {
 
                 // Rising edge: ball just arrived (either sensor)
                 if (ballDetected && !lastBallDetected && ballsLoaded < 3) {
+                    lastBallDetected = true;
                     int red = (frontSensor1.red() + frontSensor2.red()) / 2;
                     int green = (frontSensor1.green() + frontSensor2.green()) / 2;
                     int blue = (frontSensor1.blue() + frontSensor2.blue()) / 2;
@@ -246,6 +247,7 @@ public class IntakeSpindexer_shreyas {
                     ballsLoaded++;
                     if (ballsLoaded < 3) {
                         rotateSpindexer120(1, false);
+                        lastBallDetected = false;
                     } else if (ballsLoaded == 3) {
                         rotateSpindexer60();
                     }

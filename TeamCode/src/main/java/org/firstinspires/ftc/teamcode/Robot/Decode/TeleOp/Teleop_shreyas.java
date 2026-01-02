@@ -18,6 +18,10 @@ public class Teleop_shreyas extends OpMode {
     private boolean BisPressed = false;
     private boolean AisPressed = false;
     private boolean isShooterSpinning = false;
+    public int velocity = 2800;
+    public double hoodPose = 1;
+    public int firstWait = 800;
+    public int secondThirdWait = 300;
 
 
     @Override
@@ -111,21 +115,23 @@ public class Teleop_shreyas extends OpMode {
         if (gamepad1.a && !AisPressed && intakeSpindexer.ballsLoaded > 0) {
             AisPressed = true;
             isShooterSpinning = true;
-            turretShooter.getMotor(TurretShooter_shreyas.MotorNames.leftShooter).setVelocity(1900);
-            turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).setVelocity(1900);
-            turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(0.95);
+            turretShooter.getMotor(TurretShooter_shreyas.MotorNames.leftShooter).setVelocity(velocity);
+            turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).setVelocity(velocity);
+            turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(hoodPose);
 
             new Thread(() -> {
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(firstWait);
                     turretShooter.shootCCW();
                     intakeSpindexer.ballsLoaded--;
-                    Thread.sleep(500);
+                    Thread.sleep(secondThirdWait);
                     turretShooter.shootCCW();
                     intakeSpindexer.ballsLoaded--;
-                    Thread.sleep(500);
+                    Thread.sleep(secondThirdWait);
                     turretShooter.shootCCW();
                     intakeSpindexer.ballsLoaded--;
+                    intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin1).setPosition(0);
+                    intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin2).setPosition(0);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 } finally {
@@ -141,6 +147,31 @@ public class Teleop_shreyas extends OpMode {
             turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).setVelocity(0);
         }
 
+        if (gamepad1.dpadUpWasReleased()) {
+            velocity = velocity + 100;
+        }
+        if (gamepad1.dpadDownWasReleased()) {
+            velocity = velocity - 100;
+        }
+        if (gamepad1.dpadRightWasReleased()) {
+            hoodPose = hoodPose + 0.05;
+        }
+        if (gamepad1.dpadLeftWasReleased()) {
+            hoodPose = hoodPose - 0.05;
+        }
+        if (gamepad1.rightBumperWasReleased()){
+            firstWait = firstWait + 100;
+        }
+        if (gamepad1.leftBumperWasReleased()){
+            firstWait = firstWait - 100;
+        }
+        if (gamepad2.rightBumperWasReleased()){
+            secondThirdWait = secondThirdWait + 100;
+        }
+        if (gamepad2.leftBumperWasReleased()){
+            secondThirdWait = secondThirdWait - 100;
+        }
+
         //TODO: fix the intake motor not spinning (possible fix below)
         if (intakeSpindexer.ballsLoaded > 0 &&
                 intakeSpindexer.state == IntakeSpindexer_shreyas.IntakeState.IDLE) {
@@ -151,6 +182,10 @@ public class Teleop_shreyas extends OpMode {
         // --- TELEMETRY ---
         telemetry.addData("Balls Loaded", intakeSpindexer.getBallCount());
         telemetry.addData("Intake State", intakeSpindexer.hasBalls());
+        telemetry.addData("Velocity", velocity);
+        telemetry.addData("Hood Pose", hoodPose);
+        telemetry.addData("First Wait", firstWait);
+        telemetry.addData("2nd / 3rd", secondThirdWait);
         /*for (IntakeSpindexer_shreyas.BallColor color : intakeSpindexer.ballColors) {
             telemetry.addData("color:", color.ordinal());
         }*/
