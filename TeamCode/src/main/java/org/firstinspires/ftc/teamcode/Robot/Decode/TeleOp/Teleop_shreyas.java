@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.Robot.Decode.TeleOp;
 import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Robot.Decode.Alliance;
 import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.IntakeSpindexer_shreyas;
 import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.TurretShooter_shreyas;
@@ -18,8 +20,8 @@ public class Teleop_shreyas extends OpMode {
     private boolean BisPressed = false;
     private boolean AisPressed = false;
     private boolean isShooterSpinning = false;
-    public int velocity = 2800;
-    public double hoodPose = 1;
+    public int velocity = 300;
+    public double hoodPose = 0.95;
     public int firstWait = 800;
     public int secondThirdWait = 300;
 
@@ -91,9 +93,20 @@ public class Teleop_shreyas extends OpMode {
 
         // --- INDEXED SHOOT BUTTON (Y) ---
         // Trigger the PPG / PGP / GPP sequence (endgame Teleop)
-        if (gamepad1.y && !YisPressed) {
+        if (gamepad1.yWasReleased()) {
             YisPressed = true;
-            turretShooter.shootIndexed(TurretShooter_shreyas.ShootCase.PPG);
+            isShooterSpinning = true;
+            turretShooter.getMotor(TurretShooter_shreyas.MotorNames.leftShooter).setVelocity(300);
+            turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).setVelocity(300);
+            new Thread(() -> {
+                try {
+                    turretShooter.shootIndexed(TurretShooter_shreyas.ShootCase.PPG);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    isShooterSpinning = false;
+                }
+            }).start();
             /* TODO: when we find the order (PPG/PGP/GPP) in auto, get the value into teleup and change
             *   the parameter above based on the parameter from AUTO*/
         } else if (!gamepad1.y) {
@@ -121,17 +134,22 @@ public class Teleop_shreyas extends OpMode {
 
             new Thread(() -> {
                 try {
-                    Thread.sleep(firstWait);
+                    Thread.sleep(firstWait); // 800
+                    turretShooter.shootCCW();
+                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.leftShooter).setVelocity(velocity+150);
+                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).setVelocity(velocity+150);
+                    turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(hoodPose - 0.10);
+                    intakeSpindexer.ballsLoaded--;
+                    Thread.sleep(secondThirdWait); // 400
                     turretShooter.shootCCW();
                     intakeSpindexer.ballsLoaded--;
-                    Thread.sleep(secondThirdWait);
-                    turretShooter.shootCCW();
-                    intakeSpindexer.ballsLoaded--;
-                    Thread.sleep(secondThirdWait);
+                    turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(hoodPose-0.1);
+                    Thread.sleep(secondThirdWait); // 400
                     turretShooter.shootCCW();
                     intakeSpindexer.ballsLoaded--;
                     intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin1).setPosition(0);
                     intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin2).setPosition(0);
+                    turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(hoodPose);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 } finally {
@@ -142,7 +160,7 @@ public class Teleop_shreyas extends OpMode {
             AisPressed = false;
         }
 
-        if ((!isShooterSpinning && !gamepad1.a) || intakeSpindexer.ballsLoaded == 0) {
+        if (intakeSpindexer.ballsLoaded == 0) {
             turretShooter.getMotor(TurretShooter_shreyas.MotorNames.leftShooter).setVelocity(0);
             turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).setVelocity(0);
         }
@@ -152,6 +170,12 @@ public class Teleop_shreyas extends OpMode {
         }
         if (gamepad1.dpadDownWasReleased()) {
             velocity = velocity - 100;
+        }
+        if (gamepad2.dpadUpWasReleased()) {
+            velocity = velocity + 50;
+        }
+        if (gamepad2.dpadDownWasReleased()) {
+            velocity = velocity - 50;
         }
         if (gamepad1.dpadRightWasReleased()) {
             hoodPose = hoodPose + 0.05;
@@ -178,17 +202,48 @@ public class Teleop_shreyas extends OpMode {
             intakeSpindexer.getMotor(IntakeSpindexer_shreyas.MotorNames.intake).setPower(0.6);
         } // hopefully a fix for the intake not spinning
 
-
         // --- TELEMETRY ---
-        telemetry.addData("Balls Loaded", intakeSpindexer.getBallCount());
+        /* telemetry.addData("Balls Loaded", intakeSpindexer.getBallCount());
         telemetry.addData("Intake State", intakeSpindexer.hasBalls());
         telemetry.addData("Velocity", velocity);
         telemetry.addData("Hood Pose", hoodPose);
         telemetry.addData("First Wait", firstWait);
-        telemetry.addData("2nd / 3rd", secondThirdWait);
+        telemetry.addData("2nd / 3rd", secondThirdWait); */
         /*for (IntakeSpindexer_shreyas.BallColor color : intakeSpindexer.ballColors) {
             telemetry.addData("color:", color.ordinal());
         }*/
+        telemetry.addData("Ball Colors", intakeSpindexer.ballColors.toString());
+        telemetry.addData("Balls Loaded", intakeSpindexer.ballsLoaded);
+        telemetry.addData("Array Size", intakeSpindexer.ballColors.size());
+        telemetry.addData("Red", (intakeSpindexer.getColorSensor1().red() + intakeSpindexer.getColorSensor2().red())/2);
+        telemetry.addData("Green", (intakeSpindexer.getColorSensor1().green() + intakeSpindexer.getColorSensor2().green())/2);
+        telemetry.addData("Blue", (intakeSpindexer.getColorSensor1().blue() + intakeSpindexer.getColorSensor2().blue())/2);
+        int red = (intakeSpindexer.getColorSensor1().red() + intakeSpindexer.getColorSensor2().red())/2;
+        int green = (intakeSpindexer.getColorSensor1().green() + intakeSpindexer.getColorSensor2().green())/2;
+        int blue = (intakeSpindexer.getColorSensor1().blue() + intakeSpindexer.getColorSensor2().blue())/2;
+        /*if ((red >= 600 && red <= 1272 ) &&
+                (green >= 755 && green <= 1475) &&
+                (blue  >= 1350  && blue  <= 2500) || (red >= 300 && red <= 657 ) &&
+                (green >= 355 && green <= 675) &&
+                (blue  >= 620  && blue  <= 1152)) {
+            telemetry.addLine("Purple Ball dtected");
+        }*/
+
+        if ((green > blue) &&
+                (intakeSpindexer.getColorSensor2().getDistance(DistanceUnit.MM) < 20 || intakeSpindexer.getColorSensor1().getDistance(DistanceUnit.MM) < 20)) {
+            telemetry.addLine("Green Ball dtected");
+        } else if ((blue > green )&&
+                (intakeSpindexer.getColorSensor2().getDistance(DistanceUnit.MM) < 20 || intakeSpindexer.getColorSensor1().getDistance(DistanceUnit.MM) < 20)) {
+            telemetry.addLine("Purple Ball dtected");
+
+        }
+        if ((intakeSpindexer.getColorSensor2().getDistance(DistanceUnit.MM) < 20 || intakeSpindexer.getColorSensor1().getDistance(DistanceUnit.MM) < 20)) {
+            telemetry.addLine("Ball Detected");
+        }
+
+        for (int i=0; i < intakeSpindexer.ballColors.size(); i++) {
+            telemetry.addData("Ball" + (i + 1), intakeSpindexer.ballColors.get(i).name());
+        }
         telemetry.update();
     }
 

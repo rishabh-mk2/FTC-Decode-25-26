@@ -39,34 +39,34 @@ public class IntakeSpindexer_shreyas {
 
     //region COLOR VALUES
     //  PURPLE thresholds
-    private static final int PURPLE_RED_MIN = 883;
-    private static final int PURPLE_RED_MAX = 892;
-    private static final int PURPLE_GREEN_MIN = 1005;
-    private static final int PURPLE_GREEN_MAX = 1015;
-    private static final int PURPLE_BLUE_MIN = 1718;
-    private static final int PURPLE_BLUE_MAX = 1731;
+    private static final int PURPLE_RED_MIN = 753;
+    private static final int PURPLE_RED_MAX = 922;
+    private static final int PURPLE_GREEN_MIN = 825;
+    private static final int PURPLE_GREEN_MAX = 1135;
+    private static final int PURPLE_BLUE_MIN = 1450;
+    private static final int PURPLE_BLUE_MAX = 1851;
 
-    private static final int PURPLE_HOLE_RED_MIN = 560;
-    private static final int PURPLE_HOLE_RED_MAX = 567;
-    private static final int PURPLE_HOLE_GREEN_MIN = 637;
-    private static final int PURPLE_HOLE_GREEN_MAX = 645;
-    private static final int PURPLE_HOLE_BLUE_MIN = 1092;
-    private static final int PURPLE_HOLE_BLUE_MAX = 1102;
+    private static final int PURPLE_HOLE_RED_MIN = 420;
+    private static final int PURPLE_HOLE_RED_MAX = 657;
+    private static final int PURPLE_HOLE_GREEN_MIN = 485;
+    private static final int PURPLE_HOLE_GREEN_MAX = 675;
+    private static final int PURPLE_HOLE_BLUE_MIN = 920;
+    private static final int PURPLE_HOLE_BLUE_MAX = 1152;
 
     //  GREEN thresholds
-    private static final int GREEN_RED_MIN = 405;
-    private static final int GREEN_RED_MAX = 413;
-    private static final int GREEN_GREEN_MIN = 1715;
-    private static final int GREEN_GREEN_MAX = 1725;
-    private static final int GREEN_BLUE_MIN = 1267;
-    private static final int GREEN_BLUE_MAX = 1277;
+    private static final int GREEN_RED_MIN = 285;//
+    private static final int GREEN_RED_MAX = 433;
+    private static final int GREEN_GREEN_MIN = 1595;
+    private static final int GREEN_GREEN_MAX = 1805;
+    private static final int GREEN_BLUE_MIN = 1147;
+    private static final int GREEN_BLUE_MAX = 1397;
 
-    private static final int GREEN_HOLE_RED_MIN = 172;
-    private static final int GREEN_HOLE_RED_MAX = 183;
-    private static final int GREEN_HOLE_GREEN_MIN = 726;
-    private static final int GREEN_HOLE_GREEN_MAX = 737;
-    private static final int GREEN_HOLE_BLUE_MIN = 540;
-    private static final int GREEN_HOLE_BLUE_MAX = 551;
+    private static final int GREEN_HOLE_RED_MIN = 102;
+    private static final int GREEN_HOLE_RED_MAX = 353;
+    private static final int GREEN_HOLE_GREEN_MIN = 606;
+    private static final int GREEN_HOLE_GREEN_MAX = 857;
+    private static final int GREEN_HOLE_BLUE_MIN = 420;
+    private static final int GREEN_HOLE_BLUE_MAX = 671;
 //endregion
 
     public enum IntakeState {
@@ -222,39 +222,42 @@ public class IntakeSpindexer_shreyas {
         addTelemetry("Balls Loaded", ballsLoaded);
         addTelemetry("Intake State", state);
     } */
+    private long lastBallProcessedTime = 0;
+    private static final long DETECTION_COOLDOWN_MS = 500; // 100ms cooldown
+
     public void update() {
         double dist1 = frontSensor1.getDistance(DistanceUnit.MM);
         double dist2 = frontSensor2.getDistance(DistanceUnit.MM);
-        boolean ballDetected1 = dist1 < BALL_DIST_MM;
-        boolean ballDetected2 = dist2 < BALL_DIST_MM;
-        boolean ballDetected = ballDetected1 || ballDetected2;  // Either sensor sees it
+        boolean ballDetected = (dist1 < BALL_DIST_MM) || (dist2 < BALL_DIST_MM);
+        long currentTime = System.currentTimeMillis();
 
         switch (state) {
             case INTAKING:
                 getMotor(MotorNames.intake).setPower(0.6);
 
-                // Rising edge: ball just arrived (either sensor)
-                if (ballDetected && !lastBallDetected && ballsLoaded < 3) {
-                    lastBallDetected = true;
+                // Rising edge with cooldown timer
+                if (ballDetected && !lastBallDetected && ballsLoaded < 3 &&
+                        (currentTime - lastBallProcessedTime) > DETECTION_COOLDOWN_MS) {
+
+                    lastBallProcessedTime = currentTime;
+
                     int red = (frontSensor1.red() + frontSensor2.red()) / 2;
                     int green = (frontSensor1.green() + frontSensor2.green()) / 2;
                     int blue = (frontSensor1.blue() + frontSensor2.blue()) / 2;
                     BallColor detectedColor = classifyBallColor(red, green, blue);
+
+
                     if (ballColors.size() < 3 && detectedColor != null) {
                         ballColors.add(detectedColor);
                     }
-
                     ballsLoaded++;
                     if (ballsLoaded < 3) {
                         rotateSpindexer120(1, false);
-                        lastBallDetected = false;
                     } else if (ballsLoaded == 3) {
                         rotateSpindexer60();
                     }
 
-                    //getMotor(MotorNames.intake).setPower(0);
-
-                    indexStartTime = System.currentTimeMillis();
+                    indexStartTime = currentTime;
                     state = IntakeState.INDEXING;
                 }
                 break;
@@ -324,11 +327,18 @@ public class IntakeSpindexer_shreyas {
                 (red >= GREEN_HOLE_RED_MIN && red <= GREEN_HOLE_RED_MAX ) &&
                         (green >= GREEN_HOLE_GREEN_MIN && green <= GREEN_HOLE_GREEN_MAX) &&
                         (blue  >= GREEN_HOLE_BLUE_MIN  && blue  <= GREEN_HOLE_BLUE_MAX);
-        if (normalPurple || holePurple) {
+
+        /*if (normalPurple || holePurple) {
             return BallColor.P;
         }
         if (normalGreen || holeGreen) {
             return BallColor.G;
+        }*/
+
+        if (green > blue) {
+            return BallColor.G;
+        } else if (blue > green) {
+            return BallColor.P;
         }
         return null;
     }
