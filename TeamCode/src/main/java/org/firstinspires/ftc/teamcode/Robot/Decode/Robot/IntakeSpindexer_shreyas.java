@@ -25,7 +25,7 @@ public class IntakeSpindexer_shreyas {
     RevColorSensorV3 frontSensor1;
     RevColorSensorV3 frontSensor2;
 
-    static final double BALL_DIST_MM = 20;
+    static final double BALL_DIST_MM = 30;
     static final double SPIN_STEP = 0.194;
     boolean lastBallDetected = false;
 
@@ -92,8 +92,9 @@ public class IntakeSpindexer_shreyas {
         spin2,
         kicker
     }
+    public boolean wantStart0;
 
-    public IntakeSpindexer_shreyas(OpMode opMode) {
+    public IntakeSpindexer_shreyas(OpMode opMode, boolean wantStart0) {
         this.opmode = opMode;
         this.telemetry = opMode.telemetry;
         this.hardwareMap = opMode.hardwareMap;
@@ -114,10 +115,14 @@ public class IntakeSpindexer_shreyas {
             Servo servo = hardwareMap.get(Servo.class, name.toString());
             Servos.add(servo);
         }
-
-        getServo(ServoNames.spin1).setPosition(0.0);
-        getServo(ServoNames.spin2).setPosition(0.0);
-        getServo(ServoNames.kicker).setPosition(0.225);
+        if (wantStart0) {
+            getServo(ServoNames.spin1).setPosition(0.0);
+            getServo(ServoNames.spin2).setPosition(0.0);
+            getServo(ServoNames.kicker).setPosition(0.225);
+        } else if (!wantStart0) {
+            // dont do anything
+            getServo(ServoNames.kicker).setPosition(0.225);
+        }
 
         frontSensor1 = hardwareMap.get(RevColorSensorV3.class, "front1");
         frontSensor2 = hardwareMap.get(RevColorSensorV3.class, "front2");
@@ -165,63 +170,6 @@ public class IntakeSpindexer_shreyas {
 
     // Variable to lock the intake while a ball is being moved
     private boolean isProcessingBall = false;
-
-    /* public void update() {
-        double dist = frontSensor1.getDistance(DistanceUnit.MM);
-        boolean ballDetected = dist < BALL_DIST_MM;
-
-        switch (state) {
-            case INTAKING:
-                getMotor(MotorNames.intake).setPower(0.6);
-                if (ballDetected && !lastBallDetected && ballsLoaded < 3 && !isProcessingBall) {
-                    isProcessingBall = true;
-
-                    // Read color NOW while ball is in front of sensor
-                    int red = (frontSensor1.red() + frontSensor2.red()) / 2;
-                    int green = (frontSensor1.green() + frontSensor2.green()) / 2;
-                    int blue = (frontSensor1.blue() + frontSensor2.blue()) / 2;
-                    BallColor detectedColor = classifyBallColor(red, green, blue);
-                    new Thread(() -> {
-                        try {
-                            Thread.sleep(750);
-                            ballsLoaded++;
-
-                            if (ballColors.size() < 3 && detectedColor != null) {
-                                ballColors.add(detectedColor);
-                            }
-                            rotateSpindexer120(1, false);
-                            //getMotor(MotorNames.intake).setPower(0);
-
-                            indexStartTime = System.currentTimeMillis();
-                            state = IntakeState.INDEXING;
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                        } finally {
-                            isProcessingBall = false; // Release lock
-                        }
-                    }).start();
-                }
-                break;
-
-            case INDEXING:
-                if (System.currentTimeMillis() - indexStartTime > 100) {
-                    getServo(ServoNames.kicker).setPosition(0.225); // kick down
-                }
-                if (System.currentTimeMillis() - indexStartTime > 250) {
-                    state = ballsLoaded < 3 ? IntakeState.INTAKING : IntakeState.IDLE;
-                }
-                break;
-
-            case IDLE:
-                getMotor(MotorNames.intake).setPower(0);
-                break;
-        }
-
-        lastBallDetected = ballDetected;
-
-        addTelemetry("Balls Loaded", ballsLoaded);
-        addTelemetry("Intake State", state);
-    } */
     private long lastBallProcessedTime = 0;
     private static final long DETECTION_COOLDOWN_MS = 500; // 100ms cooldown
 

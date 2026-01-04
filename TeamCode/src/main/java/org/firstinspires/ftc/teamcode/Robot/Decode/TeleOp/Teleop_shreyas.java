@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Robot.Decode.TeleOp;
 
+import com.bylazar.telemetry.PanelsTelemetry;
 import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -20,8 +21,8 @@ public class Teleop_shreyas extends OpMode {
     private boolean BisPressed = false;
     private boolean AisPressed = false;
     private boolean isShooterSpinning = false;
-    public int velocity = 300;
-    public double hoodPose = 0.95;
+    public int velocity = 1400;
+    public double hoodPose = 0.5;
     public int firstWait = 800;
     public int secondThirdWait = 300;
 
@@ -30,7 +31,7 @@ public class Teleop_shreyas extends OpMode {
     public void init() {
         follower = Constants.createFollower(hardwareMap);
         // Important: Initialize Intake FIRST, then pass it to Shooter
-        intakeSpindexer = new IntakeSpindexer_shreyas(this);
+        intakeSpindexer = new IntakeSpindexer_shreyas(this, true);
         turretShooter = new TurretShooter_shreyas(this, Alliance.RED, intakeSpindexer);
         telemetry.addData("Status", "Initialized");
     }
@@ -52,7 +53,7 @@ public class Teleop_shreyas extends OpMode {
         );
 
         // --- SUBSYSTEM UPDATES ---
-        turretShooter.updateTurretTracking();
+        turretShooter.trackAprilTag();
         intakeSpindexer.update();
 
         // --- INTAKE TOGGLE (Button X) ---
@@ -95,7 +96,6 @@ public class Teleop_shreyas extends OpMode {
         // Trigger the PPG / PGP / GPP sequence (endgame Teleop)
         if (gamepad1.yWasReleased()) {
             YisPressed = true;
-            isShooterSpinning = true;
             turretShooter.getMotor(TurretShooter_shreyas.MotorNames.leftShooter).setVelocity(300);
             turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).setVelocity(300);
             new Thread(() -> {
@@ -103,8 +103,6 @@ public class Teleop_shreyas extends OpMode {
                     turretShooter.shootIndexed(TurretShooter_shreyas.ShootCase.PPG);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
-                } finally {
-                    isShooterSpinning = false;
                 }
             }).start();
             /* TODO: when we find the order (PPG/PGP/GPP) in auto, get the value into teleup and change
@@ -127,35 +125,8 @@ public class Teleop_shreyas extends OpMode {
 
         if (gamepad1.a && !AisPressed && intakeSpindexer.ballsLoaded > 0) {
             AisPressed = true;
-            isShooterSpinning = true;
-            turretShooter.getMotor(TurretShooter_shreyas.MotorNames.leftShooter).setVelocity(velocity);
-            turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).setVelocity(velocity);
-            turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(hoodPose);
-
-            new Thread(() -> {
-                try {
-                    Thread.sleep(firstWait); // 800
-                    turretShooter.shootCCW();
-                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.leftShooter).setVelocity(velocity+150);
-                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).setVelocity(velocity+150);
-                    turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(hoodPose - 0.10);
-                    intakeSpindexer.ballsLoaded--;
-                    Thread.sleep(secondThirdWait); // 400
-                    turretShooter.shootCCW();
-                    intakeSpindexer.ballsLoaded--;
-                    turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(hoodPose-0.1);
-                    Thread.sleep(secondThirdWait); // 400
-                    turretShooter.shootCCW();
-                    intakeSpindexer.ballsLoaded--;
-                    intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin1).setPosition(0);
-                    intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin2).setPosition(0);
-                    turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(hoodPose);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                } finally {
-                    isShooterSpinning = false;
-                }
-            }).start();
+            turretShooter.simpleShootSequence(velocity, hoodPose, firstWait, secondThirdWait,
+                    intakeSpindexer);
         } else if (!gamepad1.a) {
             AisPressed = false;
         }
@@ -203,12 +174,12 @@ public class Teleop_shreyas extends OpMode {
         } // hopefully a fix for the intake not spinning
 
         // --- TELEMETRY ---
-        /* telemetry.addData("Balls Loaded", intakeSpindexer.getBallCount());
+        telemetry.addData("Balls Loaded", intakeSpindexer.getBallCount());
         telemetry.addData("Intake State", intakeSpindexer.hasBalls());
         telemetry.addData("Velocity", velocity);
         telemetry.addData("Hood Pose", hoodPose);
         telemetry.addData("First Wait", firstWait);
-        telemetry.addData("2nd / 3rd", secondThirdWait); */
+        telemetry.addData("2nd / 3rd", secondThirdWait);
         /*for (IntakeSpindexer_shreyas.BallColor color : intakeSpindexer.ballColors) {
             telemetry.addData("color:", color.ordinal());
         }*/

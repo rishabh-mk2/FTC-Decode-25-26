@@ -5,16 +5,11 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
-import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.IMU;
 
 import java.util.List;
 
@@ -24,7 +19,6 @@ public class limelightPIDtest extends LinearOpMode {
     private PIDController pidController;
     private DcMotorEx turret;
     private PinpointLocalizer pinpointLocalizer;
-    private IMU imu;
     public LLResult result;
     double p, i, d;
     public int id;
@@ -32,15 +26,10 @@ public class limelightPIDtest extends LinearOpMode {
 
     public void runOpMode() throws InterruptedException {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        imu = hardwareMap.get(IMU.class, "imu");
         turret = this.hardwareMap.get(DcMotorEx.class, "turret");
 
         limelight.pipelineSwitch(0);
         turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-//        RevHubOrientationOnRobot revHubOrientationOnRobot = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
-//                RevHubOrientationOnRobot.UsbFacingDirection.UP);
-//        imu.initialize(new IMU.Parameters(revHubOrientationOnRobot));
 
         telemetry.setMsTransmissionInterval(11);
         telemetry.setAutoClear(true);
@@ -74,7 +63,7 @@ public class limelightPIDtest extends LinearOpMode {
             // KNOWN WORKING VALUES: p = 0.0091;  i = 0;  d = 0.0015
 
 
-            /* if(gamepad1.a && !AisPressed){
+            if(gamepad1.a && !AisPressed){
                 AisPressed = true;
             }
             if (!gamepad1.a && AisPressed) {
@@ -98,11 +87,9 @@ public class limelightPIDtest extends LinearOpMode {
             } if(!gamepad1.y && YisPressed){
                 d -= 0.0001;
                 YisPressed = false;
-            } */
+            }
 
             //TODO: Add the distance to the april tag stuff
-//            YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
-//            limelight.updateRobotOrientation(orientation.getYaw(AngleUnit.DEGREES));
 
             result = limelight.getLatestResult();
             List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
@@ -117,7 +104,7 @@ public class limelightPIDtest extends LinearOpMode {
                     double pid = pidController.calculate(turretPos, turretPos - (537.7*currentTargetDeg)/360.0); // NOTE FOR SELF: Adding/Subtracting the TICK VAL. of the DEG VAL. from the current motor pos. basically doing -> currentMotorTickVal +- (motorTickPerRevolution*givenDegVal/totalDegInCircle)
                     turret.setPower(pid);
                     telemetry.addData("Fiducial " + id, " is " + currentTargetDeg + " degrees");
-                    telemetry.addData("Target X", result.getTx());
+                    telemetry.addData("Target X", result.getTy());
                     telemetry.addData("Target Area", result.getTa());
                     telemetry.addData("Current Pos", turretPos);
                     telemetry.addData("PID Power", pid);
@@ -128,8 +115,8 @@ public class limelightPIDtest extends LinearOpMode {
                 telemetry.addData("info", "no april tag being detected");
                 turret.setPower(0);
             }
-
-
+            telemetry.addData("kP", p);
+            telemetry.addData("kD", d);
             telemetry.update();
         }
         limelight.stop();
