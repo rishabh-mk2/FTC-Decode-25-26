@@ -85,9 +85,8 @@ public class TurretShooter_shreyas {
         getMotor(MotorNames.rightShooter).setDirection(DcMotorEx.Direction.FORWARD);
 
         // TUNABLE: Start with these values and tune using the method described
-        turretPID = new PIDController(0.045, 0.0, 0.5);
-        turretPID.setPID(0.045, 0.0, 0.5);
-        turretPID.setTolerance(1.0); // Tolerance in degrees
+        turretPID = new PIDController(0.02, 0.0, 0.5);
+        turretPID.setPID(0.02, 0.0, 0.5);
 
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
 
@@ -198,7 +197,7 @@ public class TurretShooter_shreyas {
         return intakedOrder.GG;
     }
 
-    public void shootIndexed(ShootCase shootCase) {
+    public void shootIndexed(ShootCase shootCase, int velocity, double hoodPose) {
         if (isShooting) return;
         if (intakeSpindexer == null || intakeSpindexer.ballColors.size() < 2) return;
 
@@ -207,6 +206,9 @@ public class TurretShooter_shreyas {
         );
 
         intakedOrder intakeOrder = getIntakeOrder(firstTwo);
+        getMotor(MotorNames.leftShooter).setVelocity(velocity);
+        getMotor(MotorNames.rightShooter).setVelocity(velocity);
+        getServo(ServoNames.hood).setPosition(hoodPose);
         new Thread(() -> {
             isShooting = true;
             try {
@@ -214,13 +216,13 @@ public class TurretShooter_shreyas {
                     case PPG:
                         //region PPG cases
                         if (intakeOrder == intakedOrder.PP){
-                            Thread.sleep(1000);
+                            //Thread.sleep(1000);
                             shootCCW();
-                            Thread.sleep(200);
+                            Thread.sleep(1000);
                             intakeSpindexer.rotateSpindexer120(1, false);
                             Thread.sleep(1000);
                             shootCW();
-                            Thread.sleep(1000);
+                            Thread.sleep(2000);
                             shootCW();
                             Thread.sleep(1000);
                             intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin1).setPosition(0.0);
@@ -232,18 +234,18 @@ public class TurretShooter_shreyas {
                             shootCCW();
                             Thread.sleep(1000);
                             shootCCW();
-                            Thread.sleep(1000);
+                            Thread.sleep(2000);
                             shootCW();
                             Thread.sleep(1000);
                             intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin1).setPosition(0.0);
                             intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin2).setPosition(0.0);
                             intakeSpindexer.ballColors.clear();
                         } else if (intakeOrder == intakedOrder.GP) {
-                            Thread.sleep(1000);
+                            //Thread.sleep(200);
                             shootCCW();
                             Thread.sleep(1000);
                             shootCCW();
-                            Thread.sleep(1000);
+                            Thread.sleep(2000);
                             shootCW();
                             Thread.sleep(1000);
                             intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin1).setPosition(0.0);

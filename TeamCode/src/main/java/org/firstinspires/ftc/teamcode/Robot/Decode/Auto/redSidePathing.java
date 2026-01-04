@@ -37,7 +37,7 @@ public class redSidePathing extends OpMode {
     private final Pose last = new Pose(88, 66, Math.toRadians(270));
 
     private final Pose pickup1Pose = new Pose(130, 73, Math.toRadians(0));
-    private final Pose pickup2Pose = new Pose(126, 46.5, Math.toRadians(270));
+    private final Pose pickup2Pose = new Pose(128, 46.5, Math.toRadians(270));
     private final Pose pickup3Pose = new Pose(121, 35, Math.toRadians(307));
     private final Pose releasePose = new Pose(132, 70, Math.toRadians(0));
     private final Pose pushReleasePose = new Pose(138.5, 69, Math.toRadians(0));
@@ -113,13 +113,17 @@ public class redSidePathing extends OpMode {
             case 0:
                 // Start following path
                 if (!hasStartedShooting) {
-                    follower.followPath(scorePreload, 0.9, true);
+                    follower.followPath(scorePreload, 0.5, true);
                     hasStartedShooting = true;
+                }
+                if (pathTimer.getElapsedTimeSeconds() >= 1.0) {
+                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.leftShooter).setVelocity(1500);
+                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).setVelocity(1500);
                 }
 
                 // Once path is complete, call shooting function ONCE
                 if (!follower.isBusy() && !hasCalledShootFunction) {
-                    turretShooter.simpleShootSequence(1500, 0.5, 700,400, intakeSpindexer);
+                    turretShooter.simpleShootSequence(1500, 0.5, 0,750, intakeSpindexer);
                     hasCalledShootFunction = true;
                 }
 
@@ -142,8 +146,8 @@ public class redSidePathing extends OpMode {
                 }
 
                 // Once path complete, wait 500ms then switch
-                if (!follower.isBusy() && hasStartedIntaking && pathTimer.getElapsedTimeSeconds() >= 5.5) {
-                    setPathState(2);
+                if (!follower.isBusy() && hasStartedIntaking && pathTimer.getElapsedTimeSeconds() >= 1.5) {
+                    setPathState(4);
                 }
                 break;
 
@@ -166,13 +170,18 @@ public class redSidePathing extends OpMode {
             case 4:
                 // Start following path to score position
                 if (!hasStartedShooting) {
-                    follower.followPath(ScorePickup1, 0.9, true);
+                    follower.followPath(ScorePickup1, 0.5, true);
                     hasStartedShooting = true;
+                }
+
+                if (pathTimer.getElapsedTimeSeconds() > 1) {
+                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.leftShooter).setVelocity(1500);
+                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).setVelocity(1500);
                 }
 
                 // Once path complete, call shooting function ONCE
                 if (!follower.isBusy() && !hasCalledShootFunction) {
-                    turretShooter.shootIndexed(TurretShooter_shreyas.ShootCase.PPG); // Adjust shoot case as needed
+                    turretShooter.shootIndexed(TurretShooter_shreyas.ShootCase.PPG, 1500, 0.75); // Adjust shoot case as needed
                     hasCalledShootFunction = true;
                 }
 
@@ -203,13 +212,17 @@ public class redSidePathing extends OpMode {
             case 6:
                 // Start following path to score position
                 if (!hasStartedShooting) {
-                    follower.followPath(scorePickup2, 0.9, true);
+                    follower.followPath(scorePickup2, 0.5, true);
                     hasStartedShooting = true;
+                }
+                if (pathTimer.getElapsedTimeSeconds() > 1) {
+                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.leftShooter).setVelocity(1500);
+                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).setVelocity(1500);
                 }
 
                 // Once path complete, call shooting function ONCE
                 if (!follower.isBusy() && !hasCalledShootFunction) {
-                    turretShooter.shootIndexed(TurretShooter_shreyas.ShootCase.PPG); // Adjust shoot case as needed
+                    turretShooter.shootIndexed(TurretShooter_shreyas.ShootCase.PPG, 1500, 0.75); // Adjust shoot case as needed
                     hasCalledShootFunction = true;
                 }
 
@@ -246,7 +259,7 @@ public class redSidePathing extends OpMode {
 
                 // Once path complete, call shooting function ONCE
                 if (!follower.isBusy() && !hasCalledShootFunction) {
-                    turretShooter.shootIndexed(TurretShooter_shreyas.ShootCase.PPG); // Adjust shoot case as needed
+                    turretShooter.shootIndexed(TurretShooter_shreyas.ShootCase.PPG, 1200, 0.75); // Adjust shoot case as needed
                     hasCalledShootFunction = true;
                 }
 
@@ -304,7 +317,7 @@ public class redSidePathing extends OpMode {
     public void loop() {
         follower.update();
         intakeSpindexer.update();
-        //turretShooter.trackAprilTag();
+        turretShooter.trackAprilTag();
         autonomousPathUpdate();
 
         // Stop shooter motors when out of balls
@@ -314,7 +327,7 @@ public class redSidePathing extends OpMode {
         }
         if (intakeSpindexer.ballsLoaded > 0 &&
                 intakeSpindexer.state == IntakeSpindexer_shreyas.IntakeState.IDLE) {
-            intakeSpindexer.getMotor(IntakeSpindexer_shreyas.MotorNames.intake).setPower(0.6);
+            intakeSpindexer.getMotor(IntakeSpindexer_shreyas.MotorNames.intake).setPower(0.75);
         }
 
         telemetry.addData("Path State", pathState);

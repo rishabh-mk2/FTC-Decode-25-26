@@ -100,7 +100,7 @@ public class Teleop_shreyas extends OpMode {
             turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).setVelocity(300);
             new Thread(() -> {
                 try {
-                    turretShooter.shootIndexed(TurretShooter_shreyas.ShootCase.PPG);
+                    turretShooter.shootIndexed(TurretShooter_shreyas.ShootCase.PPG, 1000, 0.5);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -186,32 +186,6 @@ public class Teleop_shreyas extends OpMode {
         telemetry.addData("Ball Colors", intakeSpindexer.ballColors.toString());
         telemetry.addData("Balls Loaded", intakeSpindexer.ballsLoaded);
         telemetry.addData("Array Size", intakeSpindexer.ballColors.size());
-        telemetry.addData("Red", (intakeSpindexer.getColorSensor1().red() + intakeSpindexer.getColorSensor2().red())/2);
-        telemetry.addData("Green", (intakeSpindexer.getColorSensor1().green() + intakeSpindexer.getColorSensor2().green())/2);
-        telemetry.addData("Blue", (intakeSpindexer.getColorSensor1().blue() + intakeSpindexer.getColorSensor2().blue())/2);
-        int red = (intakeSpindexer.getColorSensor1().red() + intakeSpindexer.getColorSensor2().red())/2;
-        int green = (intakeSpindexer.getColorSensor1().green() + intakeSpindexer.getColorSensor2().green())/2;
-        int blue = (intakeSpindexer.getColorSensor1().blue() + intakeSpindexer.getColorSensor2().blue())/2;
-        /*if ((red >= 600 && red <= 1272 ) &&
-                (green >= 755 && green <= 1475) &&
-                (blue  >= 1350  && blue  <= 2500) || (red >= 300 && red <= 657 ) &&
-                (green >= 355 && green <= 675) &&
-                (blue  >= 620  && blue  <= 1152)) {
-            telemetry.addLine("Purple Ball dtected");
-        }*/
-
-        if ((green > blue) &&
-                (intakeSpindexer.getColorSensor2().getDistance(DistanceUnit.MM) < 20 || intakeSpindexer.getColorSensor1().getDistance(DistanceUnit.MM) < 20)) {
-            telemetry.addLine("Green Ball dtected");
-        } else if ((blue > green )&&
-                (intakeSpindexer.getColorSensor2().getDistance(DistanceUnit.MM) < 20 || intakeSpindexer.getColorSensor1().getDistance(DistanceUnit.MM) < 20)) {
-            telemetry.addLine("Purple Ball dtected");
-
-        }
-        if ((intakeSpindexer.getColorSensor2().getDistance(DistanceUnit.MM) < 20 || intakeSpindexer.getColorSensor1().getDistance(DistanceUnit.MM) < 20)) {
-            telemetry.addLine("Ball Detected");
-        }
-
         for (int i=0; i < intakeSpindexer.ballColors.size(); i++) {
             telemetry.addData("Ball" + (i + 1), intakeSpindexer.ballColors.get(i).name());
         }

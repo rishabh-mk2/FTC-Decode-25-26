@@ -1,9 +1,12 @@
 package org.firstinspires.ftc.teamcode.Robot.Decode.Robot;
 
+import android.graphics.Color;
+
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -181,7 +184,7 @@ public class IntakeSpindexer_shreyas {
 
         switch (state) {
             case INTAKING:
-                getMotor(MotorNames.intake).setPower(0.6);
+                getMotor(MotorNames.intake).setPower(0.75);
 
                 // Rising edge with cooldown timer
                 if (ballDetected && !lastBallDetected && ballsLoaded < 3 &&
@@ -189,9 +192,11 @@ public class IntakeSpindexer_shreyas {
 
                     lastBallProcessedTime = currentTime;
 
-                    int red = (frontSensor1.red() + frontSensor2.red()) / 2;
-                    int green = (frontSensor1.green() + frontSensor2.green()) / 2;
-                    int blue = (frontSensor1.blue() + frontSensor2.blue()) / 2;
+                    NormalizedRGBA c1 = frontSensor1.getNormalizedColors();
+                    NormalizedRGBA c2 = frontSensor2.getNormalizedColors();
+                    float red = (c1.red + c2.red)/2;
+                    float green = (c1.green + c2.green)/2;
+                    float blue = (c1.blue + c2.blue)/2;
                     BallColor detectedColor = classifyBallColor(red, green, blue);
 
 
@@ -257,35 +262,19 @@ public class IntakeSpindexer_shreyas {
         return frontSensor2;
     }
 
-    private BallColor classifyBallColor(int red, int green, int blue) {
-        boolean normalPurple =
-                (red >= PURPLE_RED_MIN && red <= PURPLE_RED_MAX ) &&
-                        (green >= PURPLE_GREEN_MIN && green <= PURPLE_GREEN_MAX) &&
-                        (blue  >= PURPLE_BLUE_MIN  && blue  <= PURPLE_BLUE_MAX);
-        boolean holePurple =
-                (red >= PURPLE_HOLE_RED_MIN && red <= PURPLE_HOLE_RED_MAX ) &&
-                        (green >= PURPLE_HOLE_GREEN_MIN && green <= PURPLE_HOLE_GREEN_MAX) &&
-                        (blue  >= PURPLE_HOLE_BLUE_MIN  && blue  <= PURPLE_HOLE_BLUE_MAX);
-
-        boolean normalGreen =
-                (red >= GREEN_RED_MIN && red <= GREEN_RED_MAX ) &&
-                        (green >= GREEN_GREEN_MIN && green <= GREEN_GREEN_MAX) &&
-                        (blue  >= GREEN_BLUE_MIN  && blue  <= GREEN_BLUE_MAX);
-        boolean holeGreen =
-                (red >= GREEN_HOLE_RED_MIN && red <= GREEN_HOLE_RED_MAX ) &&
-                        (green >= GREEN_HOLE_GREEN_MIN && green <= GREEN_HOLE_GREEN_MAX) &&
-                        (blue  >= GREEN_HOLE_BLUE_MIN  && blue  <= GREEN_HOLE_BLUE_MAX);
-
+    private BallColor classifyBallColor(float red, float green, float blue) {
+        float[] hsv = new float[3];
+        Color.RGBToHSV((int) (red * 255), (int) (green * 255), (int) (blue * 255), hsv);
+        float hue = hsv[0];
         /*if (normalPurple || holePurple) {
             return BallColor.P;
         }
         if (normalGreen || holeGreen) {
             return BallColor.G;
         }*/
-
-        if (green > blue) {
+        if (hue >= 80 && hue <= 160) {
             return BallColor.G;
-        } else if (blue > green) {
+        } else if (hue >= 260 && hue <= 330) {
             return BallColor.P;
         }
         return null;
