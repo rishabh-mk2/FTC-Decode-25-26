@@ -37,7 +37,7 @@ public class redSidePathing extends OpMode {
     private final Pose last = new Pose(88, 66, Math.toRadians(270));
 
     private final Pose pickup1Pose = new Pose(130, 73, Math.toRadians(0));
-    private final Pose pickup2Pose = new Pose(128, 46.5, Math.toRadians(270));
+    private final Pose pickup2Pose = new Pose(128, 43.5, Math.toRadians(270));
     private final Pose pickup3Pose = new Pose(121, 35, Math.toRadians(307));
     private final Pose releasePose = new Pose(132, 70, Math.toRadians(0));
     private final Pose pushReleasePose = new Pose(138.5, 69, Math.toRadians(0));
@@ -117,13 +117,13 @@ public class redSidePathing extends OpMode {
                     hasStartedShooting = true;
                 }
                 if (pathTimer.getElapsedTimeSeconds() >= 1.0) {
-                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.leftShooter).setVelocity(1500);
-                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).setVelocity(1500);
+                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.leftShooter).setVelocity(400);
+                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).setVelocity(400);
                 }
 
                 // Once path is complete, call shooting function ONCE
                 if (!follower.isBusy() && !hasCalledShootFunction) {
-                    turretShooter.simpleShootSequence(1500, 0.5, 0,750, intakeSpindexer);
+                    turretShooter.simpleShootSequence(400, 0.5, 0,750, intakeSpindexer);
                     hasCalledShootFunction = true;
                 }
 
@@ -170,18 +170,21 @@ public class redSidePathing extends OpMode {
             case 4:
                 // Start following path to score position
                 if (!hasStartedShooting) {
+                    if (intakeSpindexer.ballsLoaded != 3) {
+                        intakeSpindexer.rotateSpindexer60();
+                    }
                     follower.followPath(ScorePickup1, 0.5, true);
                     hasStartedShooting = true;
                 }
 
                 if (pathTimer.getElapsedTimeSeconds() > 1) {
-                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.leftShooter).setVelocity(1500);
-                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).setVelocity(1500);
+                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.leftShooter).setVelocity(400);
+                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).setVelocity(400);
                 }
 
                 // Once path complete, call shooting function ONCE
                 if (!follower.isBusy() && !hasCalledShootFunction) {
-                    turretShooter.shootIndexed(TurretShooter_shreyas.ShootCase.PPG, 1500, 0.75); // Adjust shoot case as needed
+                    turretShooter.shootIndexed(TurretShooter_shreyas.ShootCase.PPG, 400, 0.75); // Adjust shoot case as needed
                     hasCalledShootFunction = true;
                 }
 
@@ -212,17 +215,20 @@ public class redSidePathing extends OpMode {
             case 6:
                 // Start following path to score position
                 if (!hasStartedShooting) {
+                    if (intakeSpindexer.ballsLoaded != 3) {
+                        intakeSpindexer.rotateSpindexer60();
+                    }
                     follower.followPath(scorePickup2, 0.5, true);
                     hasStartedShooting = true;
                 }
                 if (pathTimer.getElapsedTimeSeconds() > 1) {
-                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.leftShooter).setVelocity(1500);
-                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).setVelocity(1500);
+                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.leftShooter).setVelocity(400);
+                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).setVelocity(400);
                 }
 
                 // Once path complete, call shooting function ONCE
                 if (!follower.isBusy() && !hasCalledShootFunction) {
-                    turretShooter.shootIndexed(TurretShooter_shreyas.ShootCase.PPG, 1500, 0.75); // Adjust shoot case as needed
+                    turretShooter.shootIndexed(TurretShooter_shreyas.ShootCase.PPG, 400, 0.75); // Adjust shoot case as needed
                     hasCalledShootFunction = true;
                 }
 
@@ -327,7 +333,7 @@ public class redSidePathing extends OpMode {
         }
         if (intakeSpindexer.ballsLoaded > 0 &&
                 intakeSpindexer.state == IntakeSpindexer_shreyas.IntakeState.IDLE) {
-            intakeSpindexer.getMotor(IntakeSpindexer_shreyas.MotorNames.intake).setPower(0.75);
+            intakeSpindexer.getMotor(IntakeSpindexer_shreyas.MotorNames.intake).setPower(0.8);
         }
 
         telemetry.addData("Path State", pathState);

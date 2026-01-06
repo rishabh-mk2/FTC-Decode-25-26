@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
@@ -34,7 +35,8 @@ public class IntakeSpindexer_shreyas {
 
     public enum BallColor {
         P,
-        G
+        G,
+        NONE
     }
 
     public int ballsLoaded = 0;
@@ -142,22 +144,6 @@ public class IntakeSpindexer_shreyas {
     }
 
     public void rotateSpindexer120(int direction, boolean checkForArray) {
-        if (ballColors.size() < 3 && checkForArray) {
-            int red = (frontSensor1.red() + frontSensor2.red()) / 2;
-            int green = (frontSensor1.green() + frontSensor2.green()) / 2;
-            int blue = (frontSensor1.blue() + frontSensor2.blue()) / 2;
-            BallColor color = classifyBallColor(red, green, blue);
-                ballColors.add(color);
-        }
-
-        //double newPos1 = getServo(ServoNames.spin1).getPosition() + (SPIN_STEP * direction);
-        //double newPos2 = getServo(ServoNames.spin2).getPosition() + (SPIN_STEP * direction);
-
-        /*if (newPos1 > 1.0) newPos1 -= 1.0;
-        if (newPos1 < 0.0) newPos1 += 1.0;
-        if (newPos2 > 1.0) newPos2 -= 1.0;
-        if (newPos2 < 0.0) newPos2 += 1.0;*/
-
         getServo(ServoNames.spin1)
                 .setPosition(getServo(ServoNames.spin1).getPosition() + (SPIN_STEP * direction));
         getServo(ServoNames.spin2)
@@ -174,7 +160,7 @@ public class IntakeSpindexer_shreyas {
     // Variable to lock the intake while a ball is being moved
     private boolean isProcessingBall = false;
     private long lastBallProcessedTime = 0;
-    private static final long DETECTION_COOLDOWN_MS = 500; // 100ms cooldown
+    private static final long DETECTION_COOLDOWN_MS = 1000; // 100ms cooldown
 
     public void update() {
         double dist1 = frontSensor1.getDistance(DistanceUnit.MM);
@@ -194,24 +180,29 @@ public class IntakeSpindexer_shreyas {
 
                     NormalizedRGBA c1 = frontSensor1.getNormalizedColors();
                     NormalizedRGBA c2 = frontSensor2.getNormalizedColors();
-                    float red = (c1.red + c2.red)/2;
-                    float green = (c1.green + c2.green)/2;
-                    float blue = (c1.blue + c2.blue)/2;
-                    BallColor detectedColor = classifyBallColor(red, green, blue);
+                    float red = Math.max(c1.red, c2.red);
+                    float green = Math.max(c1.green,c2.green);
+                    float blue = Math.max(c1.blue,c2.blue);
+                    new Thread(() -> {
+                        try {
+                            Thread.sleep(500);
+                            BallColor detectedColor = classifyBallColor(red, green, blue);
+                            if (ballColors.size() < 3 && detectedColor != null) {
+                                ballColors.add(detectedColor);
+                            }
+                            ballsLoaded++;
+                            if (ballsLoaded < 3) {
+                                rotateSpindexer120(1, false);
+                            } else if (ballsLoaded == 3) {
+                                rotateSpindexer60();
+                            }
 
-
-                    if (ballColors.size() < 3 && detectedColor != null) {
-                        ballColors.add(detectedColor);
-                    }
-                    ballsLoaded++;
-                    if (ballsLoaded < 3) {
-                        rotateSpindexer120(1, false);
-                    } else if (ballsLoaded == 3) {
-                        rotateSpindexer60();
-                    }
-
-                    indexStartTime = currentTime;
-                    state = IntakeState.INDEXING;
+                            indexStartTime = currentTime;
+                            state = IntakeState.INDEXING;
+                        } catch (Exception e) {
+                            //chill
+                        }
+                    }).start();
                 }
                 break;
 
@@ -264,24 +255,26 @@ public class IntakeSpindexer_shreyas {
 
     private BallColor classifyBallColor(float red, float green, float blue) {
         float[] hsv = new float[3];
-        Color.RGBToHSV((int) (red * 255), (int) (green * 255), (int) (blue * 255), hsv);
+        int rgbRED = (int) (10000 * red);
+        int rgbGREEN = (int) (10000 * green);
+        int rgbBLUE = (int) (10000 * blue);
+        Color.RGBToHSV(rgbRED, rgbGREEN, rgbBLUE, hsv);
         float hue = hsv[0];
-        /*if (normalPurple || holePurple) {
-            return BallColor.P;
-        }
-        if (normalGreen || holeGreen) {
-            return BallColor.G;
-        }*/
-        if (hue >= 80 && hue <= 160) {
-            return BallColor.G;
-        } else if (hue >= 260 && hue <= 330) {
-            return BallColor.P;
-        }
-        return null;
-    }
-    public void clearBallColors() {
-        this.ballColors.clear();
-        this.ballsLoaded = 0;
-    }
 
+        if (hue >= 110 && hue <= 179) {
+            return BallColor.G;
+        } else if (hue >= 180 && hue <= 330) {
+            return BallColor.P;
+        } else {
+            return null;
+        }
+        //if ((rgbGREEN - rgbRED < 20) && (rgbBLUE > rgbGREEN && rgbGREEN < rgbBLUE + 10)) {
+        /*if (rgbGREEN > rgbBLUE + 5){
+            return BallColor.G;
+        } else if (rgbBLUE > rgbGREEN + 10){
+            return BallColor.P;
+        } else {
+            return null;
+        }*/
+    }
 }

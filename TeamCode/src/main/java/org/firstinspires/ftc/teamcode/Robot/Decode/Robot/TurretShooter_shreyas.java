@@ -259,32 +259,34 @@ public class TurretShooter_shreyas {
                         if (intakeOrder == intakedOrder.PP){
                             Thread.sleep(1000);
                             shootCCW();
-                            Thread.sleep(500);
+                            Thread.sleep(1000);
                             shootCCW();
-                            Thread.sleep(500);
-                            shootCCW();
+                            Thread.sleep(1000);
+                            shootCW();
                             Thread.sleep(100);
                             intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin1).setPosition(0.0);
                             intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin2).setPosition(0.0);
                             intakeSpindexer.ballColors.clear();
                         } else if (intakeOrder == intakedOrder.PG) {
-                            intakeSpindexer.rotateSpindexer120(-1, false);
-                            Thread.sleep(100);
-                            shootCCW();
-                            Thread.sleep(500);
-                            shootCCW();
-                            Thread.sleep(500);
-                            shootCCW();
+                            intakeSpindexer.rotateSpindexer120(1, false);
+                            Thread.sleep(1000);
+                            shootCW(); //shootCCW();
+                            //intakeSpindexer.rotateSpindexer120(1, false);
+                            Thread.sleep(1000);
+                            shootCW();
+                            Thread.sleep(1000);
+                            shootCW();
                             Thread.sleep(100);
                             intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin1).setPosition(0.0);
                             intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin2).setPosition(0.0);
                             intakeSpindexer.ballColors.clear();
                         } else if (intakeOrder == intakedOrder.GP) {
                             Thread.sleep(1000);
+                            shootCCW();
+                            intakeSpindexer.rotateSpindexer120(1, false);
+                            Thread.sleep(1000);
                             shootCW();
-                            Thread.sleep(500);
-                            shootCW();
-                            Thread.sleep(500);
+                            Thread.sleep(1000);
                             shootCW();
                             Thread.sleep(100);
                             intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin1).setPosition(0.0);
@@ -346,9 +348,9 @@ public class TurretShooter_shreyas {
     public void shootCCW() {
         try {
             intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.kicker).setPosition(0.35);
-            Thread.sleep(500);
+            Thread.sleep(200);
             intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.kicker).setPosition(0.225);
-            Thread.sleep(500);
+            Thread.sleep(200);
             intakeSpindexer.rotateSpindexer120(1, false);
             intakeSpindexer.ballsLoaded--;
         } catch (InterruptedException e) {
@@ -359,9 +361,9 @@ public class TurretShooter_shreyas {
     public void shootCW() {
         try {
             intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.kicker).setPosition(0.35);
-            Thread.sleep(500);
+            Thread.sleep(200);
             intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.kicker).setPosition(0.225);
-            Thread.sleep(500);
+            Thread.sleep(200);
             intakeSpindexer.rotateSpindexer120(-1, false);
             intakeSpindexer.ballsLoaded--;
         } catch (InterruptedException e) {
@@ -396,6 +398,8 @@ public class TurretShooter_shreyas {
                 Thread.sleep(200);
             } catch (Exception e) {
                 throw new RuntimeException(e);
+            } finally {
+                intakeSpindexer.ballColors.clear();
             }
         }).start();
     }

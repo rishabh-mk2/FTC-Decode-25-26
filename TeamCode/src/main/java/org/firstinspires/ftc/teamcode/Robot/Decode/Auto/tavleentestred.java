@@ -16,31 +16,27 @@ public class tavleentestred extends OpMode {
     private Follower follower;
     private Timer pathTimer, opmodeTimer;
     private int pathState;
-    private double speed = 0.6;
+    private double speed = 0.4;
 
     private final Pose start = new Pose(90, 8, Math.toRadians(270));
 
-    private PathChain line1, Path2, Path3, Path4, Path5;
+    private PathChain Path2, Path3, Path4;
 
     public void buildPaths() {
-        line1 = follower
-                .pathBuilder()
-                .addPath(new BezierLine(new Pose(90.000, 8.000), new Pose(90.000, 8.000)))
-                .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(0))
-                .build();
+
 
         Path2 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(90.000, 8.000), new Pose(104.000, 35.000))
+                        new BezierLine(new Pose(90.000, 8.000), new Pose(115, 26))
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(0))
                 .build();
 
         Path3 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(104.000, 35.000), new Pose(125.000, 35.000))
+                        new BezierLine(new Pose(115.000, 26.000), new Pose(125.000, 26.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
@@ -48,52 +44,32 @@ public class tavleentestred extends OpMode {
         Path4 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(125.000, 35.000), new Pose(90.000, 15.000))
+                        new BezierLine(new Pose(125.000, 26.000), new Pose(96.000, 0.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(0))
-                .build();
-
-        Path5 = follower
-                .pathBuilder()
-                .addPath(
-                        new BezierLine(new Pose(90.000, 15.000), new Pose(90.000, 15.000))
-                )
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(270))
                 .build();
     }
 
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-                follower.followPath(line1);
+                follower.followPath(Path2, 0.4, true);
                 setPathState(1);
                 break;
             case 1:
-                if (!follower.isBusy()&& pathTimer.getElapsedTimeSeconds() > 0.25) {
-                    follower.followPath(Path2,speed,true);
+                if (!follower.isBusy()) {
+                    follower.followPath(Path3,speed,true);
                     setPathState(2);
                 }
                 break;
             case 2:
                 if (!follower.isBusy()) {
-                    follower.followPath(Path3, speed,true);
+                    follower.followPath(Path4, speed,true);
                     setPathState(3);
                 }
                 break;
             case 3:
                 if (!follower.isBusy()) {
-                    follower.followPath(Path4, speed,true);
-                    setPathState(4);
-                }
-                break;
-            case 4:
-                if (!follower.isBusy()) {
-                    follower.followPath(Path5,speed,true);
-                    setPathState(5);
-                }
-                break;
-            case 5:
-                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 0.25) {
                     setPathState(-1);
                 }
                 break;
