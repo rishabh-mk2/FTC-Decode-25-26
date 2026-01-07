@@ -17,7 +17,7 @@ public class limelightPIDTesting extends OpMode {
 
     @Override
     public void init() {
-        turretShooter = new TurretShooter_shreyas(this, Alliance.RED, null);
+        turretShooter = new TurretShooter_shreyas(this, Alliance.RED);
     }
 
     @Override

@@ -41,7 +41,7 @@ public class Teleop_shreyas extends OpMode {
         follower = Constants.createFollower(hardwareMap);
 
         intakeSpindexer = new IntakeSpindexer_shreyas(this, true);
-        turretShooter = new TurretShooter_shreyas(this, Alliance.RED, intakeSpindexer);
+        turretShooter = new TurretShooter_shreyas(this, Alliance.RED);
 
         telemetry.addData("Status", "Initialized");
     }

@@ -198,6 +198,7 @@ public class IntakeSpindexer_shreyas {
                 }
                 break;
             case SHOOTING:
+                getMotor(MotorNames.intake).setPower(0.65);
                 if(ballsLoaded == 1) {
                     rotateSpindexer60(1);
                     if(currentTime - shootCallTime > 400) {

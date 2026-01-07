@@ -14,12 +14,13 @@ import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.TurretShooter_shreyas;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Autonomous(name = "Red Side Pathing", group = "Autonomous")
+
 public class redSidePathing extends OpMode {
 
     private Follower follower;
     private Timer pathTimer, opmodeTimer;
     private int pathState;
-    private double speed = 0.5;
+    private double speed = 1.0;
     TurretShooter_shreyas turretShooter;
     IntakeSpindexer_shreyas intakeSpindexer;
 
@@ -123,7 +124,7 @@ public class redSidePathing extends OpMode {
 
                 // Once path is complete, call shooting function ONCE
                 if (!follower.isBusy() && !hasCalledShootFunction) {
-                    turretShooter.simpleShootSequence(400, 0.5, 0,750, intakeSpindexer);
+//                    turretShooter.simpleShootSequence(400, 0.5, 0,750, intakeSpindexer);
                     hasCalledShootFunction = true;
                 }
 
@@ -184,7 +185,7 @@ public class redSidePathing extends OpMode {
 
                 // Once path complete, call shooting function ONCE
                 if (!follower.isBusy() && !hasCalledShootFunction) {
-                    turretShooter.shootIndexed(TurretShooter_shreyas.ShootCase.PPG, 400, 0.75); // Adjust shoot case as needed
+//                    turretShooter.shootIndexed(TurretShooter_shreyas.ShootCase.PPG, 400, 0.75); // Adjust shoot case as needed
                     hasCalledShootFunction = true;
                 }
 
@@ -228,7 +229,7 @@ public class redSidePathing extends OpMode {
 
                 // Once path complete, call shooting function ONCE
                 if (!follower.isBusy() && !hasCalledShootFunction) {
-                    turretShooter.shootIndexed(TurretShooter_shreyas.ShootCase.PPG, 400, 0.75); // Adjust shoot case as needed
+//                    turretShooter.shootIndexed(TurretShooter_shreyas.ShootCase.PPG, 400, 0.75); // Adjust shoot case as needed
                     hasCalledShootFunction = true;
                 }
 
@@ -265,7 +266,7 @@ public class redSidePathing extends OpMode {
 
                 // Once path complete, call shooting function ONCE
                 if (!follower.isBusy() && !hasCalledShootFunction) {
-                    turretShooter.shootIndexed(TurretShooter_shreyas.ShootCase.PPG, 1200, 0.75); // Adjust shoot case as needed
+//                    turretShooter.shootIndexed(TurretShooter_shreyas.ShootCase.PPG, 1200, 0.75); // Adjust shoot case as needed
                     hasCalledShootFunction = true;
                 }
 
@@ -302,7 +303,7 @@ public class redSidePathing extends OpMode {
 
         // Initialize the subsystems
         intakeSpindexer = new IntakeSpindexer_shreyas(this, false);
-        turretShooter = new TurretShooter_shreyas(this, Alliance.RED, intakeSpindexer);
+        turretShooter = new TurretShooter_shreyas(this, Alliance.RED);
         intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin1).setPosition(0.097);
         intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin2).setPosition(0.097);
         while (gamepad1.aWasPressed()) {

@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Robot.Decode.Alliance;
 import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.IntakeSpindexer_shreyas;
+import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.TurretShooter;
 import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.TurretShooter_shreyas;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 @TeleOp(name = "Teleop FINAL Actual", group = "TeleOp")
@@ -41,7 +42,7 @@ public class Teleopo_FINAL extends OpMode {
     public void init() {
         follower = Constants.createFollower(hardwareMap);
         intakeSpindexer = new IntakeSpindexer_shreyas(this, true);
-        turretShooter = new TurretShooter_shreyas(this, Alliance.RED, intakeSpindexer);
+        turretShooter = new TurretShooter_shreyas(this, Alliance.RED);
 
         telemetry.setAutoClear(true);
         runtime.reset();
@@ -79,11 +80,11 @@ public class Teleopo_FINAL extends OpMode {
 
         // SHOOT SEQUENCE
         if(gamepad1.yWasReleased()) {
-            turretShooter.setShooterVelocity(1750);
+            turretShooter.shoot(2000, 1.0);
             time = runtime.milliseconds();
             shoot1 = true;
         }
-        if(shoot1 && runtime.milliseconds() - time > 1500) {
+        if(shoot1 && runtime.milliseconds() - time > 1000) {
             shoot1 = false;
             if (intakeSpindexer.ballsLoaded == 1) {
                 stopShooterTime = 400 + 100 + 250;

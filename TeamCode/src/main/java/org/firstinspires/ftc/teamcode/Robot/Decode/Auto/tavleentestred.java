@@ -104,11 +104,10 @@ public class tavleentestred extends OpMode {
         follower.update();
         autonomousPathUpdate();
 
-        telemetry.addData("Path State:", pathState);
-        telemetry.addData("Path Timer:", pathTimer.getElapsedTimeSeconds());
-        telemetry.addData("x:", follower.getPose().getX());
-        telemetry.addData("y:", follower.getPose().getY());
-        telemetry.addData("Heading:", follower.getPose().getHeading());
+
+
+
+
         telemetry.update();
     }
 }
