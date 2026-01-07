@@ -171,7 +171,7 @@ public class redSidePathing extends OpMode {
                 // Start following path to score position
                 if (!hasStartedShooting) {
                     if (intakeSpindexer.ballsLoaded != 3) {
-                        intakeSpindexer.rotateSpindexer60();
+                        intakeSpindexer.rotateSpindexer60(1);
                     }
                     follower.followPath(ScorePickup1, 0.5, true);
                     hasStartedShooting = true;
@@ -216,7 +216,7 @@ public class redSidePathing extends OpMode {
                 // Start following path to score position
                 if (!hasStartedShooting) {
                     if (intakeSpindexer.ballsLoaded != 3) {
-                        intakeSpindexer.rotateSpindexer60();
+                        intakeSpindexer.rotateSpindexer60(1);
                     }
                     follower.followPath(scorePickup2, 0.5, true);
                     hasStartedShooting = true;
@@ -322,7 +322,7 @@ public class redSidePathing extends OpMode {
     @Override
     public void loop() {
         follower.update();
-        intakeSpindexer.update();
+        intakeSpindexer.update(System.currentTimeMillis());
         turretShooter.trackAprilTag();
         autonomousPathUpdate();
 

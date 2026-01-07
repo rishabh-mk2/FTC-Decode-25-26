@@ -2,12 +2,15 @@ package org.firstinspires.ftc.teamcode.Robot.Decode.Robot;
 
 import android.graphics.Color;
 
+
+
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
+
 
 import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -32,6 +35,7 @@ public class IntakeSpindexer_shreyas {
     static final double BALL_DIST_MM = 30;
     static final double SPIN_STEP = 0.194;
     boolean lastBallDetected = false;
+
 
     public enum BallColor {
         P,
@@ -77,7 +81,7 @@ public class IntakeSpindexer_shreyas {
     public enum IntakeState {
         IDLE,
         INTAKING,
-        INDEXING
+        SHOOTING
     }
 
     public IntakeState state = IntakeState.IDLE;
@@ -97,7 +101,6 @@ public class IntakeSpindexer_shreyas {
         spin2,
         kicker
     }
-    public boolean wantStart0;
 
     public IntakeSpindexer_shreyas(OpMode opMode, boolean wantStart0) {
         this.opmode = opMode;
@@ -120,19 +123,19 @@ public class IntakeSpindexer_shreyas {
             Servo servo = hardwareMap.get(Servo.class, name.toString());
             Servos.add(servo);
         }
+
         if (wantStart0) {
             getServo(ServoNames.spin1).setPosition(0.0);
             getServo(ServoNames.spin2).setPosition(0.0);
-            getServo(ServoNames.kicker).setPosition(0.225);
-        } else if (!wantStart0) {
-            // dont do anything
-            getServo(ServoNames.kicker).setPosition(0.225);
         }
+
+        getServo(ServoNames.kicker).setPosition(0.225);
 
         frontSensor1 = hardwareMap.get(RevColorSensorV3.class, "front1");
         frontSensor2 = hardwareMap.get(RevColorSensorV3.class, "front2");
 
-        addTelemetry("IntakeSpindexer", "Ready");
+        telemetry.addData("Intake_Spindexer", "Initialized");
+
     }
 
     public DcMotorEx getMotor(MotorNames name) {
@@ -143,114 +146,123 @@ public class IntakeSpindexer_shreyas {
         return Servos.get(name.ordinal());
     }
 
-    public void rotateSpindexer120(int direction, boolean checkForArray) {
+    public void rotateSpindexer120(int direction) {
         getServo(ServoNames.spin1)
                 .setPosition(getServo(ServoNames.spin1).getPosition() + (SPIN_STEP * direction));
         getServo(ServoNames.spin2)
                 .setPosition(getServo(ServoNames.spin2).getPosition() + (SPIN_STEP * direction));
     }
 
-    public void rotateSpindexer60() {
+    public void rotateSpindexer60(int direction) {
         getServo(ServoNames.spin1)
-                .setPosition(getServo(ServoNames.spin1).getPosition() + (0.097));
+                .setPosition(getServo(ServoNames.spin1).getPosition() + (SPIN_STEP * direction)/2.0);
         getServo(ServoNames.spin2)
-                .setPosition(getServo(ServoNames.spin2).getPosition() + (0.097));
+                .setPosition(getServo(ServoNames.spin2).getPosition() + (SPIN_STEP * direction)/2.0);
+    }
+    private double lastBallProcessedTime = 0;
+    private static final long DETECTION_COOLDOWN_MS = 500; // 100ms cooldown
+    public double shootCallTime = 0.0;
+
+    public void homeSpindexer() {
+        getServo(ServoNames.spin1).setPosition(0.0);
+        getServo(ServoNames.spin2).setPosition(0.0);
     }
 
-    // Variable to lock the intake while a ball is being moved
-    private boolean isProcessingBall = false;
-    private long lastBallProcessedTime = 0;
-    private static final long DETECTION_COOLDOWN_MS = 1000; // 100ms cooldown
-
-    public void update() {
-        double dist1 = frontSensor1.getDistance(DistanceUnit.MM);
-        double dist2 = frontSensor2.getDistance(DistanceUnit.MM);
-        boolean ballDetected = (dist1 < BALL_DIST_MM) || (dist2 < BALL_DIST_MM);
-        long currentTime = System.currentTimeMillis();
-
+    public void update(double currentTime) {
         switch (state) {
             case INTAKING:
-                getMotor(MotorNames.intake).setPower(0.75);
-
+                getMotor(MotorNames.intake).setPower(0.85);
                 // Rising edge with cooldown timer
-                if (ballDetected && !lastBallDetected && ballsLoaded < 3 &&
-                        (currentTime - lastBallProcessedTime) > DETECTION_COOLDOWN_MS) {
-
+                if (ballDetected() && ballsLoaded < 3 && (currentTime - lastBallProcessedTime) > DETECTION_COOLDOWN_MS) {
+                    ballsLoaded++;
                     lastBallProcessedTime = currentTime;
-
-                    NormalizedRGBA c1 = frontSensor1.getNormalizedColors();
-                    NormalizedRGBA c2 = frontSensor2.getNormalizedColors();
-                    float red = Math.max(c1.red, c2.red);
-                    float green = Math.max(c1.green,c2.green);
-                    float blue = Math.max(c1.blue,c2.blue);
-                    new Thread(() -> {
-                        try {
-                            Thread.sleep(500);
-                            BallColor detectedColor = classifyBallColor(red, green, blue);
-                            if (ballColors.size() < 3 && detectedColor != null) {
-                                ballColors.add(detectedColor);
-                            }
-                            ballsLoaded++;
-                            if (ballsLoaded < 3) {
-                                rotateSpindexer120(1, false);
-                            } else if (ballsLoaded == 3) {
-                                rotateSpindexer60();
-                            }
-
-                            indexStartTime = currentTime;
-                            state = IntakeState.INDEXING;
-                        } catch (Exception e) {
-                            //chill
-                        }
-                    }).start();
+                    if(ballsLoaded < 3) {
+                        rotateSpindexer120(1);
+                    } else if (ballsLoaded == 3) {
+                        lastBallDetected = true;
+                        rotateSpindexer60(1);
+                    }
                 }
                 break;
-
-            case INDEXING:
-                if (System.currentTimeMillis() - indexStartTime > 100) {
-                    getServo(ServoNames.kicker).setPosition(0.225);
+            case SHOOTING:
+                if(ballsLoaded == 1) {
+                    rotateSpindexer60(1);
+                    if(currentTime - shootCallTime > 400) {
+                        getServo(ServoNames.kicker).setPosition(0.4);
+                    }
+                    if(currentTime - shootCallTime > 400 + 100) {
+                        getServo(ServoNames.kicker).setPosition(0.225);
+                    }
+                    if(currentTime - shootCallTime > 400 + 100 + 100) {
+                        homeSpindexer();
+                    }
                 }
-                if (System.currentTimeMillis() - indexStartTime > 250) {
-                    state = ballsLoaded < 3 ? IntakeState.INTAKING : IntakeState.IDLE;
+                else if (ballsLoaded == 2) {
+                    rotateSpindexer60(-1);
+                    if(currentTime - shootCallTime > 400) {
+                        getServo(ServoNames.kicker).setPosition(0.4);
+                    }
+                    if(currentTime - shootCallTime > 400 + 100) {
+                        getServo(ServoNames.kicker).setPosition(0.225);
+                    }
+                    if(currentTime - shootCallTime > 400 + 100 + 100) {
+                        rotateSpindexer120(1);
+                    }
+                    if(currentTime - shootCallTime > 400 + 100 + 100 + 800) {
+                        getServo(ServoNames.kicker).setPosition(0.4);
+                    }
+                    if(currentTime - shootCallTime > 400 + 100 + 100 + 800 + 100) {
+                        getServo(ServoNames.kicker).setPosition(0.225);
+                    }
+                    if(currentTime - shootCallTime > 400 + 100 + 100 + 800 + 100 + 100) {
+                        homeSpindexer();
+                    }
                 }
+                else if (ballsLoaded == 3) {
+                    getServo(ServoNames.kicker).setPosition(0.4);
+                    if(currentTime - shootCallTime > 100) {
+                        getServo(ServoNames.kicker).setPosition(0.225);
+                    }
+                    if(currentTime - shootCallTime > 100 + 100) {
+                        rotateSpindexer120(1);
+                    }
+                    if(currentTime - shootCallTime > 100 + 100 + 800) {
+                        getServo(ServoNames.kicker).setPosition(0.4);
+                    }
+                    if(currentTime - shootCallTime > 100 + 100 + 800 + 100) {
+                        getServo(ServoNames.kicker).setPosition(0.225);
+                    }
+                    if(currentTime - shootCallTime > 100 + 100 + 800 + 100 + 100) {
+                        rotateSpindexer120(1);
+                    }
+                    if(currentTime - shootCallTime > 100 + 100 + 800 + 100 + 100 + 800) {
+                        getServo(ServoNames.kicker).setPosition(0.4);
+                    }
+                    if(currentTime - shootCallTime > 100 + 100 + 800 + 100 + 100 + 800 + 100) {
+                        getServo(ServoNames.kicker).setPosition(0.225);
+                    }
+                    if(currentTime - shootCallTime > 100 + 100 + 800 + 100 + 100 + 800 + 100 + 100) {
+                        homeSpindexer();
+                    }
+                }
+                ballsLoaded = 0;
                 break;
-
             case IDLE:
                 getMotor(MotorNames.intake).setPower(0);
                 break;
         }
-
-        lastBallDetected = ballDetected;
-        addTelemetry("Balls Loaded", ballsLoaded);
-        addTelemetry("Intake State", state);
     }
-    public boolean hasBalls() {
-        return ballsLoaded > 0;
-    }
+    double d1 = 0.0;
+    double d2 = 0.0;
+    public boolean ballDetected() {
+        double d1 = frontSensor1.getDistance(DistanceUnit.CM);
+        double d2 = frontSensor2.getDistance(DistanceUnit.CM);
 
-    public void consumeBall() {
-        if (ballsLoaded > 0) {
-            ballsLoaded--;
-            rotateSpindexer120(1, false);
+        if (d1 < 3.0 || d2 < 3.0) {
+            return true;
+        } else {
+            return false;
         }
-    }
-
-    public int getBallCount() {
-        return ballsLoaded;
-    }
-
-    public void addTelemetry(String caption, Object value) {
-        if (isTelemetryEnabled) {
-            telemetry.addData(caption, value);
-        }
-    }
-
-    public RevColorSensorV3 getColorSensor1() {
-        return frontSensor1;
-    }
-
-    public RevColorSensorV3 getColorSensor2() {
-        return frontSensor2;
     }
 
     private BallColor classifyBallColor(float red, float green, float blue) {

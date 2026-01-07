@@ -219,7 +219,7 @@ public class TurretShooter_shreyas {
                             //Thread.sleep(1000);
                             shootCCW();
                             Thread.sleep(1000);
-                            intakeSpindexer.rotateSpindexer120(1, false);
+                            intakeSpindexer.rotateSpindexer120(1);
                             Thread.sleep(1000);
                             shootCW();
                             Thread.sleep(2000);
@@ -229,7 +229,7 @@ public class TurretShooter_shreyas {
                             intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin2).setPosition(0.0);
                             intakeSpindexer.ballColors.clear();
                         } else if (intakeOrder == intakedOrder.PG) {
-                            intakeSpindexer.rotateSpindexer120(1, false);
+                            intakeSpindexer.rotateSpindexer120(1);
                             Thread.sleep(1000);
                             shootCCW();
                             Thread.sleep(1000);
@@ -268,7 +268,7 @@ public class TurretShooter_shreyas {
                             intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin2).setPosition(0.0);
                             intakeSpindexer.ballColors.clear();
                         } else if (intakeOrder == intakedOrder.PG) {
-                            intakeSpindexer.rotateSpindexer120(1, false);
+                            intakeSpindexer.rotateSpindexer120(1);
                             Thread.sleep(1000);
                             shootCW(); //shootCCW();
                             //intakeSpindexer.rotateSpindexer120(1, false);
@@ -283,7 +283,7 @@ public class TurretShooter_shreyas {
                         } else if (intakeOrder == intakedOrder.GP) {
                             Thread.sleep(1000);
                             shootCCW();
-                            intakeSpindexer.rotateSpindexer120(1, false);
+                            intakeSpindexer.rotateSpindexer120(1);
                             Thread.sleep(1000);
                             shootCW();
                             Thread.sleep(1000);
@@ -298,7 +298,7 @@ public class TurretShooter_shreyas {
                     case GPP:
                         //region GPP cases
                         if (intakeOrder == intakedOrder.PP){
-                            intakeSpindexer.rotateSpindexer120(1, false);
+                            intakeSpindexer.rotateSpindexer120(1);
                             Thread.sleep(100);
                             shootCW();
                             Thread.sleep(500);
@@ -321,7 +321,7 @@ public class TurretShooter_shreyas {
                             intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin2).setPosition(0.0);
                             intakeSpindexer.ballColors.clear();
                         } else if (intakeOrder == intakedOrder.GP) {
-                            intakeSpindexer.rotateSpindexer120(-1, false);
+                            intakeSpindexer.rotateSpindexer120(-1);
                             Thread.sleep(100);
                             shootCW();
                             Thread.sleep(500);
@@ -351,7 +351,7 @@ public class TurretShooter_shreyas {
             Thread.sleep(200);
             intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.kicker).setPosition(0.225);
             Thread.sleep(200);
-            intakeSpindexer.rotateSpindexer120(1, false);
+            intakeSpindexer.rotateSpindexer120(1);
             intakeSpindexer.ballsLoaded--;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -364,7 +364,7 @@ public class TurretShooter_shreyas {
             Thread.sleep(200);
             intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.kicker).setPosition(0.225);
             Thread.sleep(200);
-            intakeSpindexer.rotateSpindexer120(-1, false);
+            intakeSpindexer.rotateSpindexer120(-1);
             intakeSpindexer.ballsLoaded--;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
