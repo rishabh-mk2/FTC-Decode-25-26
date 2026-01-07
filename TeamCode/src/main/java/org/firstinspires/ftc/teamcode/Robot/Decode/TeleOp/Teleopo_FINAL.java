@@ -79,7 +79,7 @@ public class Teleopo_FINAL extends OpMode {
 
         // SHOOT SEQUENCE
         if(gamepad1.yWasReleased()) {
-            turretShooter.setShooterVelocity(2500);
+            turretShooter.setShooterVelocity(1000);
             time = runtime.milliseconds();
             shoot1 = true;
         }
@@ -92,6 +92,8 @@ public class Teleopo_FINAL extends OpMode {
             } else if (intakeSpindexer.ballsLoaded == 3) {
                 stopShooterTime = 100 + 100 + 800 + 100 + 100 + 800 + 100 + 100 + 250;
             }
+            intakeSpindexer.shootDone = false;
+            intakeSpindexer.shootCallTime = runtime.milliseconds();
             intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
             time = runtime.milliseconds();
             shoot2 = true;
@@ -115,7 +117,9 @@ public class Teleopo_FINAL extends OpMode {
 //        telemetry.addData("First Wait", firstWait);
 //        telemetry.addData("2nd / 3rd", secondThirdWait);
 //        telemetry.addData("Ball Colors", intakeSpindexer.ballColors.toString());
-//        telemetry.addData("Balls Loaded", intakeSpindexer.ballsLoaded);
+        telemetry.addData("Balls Loaded", intakeSpindexer.ballsLoaded);
+        telemetry.addData("Shoot call time",intakeSpindexer.shootCallTime);
+        telemetry.addData("runtime",runtime.milliseconds());
 //        telemetry.addData("Array Size", intakeSpindexer.ballColors.size());
 //        for (int i=0; i < intakeSpindexer.ballColors.size(); i++) {
 //            telemetry.addData("Ball" + (i + 1), intakeSpindexer.ballColors.get(i).name());
