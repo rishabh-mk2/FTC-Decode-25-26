@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Robot.Decode.Alliance;
 import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.IntakeSpindexer_shreyas;
 import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.TurretShooter_shreyas;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-@TeleOp(name = "Teleop FINAL", group = "TeleOp")
+@TeleOp(name = "Teleop FINAL Actual", group = "TeleOp")
 public class Teleopo_FINAL extends OpMode {
     private final ElapsedTime runtime = new ElapsedTime();
     Follower follower;
@@ -79,7 +79,7 @@ public class Teleopo_FINAL extends OpMode {
 
         // SHOOT SEQUENCE
         if(gamepad1.yWasReleased()) {
-            turretShooter.setShooterVelocity(1000);
+            turretShooter.setShooterVelocity(1750);
             time = runtime.milliseconds();
             shoot1 = true;
         }
@@ -90,8 +90,9 @@ public class Teleopo_FINAL extends OpMode {
             } else if (intakeSpindexer.ballsLoaded == 2) {
                 stopShooterTime = 400 + 100 + 100 + 800 + 100 + 250;
             } else if (intakeSpindexer.ballsLoaded == 3) {
-                stopShooterTime = 100 + 100 + 800 + 100 + 100 + 800 + 100 + 100 + 250;
+                stopShooterTime = 100 + 100 + 400 + 100 + 100 + 400 + 100 + 100 + 250;
             }
+            intakeSpindexer.kickstartShootChain = true;
             intakeSpindexer.shootDone = false;
             intakeSpindexer.shootCallTime = runtime.milliseconds();
             intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
