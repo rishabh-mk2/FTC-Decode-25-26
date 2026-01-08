@@ -1,24 +1,20 @@
-package org.firstinspires.ftc.teamcode.Robot.Decode.Auto; // make sure this aligns with class location
-
-import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.follower;
+package org.firstinspires.ftc.teamcode.Robot.Decode.Auto.Rishabh; // make sure this aligns with class location
 
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Robot.Decode.Alliance;
 import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.IntakeSpindexer_shreyas;
 import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.TurretShooter_shreyas;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Back Spike", group = "Autonomous")
-public class backSpike extends OpMode {
+@Autonomous(name = "Front 15", group = "Autonomous")
+public class front15 extends OpMode {
 
     private Follower follower;
     IntakeSpindexer_shreyas intakeSpindexer;
