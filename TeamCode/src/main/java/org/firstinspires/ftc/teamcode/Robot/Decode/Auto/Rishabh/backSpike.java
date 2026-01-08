@@ -158,7 +158,7 @@ public class backSpike extends OpMode {
             case 3:
                 if(!follower.isBusy()) {
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
-                    if(pathTimer.getElapsedTime() > 100 + 100 + 400 + 100 + 100 + 400 + 100 + 100) {
+                    if(pathTimer.getElapsedTime() > intakeSpindexer.shootTime) {
                         setPathState(4);
                     }
                 }
@@ -204,7 +204,7 @@ public class backSpike extends OpMode {
             case 9:
                 if(!follower.isBusy()) {
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
-                    if(pathTimer.getElapsedTime() > 100 + 100 + 400 + 100 + 100 + 400 + 100 + 100) {
+                    if(pathTimer.getElapsedTime() > intakeSpindexer.shootTime) {
                         setPathState(10);
                     }
                 }
@@ -256,7 +256,7 @@ public class backSpike extends OpMode {
             case 16:
                 if(!follower.isBusy()) {
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
-                    if(pathTimer.getElapsedTime() > 100 + 100 + 400 + 100 + 100 + 400 + 100 + 100) {
+                    if(pathTimer.getElapsedTime() > intakeSpindexer.shootTime) {
                         setPathState(17);
                     }
                 }
@@ -296,7 +296,7 @@ public class backSpike extends OpMode {
             case 21:
                 if(!follower.isBusy()) {
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
-                    if(pathTimer.getElapsedTime() > 100 + 100 + 400 + 100 + 100 + 400 + 100 + 100) {
+                    if(pathTimer.getElapsedTime() > intakeSpindexer.shootTime) {
                         setPathState(22);
                     }
                 }
@@ -337,7 +337,7 @@ public class backSpike extends OpMode {
             case 26:
                 if(!follower.isBusy()) {
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
-                    if(pathTimer.getElapsedTime() > 100 + 100 + 400 + 100 + 100 + 400 + 100 + 100) {
+                    if(pathTimer.getElapsedTime() > intakeSpindexer.shootTime) {
                         setPathState(27);
                     }
                 }
@@ -378,7 +378,7 @@ public class backSpike extends OpMode {
             case 31:
                 if(!follower.isBusy()) {
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
-                    if(pathTimer.getElapsedTime() > 100 + 100 + 400 + 100 + 100 + 400 + 100 + 100) {
+                    if(pathTimer.getElapsedTime() > intakeSpindexer.shootTime) {
                         setPathState(-1);
                     }
                 }

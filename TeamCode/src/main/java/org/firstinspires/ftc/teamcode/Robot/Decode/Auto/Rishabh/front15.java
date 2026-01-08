@@ -28,7 +28,7 @@ public class front15 extends OpMode {
 
 
 
-    private PathChain shoot1, intake1_1, intake1_2, shoot2, intake2;
+    private PathChain shoot1, intake1_1, intake1_2, shoot2, intake2_1, intake2_2;
 
     public void buildPaths() {
         shoot1 = follower.pathBuilder().addPath(
@@ -57,16 +57,17 @@ public class front15 extends OpMode {
         shoot2 = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(120, 60),
-                                new Pose(84, 78)
+                                new Pose(88, 78)
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
-        intake2 = follower.pathBuilder().addPath(
+
+        intake2_1 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(84, 78),
-                                new Pose(138.75, 62)
+                                new Pose(88, 78),
+                                new Pose(133, 61)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(24))
+                ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(27.75))
                 .build();
 
     }
@@ -74,8 +75,8 @@ public class front15 extends OpMode {
         switch(pathState) {
             case 0:
                 if(!follower.isBusy()) {
-                    turretShooter.shoot(1500, 0.7);
-                    follower.followPath(shoot1);
+                    turretShooter.shoot(1550, 0.7);
+                    follower.followPath(shoot1, 1.0, true);
                     setPathState(1);
                 }
                 break;
@@ -90,7 +91,7 @@ public class front15 extends OpMode {
             case 2:
                 if(!follower.isBusy()) {
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
-                    if(pathTimer.getElapsedTime() > 100 + 100 + 400 + 100 + 100 + 400 + 100 + 100) {
+                    if(pathTimer.getElapsedTime() > intakeSpindexer.shootTime) {
                         setPathState(3);
                     }
                 }
@@ -99,22 +100,22 @@ public class front15 extends OpMode {
                 if(!follower.isBusy()) {
                     turretShooter.shoot(500, 1.0);
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
-                    follower.followPath(intake1_1, 0.8, false);
+                    follower.followPath(intake1_1, 1.0, false);
                     setPathState(4);
                 }
                 break;
 
             case 4:
                 if(!follower.isBusy()) {
-                    follower.followPath(intake1_2, 0.35, false);
+                    follower.followPath(intake1_2, 0.3, true);
                     setPathState(5);
                 }
                 break;
 
             case 5:
                 if(!follower.isBusy()) {
-                    turretShooter.shoot(1750, 0.7);
-                    follower.followPath(shoot2, 0.8, false);
+                    turretShooter.shoot(1600, 0.7);
+                    follower.followPath(shoot2, 1.0, true);
                     setPathState(6);
                 }
                 break;
@@ -130,20 +131,20 @@ public class front15 extends OpMode {
             case 7:
                 if(!follower.isBusy()) {
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
-                    if(pathTimer.getElapsedTime() > 100 + 100 + 400 + 100 + 100 + 400 + 100 + 100) {
+                    if(pathTimer.getElapsedTime() > intakeSpindexer.shootTime) {
                         setPathState(8);
                     }
                 }
                 break;
-
             case 8:
                 if(!follower.isBusy()) {
                     turretShooter.shoot(500, 1.0);
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
-                    follower.followPath(intake2, 0.8, false);
+                    follower.followPath(intake2_1, 0.9, true);
                     setPathState(-1);
                 }
                 break;
+
 
         }
     }

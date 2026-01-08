@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Robot.Decode.TeleOp;
 import android.graphics.Color;
 
 import com.pedropathing.follower.Follower;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
@@ -15,6 +16,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 
 @TeleOp(name = "TeleOp_shreyas", group = "TeleOp")
+@Disabled
 public class Teleop_shreyas extends OpMode {
 
     Follower follower;

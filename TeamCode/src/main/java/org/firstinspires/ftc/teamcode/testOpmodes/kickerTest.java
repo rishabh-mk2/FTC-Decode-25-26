@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name = "Kicker Test", group = "TeleOp")
-//@Disabled
+@Disabled
 public class kickerTest extends LinearOpMode {
     private final ElapsedTime runtime = new ElapsedTime();
     static final double SERVO_POW = 0.35;

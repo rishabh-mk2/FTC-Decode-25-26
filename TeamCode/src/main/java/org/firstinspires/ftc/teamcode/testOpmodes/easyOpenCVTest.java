@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.testOpmodes;
 
 import android.util.Size;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @TeleOp(name = "Circle Detection Webcam", group = "TeleOp")
+@Disabled
 public class easyOpenCVTest extends LinearOpMode {
 
     @Override

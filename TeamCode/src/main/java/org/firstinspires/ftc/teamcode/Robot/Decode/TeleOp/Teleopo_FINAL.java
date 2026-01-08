@@ -65,7 +65,7 @@ public class Teleopo_FINAL extends OpMode {
         follower.setTeleOpDrive(
                 -gamepad1.left_stick_y,
                 -gamepad1.left_stick_x,
-                -gamepad1.right_stick_x * 0.5,
+                -gamepad1.right_stick_x * 0.4,
                 true
         );
 
@@ -91,7 +91,7 @@ public class Teleopo_FINAL extends OpMode {
             } else if (intakeSpindexer.ballsLoaded == 2) {
                 stopShooterTime = 400 + 100 + 100 + 800 + 100 + 250;
             } else if (intakeSpindexer.ballsLoaded == 3) {
-                stopShooterTime = 100 + 100 + 400 + 100 + 100 + 400 + 100 + 100 + 250;
+                stopShooterTime = 150 + 100 + 400 + 150 + 100 + 400 + 150 + 100 + 250;
             }
             intakeSpindexer.kickstartShootChain = true;
             intakeSpindexer.shootDone = false;

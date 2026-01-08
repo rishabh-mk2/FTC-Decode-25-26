@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Robot.Decode.TeleOp;
 import static org.firstinspires.ftc.teamcode.Robot.Decode.Robot.IntakeSpindexer.ballsLoaded;
 
 import com.pedropathing.follower.Follower;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -14,6 +15,7 @@ import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.TurretShooter;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @TeleOp(name = "TeleOpFinal", group = "TeleOp")
+@Disabled
 public class Teleop extends OpMode {
 
     Follower follower;

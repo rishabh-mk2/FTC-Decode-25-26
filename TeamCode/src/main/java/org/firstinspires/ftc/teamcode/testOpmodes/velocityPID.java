@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.testOpmodes;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -10,6 +11,7 @@ import com.bylazar.telemetry.PanelsTelemetry;
 
 @TeleOp(name = "Velocity PID", group = "Test")
 @Configurable
+@Disabled
 public class velocityPID extends LinearOpMode {
 
     PIDController pidController;

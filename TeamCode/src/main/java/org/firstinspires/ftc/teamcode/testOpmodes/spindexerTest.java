@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name = "Spindexer Test", group = "TeleOp")
+@Disabled
 public class spindexerTest extends OpMode {
 
     private final ElapsedTime runtime = new ElapsedTime();

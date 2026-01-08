@@ -172,7 +172,7 @@ public class IntakeSpindexer_shreyas {
                 .setPosition(getServo(ServoNames.spin2).getPosition() + (SPIN_STEP * direction)/2.0);
     }
     private double lastBallProcessedTime = 0;
-    private static final long DETECTION_COOLDOWN_MS = 600;
+    private static final long DETECTION_COOLDOWN_MS = 700;
     public double shootCallTime = 0.0;
 
     public void homeSpindexer() {
@@ -180,12 +180,16 @@ public class IntakeSpindexer_shreyas {
         getServo(ServoNames.spin2).setPosition(0.0);
     }
 
+    public double shootTime = 0.0;
+
     public void update(double currentTime) {
         switch (state) {
             case INTAKING:
+                telemetry.addData("Ball Detected", ballDetected());
                 getMotor(MotorNames.intake).setPower(0.85);
                 // Rising edge with cooldown timer
                 if (ballDetected() && ballsLoaded < 3 && (currentTime - lastBallProcessedTime) > DETECTION_COOLDOWN_MS) {
+                    telemetry.addData("In", "This loop");
                     ballsLoaded += 1;
                     lastBallProcessedTime = currentTime;
                     if(ballsLoaded < 3) {
@@ -235,47 +239,48 @@ public class IntakeSpindexer_shreyas {
                     }
                 }
                 else if (ballsLoaded == 3) {
+                    shootTime = 100 + 100 + 400 + 100 + 100 + 400 + 100 + 100;
                     if(kickstartShootChain) {
                         getServo(ServoNames.kicker).setPosition(0.4);
                         shooter1 = true;
                         kickstartShootChain = false;
                     }
-                    if(shooter1 && currentTime - shootCallTime > 100) {
+                    if(shooter1 && currentTime - shootCallTime > 150) {
                         getServo(ServoNames.kicker).setPosition(0.225);
                         shooter1 = false;
                         shooter2 = true;
                     }
-                    if(shooter2 && currentTime - shootCallTime > 100 + 100) {
+                    if(shooter2 && currentTime - shootCallTime > 150 + 100) {
                         rotateSpindexer120(1);
                         shooter2 = false;
                         shooter3 = true;
                     }
-                    if(shooter3 && currentTime - shootCallTime > 100 + 100 + 400) {
+                    if(shooter3 && currentTime - shootCallTime > 150 + 100 + 400) {
                         getServo(ServoNames.kicker).setPosition(0.4);
                         shooter3 = false;
                         shooter4 = true;
                     }
-                    if(shooter4 && currentTime - shootCallTime > 100 + 100 + 400 + 100) {
+                    if(shooter4 && currentTime - shootCallTime > 150 + 100 + 400 + 150) {
                         getServo(ServoNames.kicker).setPosition(0.225);
                         shooter4 = false;
                         shooter5 = true;
                     }
-                    if(shooter5 && currentTime - shootCallTime > 100 + 100 + 400 + 100 + 100) {
+                    if(shooter5 && currentTime - shootCallTime > 150 + 100 + 400 + 150 + 100) {
                         rotateSpindexer120(1);
                         shooter5 = false;
                         shooter6 = true;
                     }
-                    if(shooter6 && currentTime - shootCallTime > 100 + 100 + 400 + 100 + 100 + 400) {
+                    if(shooter6 && currentTime - shootCallTime > 150 + 100 + 400 + 150 + 100 + 400) {
                         getServo(ServoNames.kicker).setPosition(0.4);
                         shooter6 = false;
                         shooter7 = true;
                     }
-                    if(shooter7 && currentTime - shootCallTime > 100 + 100 + 400 + 100 + 100 + 400 + 100) {
+                    if(shooter7 && currentTime - shootCallTime > 150 + 100 + 400 + 150 + 100 + 400 + 150) {
                         getServo(ServoNames.kicker).setPosition(0.225);
                         shooter7 = false;
                         shooter8 = true;
                     }
-                    if(shooter8 && currentTime - shootCallTime > 100 + 100 + 400 + 100 + 100 + 400 + 100 + 100) {
+                    if(shooter8 && currentTime - shootCallTime > 100 + 100 + 400 + 150 + 100 + 400 + 150 + 100) {
                         homeSpindexer();
                         shootDone = true;
                         shooter8 = false;

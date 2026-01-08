@@ -22,21 +22,7 @@ public class limelightPIDTesting extends OpMode {
 
     @Override
     public void loop() {
-        // Update PID values in real-time
-        turretShooter.turretPID.setPID(kP, kI, kD);
-
-        // Run tracking
         turretShooter.trackAprilTag();
-
-        // Manual adjustment with gamepad
-        if (gamepad1.dpadUpWasReleased()) kP += 0.001;
-        if (gamepad1.dpadDownWasReleased()) kP -= 0.001;
-        if (gamepad1.dpadRightWasReleased()) kD += 0.0001;
-        if (gamepad1.dpadLeftWasReleased()) kD -= 0.0001;
-
-        telemetry.addData("kP", kP);
-        telemetry.addData("kI", kI);
-        telemetry.addData("kD", kD);
         telemetry.update();
     }
 }

@@ -124,7 +124,7 @@ public class TurretShooter_shreyas {
         LLResultTypes.FiducialResult fiducial = fiducials.get(0);
 
         id = fiducial.getFiducialId();
-        double currentTargetDeg = fiducial.getTargetYDegrees();
+        double currentTargetDeg = fiducial.getTargetXDegrees();
         double turretPos = getMotor(MotorNames.turret).getCurrentPosition();
 
         double targetTicks = turretPos - (TICKS_PER_REV * currentTargetDeg) / 360.0;

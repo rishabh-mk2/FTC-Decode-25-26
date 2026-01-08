@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Robot.Decode.TeleOp;
 
 import com.pedropathing.follower.Follower;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -10,6 +11,7 @@ import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.TurretShooter;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @TeleOp(name = "TeleOp", group = "TeleOp")
+@Disabled
 public class TeleOpAll extends OpMode {
 
     Follower follower;
