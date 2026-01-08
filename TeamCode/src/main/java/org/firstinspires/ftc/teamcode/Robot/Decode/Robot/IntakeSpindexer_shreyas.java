@@ -172,7 +172,7 @@ public class IntakeSpindexer_shreyas {
                 .setPosition(getServo(ServoNames.spin2).getPosition() + (SPIN_STEP * direction)/2.0);
     }
     private double lastBallProcessedTime = 0;
-    private static final long DETECTION_COOLDOWN_MS = 500; // 100ms cooldown
+    private static final long DETECTION_COOLDOWN_MS = 600;
     public double shootCallTime = 0.0;
 
     public void homeSpindexer() {
