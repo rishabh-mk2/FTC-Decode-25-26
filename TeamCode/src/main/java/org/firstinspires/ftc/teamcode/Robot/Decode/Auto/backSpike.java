@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Robot.Decode.Auto; // make sure this aligns with class location
 
+import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.follower;
+
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
@@ -34,18 +36,18 @@ public class backSpike extends OpMode {
 
     public void buildPaths() {
         intake1 = follower.pathBuilder().addPath(
-                        new BezierLine(
+                        new BezierCurve(
                                 new Pose(95.000, 12.000),
-                                new Pose(95, 60)
+                                new Pose(104.104, 32.992),
+                                new Pose(125.159, 32.473)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(90))
+                ).setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(45))
                 .build();
-
     }
     public void autonomousPathUpdate() {
         switch(pathState) {
             case 0:
-//                turretShooter.shoot(500, 1.0);
+                turretShooter.shoot(500, 1.0);
                 intakeSpindexer.kickstartShootChain = true;
                 intakeSpindexer.shootDone = false;
                 intakeSpindexer.shootCallTime = pathTimer.getElapsedTime();
@@ -63,8 +65,10 @@ public class backSpike extends OpMode {
                 }
                 break;
             case 3:
-//                turretShooter.shoot(500, 1.0);
-                follower.followPath(intake1, 1.0, true);
+                if (!follower.isBusy()) {
+//                    follower.followPath(intake1, true);
+                }
+                turretShooter.shoot(500, 1.0);
                 break;
         }
     }

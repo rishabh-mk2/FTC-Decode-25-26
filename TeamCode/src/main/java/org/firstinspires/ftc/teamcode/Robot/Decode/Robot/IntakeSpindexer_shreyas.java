@@ -289,6 +289,7 @@ public class IntakeSpindexer_shreyas {
                 getMotor(MotorNames.intake).setPower(0);
                 break;
         }
+        telemetry.addData("Balls Loaded", ballsLoaded);
     }
     double d1 = 0.0;
     double d2 = 0.0;
