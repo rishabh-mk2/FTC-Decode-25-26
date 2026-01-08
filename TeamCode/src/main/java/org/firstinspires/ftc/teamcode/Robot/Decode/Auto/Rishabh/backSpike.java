@@ -136,7 +136,7 @@ public class backSpike extends OpMode {
         switch(pathState) {
             case 0:
                 if(!follower.isBusy()) {
-                    turretShooter.shoot(1500, 100);
+                    turretShooter.shoot(1500, 1.0);
                     setPathState(1);
                 }
                 break;
