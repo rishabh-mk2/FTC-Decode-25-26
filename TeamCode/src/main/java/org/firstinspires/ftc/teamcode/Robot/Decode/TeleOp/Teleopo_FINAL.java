@@ -85,7 +85,8 @@ public class Teleopo_FINAL extends OpMode {
         // --- SUBSYSTEM UPDATES ---
         double distance = turretShooter.getAprilTagDistance();
         limelightOffset = turretShooter.getLLOffset(distance);
-        turretShooter.trackAprilTag(turretShooter.getLLOffset(distance));
+//        turretShooter.trackAprilTag(turretShooter.getLLOffset(distance));
+        turretShooter.trackAprilTag();
         intakeSpindexer.update(runtime.milliseconds());
         turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(turretShooter.getHoodPosFromLL(distance));
 

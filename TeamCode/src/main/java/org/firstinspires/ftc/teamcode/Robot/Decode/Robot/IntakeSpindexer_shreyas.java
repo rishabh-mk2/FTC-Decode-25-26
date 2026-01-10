@@ -186,7 +186,7 @@ public class IntakeSpindexer_shreyas {
         switch (state) {
             case INTAKING:
                 if(ballsLoaded < 3) {
-                    getMotor(MotorNames.intake).setPower(0.85);
+                    getMotor(MotorNames.intake).setPower(1.0);
                 }
                 // Rising edge with cooldown timer
                 if (ballDetected() && ballsLoaded < 3 && (currentTime - lastBallProcessedTime) > DETECTION_COOLDOWN_MS) {
@@ -197,11 +197,10 @@ public class IntakeSpindexer_shreyas {
                     } else {
                         lastBallDetected = true;
                         rotateSpindexer60(1);
-                        getMotor(MotorNames.intake).setPower(0.5);
                     }
                 }
-                if(ballsLoaded == 3 && currentTime - lastBallProcessedTime > 300) {
-                    getMotor(MotorNames.intake).setVelocity(-0.5);
+                if(ballsLoaded == 3 && currentTime - lastBallProcessedTime > DETECTION_COOLDOWN_MS) {
+                    getMotor(MotorNames.intake).setPower(-1.0);
                 }
                 break;
             case SHOOTING:

@@ -176,233 +176,233 @@ public class backSpike extends OpMode {
                     }
                 }
                 break;
-            case 4:
-                if(!follower.isBusy()) {
-                    targetVel = 500;
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
-                    follower.followPath(intake1_1, 1.0, false);
-                    setPathState(5);
-                }
-                break;
-            case 5:
-                if(!follower.isBusy()) {
-                    follower.followPath(intake1_2, 0.4, true);
-                    setPathState(6);
-                }
-                break;
-            case 6:
-                if(!follower.isBusy()) {
-                    follower.followPath(shoot1, 1.0, true);
-                    setPathState(7);
-                    targetVel = 1950;
-                }
-                break;
-            case 7:
-                if(!follower.isBusy()) {
-                    if(pathTimer.getElapsedTime() > 1000) {
-                        setPathState(8);
-                    }
-                }
-                break;
-            case 8:
-                if(!follower.isBusy()) {
-                    // TODO: REMOVE LINE BELOW LATER
-//                    intakeSpindexer.ballsLoaded = 3;
-                    intakeSpindexer.kickstartShootChain = true;
-                    intakeSpindexer.shootDone = false;
-                    intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
-                    setPathState(9);
-                }
-                break;
-            case 9:
-                if(!follower.isBusy()) {
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
-                    if(pathTimer.getElapsedTime() > 150 + 100 + 400 + 150 + 100 + 400 + 150 + 100) {
-                        setPathState(10);
-                    }
-                }
-                break;
-            case 10:
-                if(!follower.isBusy()) {
-                    targetVel = 500;
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
-                    follower.followPath(intake2_1, 1.0, true);
-                    setPathState(11);
-                }
-                break;
-            case 11:
-                if(!follower.isBusy()) {
-                    follower.followPath(intake2_2, 0.8, true);
-                    setPathState(12);
-                }
-                break;
-            case 12:
-                if(!follower.isBusy()) {
-                    follower.followPath(intake2_3, 1.0, true);
-                    setPathState(13);
-                }
-                break;
-            case 13:
-                if(!follower.isBusy()) {
-                    if(pathTimer.getElapsedTime() > 200) {
-                        setPathState(14);
-                    }
-                }
-                break;
-            case 14:
-                if(!follower.isBusy()) {
-                    targetVel = 1950;
-                    follower.followPath(shoot2, 1.0, true);
-                    setPathState(32);
-                }
-                break;
-            case 32:
-                if(!follower.isBusy()) {
-                    if(pathTimer.getElapsedTime() > 1000) {
-                        setPathState(15);
-                    }
-                }
-                break;
-            case 15:
-                if(!follower.isBusy()) {
-                    // TODO: REMOVE LINE BELOW LATER
-//                    intakeSpindexer.ballsLoaded = 3;
-                    intakeSpindexer.kickstartShootChain = true;
-                    intakeSpindexer.shootDone = false;
-                    intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
-                    setPathState(16);
-                }
-                break;
-            case 16:
-                if(!follower.isBusy()) {
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
-                    if(pathTimer.getElapsedTime() > 150 + 100 + 400 + 150 + 100 + 400 + 150 + 100) {
-                        setPathState(17);
-                    }
-                }
-                break;
-            case 17:
-                if(!follower.isBusy()) {
-                    targetVel = 500;
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
-                    follower.followPath(intake3, 1.0, true);
-                    setPathState(18);
-                }
-                break;
-            case 18:
-                if(!follower.isBusy()) {
-                    if(pathTimer.getElapsedTime() > 500) {
-                        setPathState(19);
-                    }
-                }
-                break;
-            case 19:
-                if(!follower.isBusy()) {
-                    targetVel = 1950;
-                    follower.followPath(shoot3, 1.0, true);
-                    setPathState(20);
-                }
-                break;
-            case 20:
-                if(!follower.isBusy()) {
-                    // TODO: REMOVE LINE BELOW LATER
-//                    intakeSpindexer.ballsLoaded = 3;
-                    intakeSpindexer.kickstartShootChain = true;
-                    intakeSpindexer.shootDone = false;
-                    intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
-                    setPathState(21);
-                }
-                break;
-            case 21:
-                if(!follower.isBusy()) {
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
-                    if(pathTimer.getElapsedTime() > 150 + 100 + 400 + 150 + 100 + 400 + 150 + 100) {
-                        setPathState(22);
-                    }
-                }
-                break;
-            case 22:
-                if(!follower.isBusy()) {
-                    targetVel = 500;
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
-                    follower.followPath(intake4, 1.0, true);
-                    setPathState(23);
-                }
-                break;
-
-            case 23:
-                if(!follower.isBusy()) {
-                    if (pathTimer.getElapsedTime() > 500) {
-                        setPathState(24);
-                    }
-                }
-                break;
-            case 24:
-                if(!follower.isBusy()) {
-                    targetVel = 1950;
-                    follower.followPath(shoot4, 1.0, true);
-                    setPathState(25);
-                }
-                break;
-            case 25:
-                if(!follower.isBusy()) {
-                    // TODO: REMOVE LINE BELOW LATER
-//                    intakeSpindexer.ballsLoaded = 3;
-                    intakeSpindexer.kickstartShootChain = true;
-                    intakeSpindexer.shootDone = false;
-                    intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
-                    setPathState(26);
-                }
-                break;
-            case 26:
-                if(!follower.isBusy()) {
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
-                    if(pathTimer.getElapsedTime() > 150 + 100 + 400 + 150 + 100 + 400 + 150 + 100) {
-                        setPathState(27);
-                    }
-                }
-                break;
-            case 27:
-                if(!follower.isBusy()) {
-                    targetVel = 500;
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
-                    follower.followPath(intake5, 1.0, true);
-                    setPathState(28);
-                }
-                break;
-
-            case 28:
-                if(!follower.isBusy()) {
-                    if (pathTimer.getElapsedTime() > 1000) {
-                        setPathState(29);
-                    }
-                }
-                break;
-            case 29:
-                if(!follower.isBusy()) {
-                    targetVel = 1950;
-                    follower.followPath(shoot5, 1.0, true);
-                    setPathState(30);
-                }
-                break;
-            case 30:
-                if(!follower.isBusy()) {
-                    // TODO: REMOVE LINE BELOW LATER
-//                    intakeSpindexer.ballsLoaded = 3;
-                    intakeSpindexer.kickstartShootChain = true;
-                    intakeSpindexer.shootDone = false;
-                    intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
-                    setPathState(31);
-                }
-                break;
-            case 31:
-                if(!follower.isBusy()) {
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
-                    if(pathTimer.getElapsedTime() > 150 + 100 + 400 + 150 + 100 + 400 + 150 + 100) {
-                        setPathState(-1);
-                    }
-                }
-                break;
+//            case 4:
+//                if(!follower.isBusy()) {
+//                    targetVel = 500;
+//                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
+//                    follower.followPath(intake1_1, 1.0, false);
+//                    setPathState(5);
+//                }
+//                break;
+//            case 5:
+//                if(!follower.isBusy()) {
+//                    follower.followPath(intake1_2, 0.4, true);
+//                    setPathState(6);
+//                }
+//                break;
+//            case 6:
+//                if(!follower.isBusy()) {
+//                    follower.followPath(shoot1, 1.0, true);
+//                    setPathState(7);
+//                    targetVel = 1950;
+//                }
+//                break;
+//            case 7:
+//                if(!follower.isBusy()) {
+//                    if(pathTimer.getElapsedTime() > 1000) {
+//                        setPathState(8);
+//                    }
+//                }
+//                break;
+//            case 8:
+//                if(!follower.isBusy()) {
+//                    // TODO: REMOVE LINE BELOW LATER
+////                    intakeSpindexer.ballsLoaded = 3;
+//                    intakeSpindexer.kickstartShootChain = true;
+//                    intakeSpindexer.shootDone = false;
+//                    intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
+//                    setPathState(9);
+//                }
+//                break;
+//            case 9:
+//                if(!follower.isBusy()) {
+//                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
+//                    if(pathTimer.getElapsedTime() > 150 + 100 + 400 + 150 + 100 + 400 + 150 + 100) {
+//                        setPathState(10);
+//                    }
+//                }
+//                break;
+//            case 10:
+//                if(!follower.isBusy()) {
+//                    targetVel = 500;
+//                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
+//                    follower.followPath(intake2_1, 1.0, true);
+//                    setPathState(11);
+//                }
+//                break;
+//            case 11:
+//                if(!follower.isBusy()) {
+//                    follower.followPath(intake2_2, 0.8, true);
+//                    setPathState(12);
+//                }
+//                break;
+//            case 12:
+//                if(!follower.isBusy()) {
+//                    follower.followPath(intake2_3, 1.0, true);
+//                    setPathState(13);
+//                }
+//                break;
+//            case 13:
+//                if(!follower.isBusy()) {
+//                    if(pathTimer.getElapsedTime() > 200) {
+//                        setPathState(14);
+//                    }
+//                }
+//                break;
+//            case 14:
+//                if(!follower.isBusy()) {
+//                    targetVel = 1950;
+//                    follower.followPath(shoot2, 1.0, true);
+//                    setPathState(32);
+//                }
+//                break;
+//            case 32:
+//                if(!follower.isBusy()) {
+//                    if(pathTimer.getElapsedTime() > 1000) {
+//                        setPathState(15);
+//                    }
+//                }
+//                break;
+//            case 15:
+//                if(!follower.isBusy()) {
+//                    // TODO: REMOVE LINE BELOW LATER
+////                    intakeSpindexer.ballsLoaded = 3;
+//                    intakeSpindexer.kickstartShootChain = true;
+//                    intakeSpindexer.shootDone = false;
+//                    intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
+//                    setPathState(16);
+//                }
+//                break;
+//            case 16:
+//                if(!follower.isBusy()) {
+//                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
+//                    if(pathTimer.getElapsedTime() > 150 + 100 + 400 + 150 + 100 + 400 + 150 + 100) {
+//                        setPathState(17);
+//                    }
+//                }
+//                break;
+//            case 17:
+//                if(!follower.isBusy()) {
+//                    targetVel = 500;
+//                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
+//                    follower.followPath(intake3, 1.0, true);
+//                    setPathState(18);
+//                }
+//                break;
+//            case 18:
+//                if(!follower.isBusy()) {
+//                    if(pathTimer.getElapsedTime() > 500) {
+//                        setPathState(19);
+//                    }
+//                }
+//                break;
+//            case 19:
+//                if(!follower.isBusy()) {
+//                    targetVel = 1950;
+//                    follower.followPath(shoot3, 1.0, true);
+//                    setPathState(20);
+//                }
+//                break;
+//            case 20:
+//                if(!follower.isBusy()) {
+//                    // TODO: REMOVE LINE BELOW LATER
+////                    intakeSpindexer.ballsLoaded = 3;
+//                    intakeSpindexer.kickstartShootChain = true;
+//                    intakeSpindexer.shootDone = false;
+//                    intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
+//                    setPathState(21);
+//                }
+//                break;
+//            case 21:
+//                if(!follower.isBusy()) {
+//                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
+//                    if(pathTimer.getElapsedTime() > 150 + 100 + 400 + 150 + 100 + 400 + 150 + 100) {
+//                        setPathState(22);
+//                    }
+//                }
+//                break;
+//            case 22:
+//                if(!follower.isBusy()) {
+//                    targetVel = 500;
+//                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
+//                    follower.followPath(intake4, 1.0, true);
+//                    setPathState(23);
+//                }
+//                break;
+//
+//            case 23:
+//                if(!follower.isBusy()) {
+//                    if (pathTimer.getElapsedTime() > 500) {
+//                        setPathState(24);
+//                    }
+//                }
+//                break;
+//            case 24:
+//                if(!follower.isBusy()) {
+//                    targetVel = 1950;
+//                    follower.followPath(shoot4, 1.0, true);
+//                    setPathState(25);
+//                }
+//                break;
+//            case 25:
+//                if(!follower.isBusy()) {
+//                    // TODO: REMOVE LINE BELOW LATER
+////                    intakeSpindexer.ballsLoaded = 3;
+//                    intakeSpindexer.kickstartShootChain = true;
+//                    intakeSpindexer.shootDone = false;
+//                    intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
+//                    setPathState(26);
+//                }
+//                break;
+//            case 26:
+//                if(!follower.isBusy()) {
+//                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
+//                    if(pathTimer.getElapsedTime() > 150 + 100 + 400 + 150 + 100 + 400 + 150 + 100) {
+//                        setPathState(27);
+//                    }
+//                }
+//                break;
+//            case 27:
+//                if(!follower.isBusy()) {
+//                    targetVel = 500;
+//                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
+//                    follower.followPath(intake5, 1.0, true);
+//                    setPathState(28);
+//                }
+//                break;
+//
+//            case 28:
+//                if(!follower.isBusy()) {
+//                    if (pathTimer.getElapsedTime() > 1000) {
+//                        setPathState(29);
+//                    }
+//                }
+//                break;
+//            case 29:
+//                if(!follower.isBusy()) {
+//                    targetVel = 1950;
+//                    follower.followPath(shoot5, 1.0, true);
+//                    setPathState(30);
+//                }
+//                break;
+//            case 30:
+//                if(!follower.isBusy()) {
+//                    // TODO: REMOVE LINE BELOW LATER
+////                    intakeSpindexer.ballsLoaded = 3;
+//                    intakeSpindexer.kickstartShootChain = true;
+//                    intakeSpindexer.shootDone = false;
+//                    intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
+//                    setPathState(31);
+//                }
+//                break;
+//            case 31:
+//                if(!follower.isBusy()) {
+//                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
+//                    if(pathTimer.getElapsedTime() > 150 + 100 + 400 + 150 + 100 + 400 + 150 + 100) {
+//                        setPathState(-1);
+//                    }
+//                }
+//                break;
         }
     }
 
