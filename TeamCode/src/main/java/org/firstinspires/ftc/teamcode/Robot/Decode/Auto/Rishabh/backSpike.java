@@ -55,88 +55,88 @@ public class backSpike extends OpMode {
                 .build();
         intake2_1 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(95, 12),
-                                new Pose(116.5, 18)
+                                new Pose(93, 14),
+                                new Pose(127, 9.5)
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(-30))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
         intake2_2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(116.5, 18),
-                                new Pose(116.5, 12)
+                                new Pose(127, 9.5),
+                                new Pose(118, 5.5)
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(-30))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         intake2_3 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(116.5, 12),
-                                new Pose(116.5, 9.5)
+                                new Pose(118, 5.5),
+                                new Pose(125.25, 5.5)
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(-30))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         shoot2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(116.5, 9.5),
+                                new Pose(125.25, 5.5),
                                 new Pose(90, 9)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(-30), Math.toRadians(15))
+                ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(15))
                 .build();
 
         intake3 = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(90, 9),
-                                new Pose(125, 6.5)
+                                new Pose(130, 29)
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(0))
+                ).setLinearHeadingInterpolation(Math.toRadians(15), Math.toRadians(50))
                 .build();
 
         shoot3 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(125, 6.5),
-                                new Pose(90, 6.5)
+                                new Pose(130, 29),
+                                new Pose(90, 6)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                ).setLinearHeadingInterpolation(Math.toRadians(50), Math.toRadians(50))
                 .build();
 
         intake4 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(90, 6.5),
-                                new Pose(125, 6.5)
+                                new Pose(90, 6),
+                                new Pose(130, 29)
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(0))
+                ).setConstantHeadingInterpolation(Math.toRadians(50))
                 .build();
 
         shoot4 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(125, 6.5),
-                                new Pose(90, 6.5)
+                                new Pose(130, 29),
+                                new Pose(90, 6)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                ).setLinearHeadingInterpolation(Math.toRadians(50), Math.toRadians(50))
                 .build();
 
         intake5 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(90, 6.5),
-                                new Pose(130, 24)
+                                new Pose(90, 6),
+                                new Pose(130, 36)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(50))
+                ).setLinearHeadingInterpolation(Math.toRadians(50), Math.toRadians(50))
                 .build();
 
         shoot5 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(130, 24),
+                                new Pose(130, 36),
                                 new Pose(90, 12)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(50), Math.toRadians(15))
+                ).setLinearHeadingInterpolation(Math.toRadians(50), Math.toRadians(50))
                 .build();
     }
     public void autonomousPathUpdate() {
         switch(pathState) {
             case 0:
                 if(!follower.isBusy()) {
-                    turretShooter.shoot(1500, 1.0);
+                    turretShooter.shoot(1750, 1.0);
                     setPathState(1);
                 }
                 break;
@@ -149,6 +149,7 @@ public class backSpike extends OpMode {
                 break;
             case 2:
                 if(!follower.isBusy()) {
+                    intakeSpindexer.ballsLoaded = 3;
                     intakeSpindexer.kickstartShootChain = true;
                     intakeSpindexer.shootDone = false;
                     intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
@@ -158,16 +159,16 @@ public class backSpike extends OpMode {
             case 3:
                 if(!follower.isBusy()) {
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
-                    if(pathTimer.getElapsedTime() > intakeSpindexer.shootTime) {
+                    if(pathTimer.getElapsedTime() > 150 + 100 + 400 + 150 + 100 + 400 + 150 + 100) {
                         setPathState(4);
                     }
                 }
                 break;
             case 4:
                 if(!follower.isBusy()) {
-                    turretShooter.shoot(500, 1.0);
+                    turretShooter.shoot(1750, 1.0);
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
-                    follower.followPath(intake1_1, 0.8, false);
+                    follower.followPath(intake1_1, 1.0, false);
                     setPathState(5);
                 }
                 break;
@@ -179,9 +180,9 @@ public class backSpike extends OpMode {
                 break;
             case 6:
                 if(!follower.isBusy()) {
-                    follower.followPath(shoot1, 0.8, true);
+                    follower.followPath(shoot1, 1.0, true);
                     setPathState(7);
-                    turretShooter.shoot(1500, 1.0);
+                    turretShooter.shoot(1750, 1.0);
                 }
                 break;
             case 7:
@@ -204,43 +205,50 @@ public class backSpike extends OpMode {
             case 9:
                 if(!follower.isBusy()) {
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
-                    if(pathTimer.getElapsedTime() > intakeSpindexer.shootTime) {
+                    if(pathTimer.getElapsedTime() > 150 + 100 + 400 + 150 + 100 + 400 + 150 + 100) {
                         setPathState(10);
                     }
                 }
                 break;
             case 10:
                 if(!follower.isBusy()) {
-                    turretShooter.shoot(500, 1.0);
+                    turretShooter.shoot(1750, 1.0);
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
-                    follower.followPath(intake2_1, 0.8, true);
+                    follower.followPath(intake2_1, 1.0, true);
                     setPathState(11);
                 }
                 break;
             case 11:
                 if(!follower.isBusy()) {
-                    follower.followPath(intake2_2, 0.35, true);
+                    follower.followPath(intake2_2, 0.8, true);
                     setPathState(12);
                 }
                 break;
             case 12:
                 if(!follower.isBusy()) {
-                    follower.followPath(intake2_3, 0.35, true);
+                    follower.followPath(intake2_3, 1.0, true);
                     setPathState(13);
                 }
                 break;
             case 13:
                 if(!follower.isBusy()) {
-                    if(pathTimer.getElapsedTime() > 500) {
+                    if(pathTimer.getElapsedTime() > 200) {
                         setPathState(14);
                     }
                 }
                 break;
             case 14:
                 if(!follower.isBusy()) {
-                    turretShooter.shoot(1500, 1.0);
-                    follower.followPath(shoot2, 0.8, true);
-                    setPathState(15);
+                    turretShooter.shoot(1750, 1.0);
+                    follower.followPath(shoot2, 1.0, true);
+                    setPathState(32);
+                }
+                break;
+            case 32:
+                if(!follower.isBusy()) {
+                    if(pathTimer.getElapsedTime() > 1000) {
+                        setPathState(15);
+                    }
                 }
                 break;
             case 15:
@@ -256,16 +264,16 @@ public class backSpike extends OpMode {
             case 16:
                 if(!follower.isBusy()) {
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
-                    if(pathTimer.getElapsedTime() > intakeSpindexer.shootTime) {
+                    if(pathTimer.getElapsedTime() > 150 + 100 + 400 + 150 + 100 + 400 + 150 + 100) {
                         setPathState(17);
                     }
                 }
                 break;
             case 17:
                 if(!follower.isBusy()) {
-                    turretShooter.shoot(500, 1.0);
+                    turretShooter.shoot(1750, 1.0);
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
-                    follower.followPath(intake3, 0.8, true);
+                    follower.followPath(intake3, 1.0, true);
                     setPathState(18);
                 }
                 break;
@@ -278,8 +286,8 @@ public class backSpike extends OpMode {
                 break;
             case 19:
                 if(!follower.isBusy()) {
-                    turretShooter.shoot(1500, 1.0);
-                    follower.followPath(shoot3, 0.8, true);
+                    turretShooter.shoot(1750, 1.0);
+                    follower.followPath(shoot3, 1.0, true);
                     setPathState(20);
                 }
                 break;
@@ -296,16 +304,16 @@ public class backSpike extends OpMode {
             case 21:
                 if(!follower.isBusy()) {
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
-                    if(pathTimer.getElapsedTime() > intakeSpindexer.shootTime) {
+                    if(pathTimer.getElapsedTime() > 150 + 100 + 400 + 150 + 100 + 400 + 150 + 100) {
                         setPathState(22);
                     }
                 }
                 break;
             case 22:
                 if(!follower.isBusy()) {
-                    turretShooter.shoot(500, 1.0);
+                    turretShooter.shoot(1750, 1.0);
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
-                    follower.followPath(intake4, 0.8, true);
+                    follower.followPath(intake4, 1.0, true);
                     setPathState(23);
                 }
                 break;
@@ -319,8 +327,8 @@ public class backSpike extends OpMode {
                 break;
             case 24:
                 if(!follower.isBusy()) {
-                    turretShooter.shoot(1500, 1.0);
-                    follower.followPath(shoot4, 0.8, true);
+                    turretShooter.shoot(1750, 1.0);
+                    follower.followPath(shoot4, 1.0, true);
                     setPathState(25);
                 }
                 break;
@@ -337,31 +345,31 @@ public class backSpike extends OpMode {
             case 26:
                 if(!follower.isBusy()) {
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
-                    if(pathTimer.getElapsedTime() > intakeSpindexer.shootTime) {
+                    if(pathTimer.getElapsedTime() > 150 + 100 + 400 + 150 + 100 + 400 + 150 + 100) {
                         setPathState(27);
                     }
                 }
                 break;
             case 27:
                 if(!follower.isBusy()) {
-                    turretShooter.shoot(500, 1.0);
+                    turretShooter.shoot(1750, 1.0);
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
-                    follower.followPath(intake5, 0.8, true);
+                    follower.followPath(intake5, 1.0, true);
                     setPathState(28);
                 }
                 break;
 
             case 28:
                 if(!follower.isBusy()) {
-                    if (pathTimer.getElapsedTime() > 3500) {
+                    if (pathTimer.getElapsedTime() > 1000) {
                         setPathState(29);
                     }
                 }
                 break;
             case 29:
                 if(!follower.isBusy()) {
-                    turretShooter.shoot(1500, 1.0);
-                    follower.followPath(shoot5, 0.8, true);
+                    turretShooter.shoot(1750, 1.0);
+                    follower.followPath(shoot5, 1.0, true);
                     setPathState(30);
                 }
                 break;
@@ -378,7 +386,7 @@ public class backSpike extends OpMode {
             case 31:
                 if(!follower.isBusy()) {
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
-                    if(pathTimer.getElapsedTime() > intakeSpindexer.shootTime) {
+                    if(pathTimer.getElapsedTime() > 150 + 100 + 400 + 150 + 100 + 400 + 150 + 100) {
                         setPathState(-1);
                     }
                 }

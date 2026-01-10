@@ -110,7 +110,7 @@ public class IntakeSpindexer {
         switch (state) {
 
             case INTAKING:
-                getMotor(MotorNames.intake).setPower(0.7);
+                getMotor(MotorNames.intake).setPower(0.85);
 
                 if (ballDetected && !lastBallDetected && ballsLoaded < 3) {
                     ballsLoaded++;

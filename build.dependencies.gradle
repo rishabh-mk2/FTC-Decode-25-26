@@ -23,5 +23,7 @@ dependencies {
     implementation 'com.bylazar:fullpanels:1.0.10'
     implementation 'com.acmerobotics.dashboard:dashboard:0.5.1'
 
+    implementation 'dev.nextftc:control:1.0.0'
+
 }
 

@@ -185,11 +185,11 @@ public class IntakeSpindexer_shreyas {
     public void update(double currentTime) {
         switch (state) {
             case INTAKING:
-                telemetry.addData("Ball Detected", ballDetected());
-                getMotor(MotorNames.intake).setPower(0.85);
+                if(ballsLoaded < 3) {
+                    getMotor(MotorNames.intake).setPower(0.85);
+                }
                 // Rising edge with cooldown timer
                 if (ballDetected() && ballsLoaded < 3 && (currentTime - lastBallProcessedTime) > DETECTION_COOLDOWN_MS) {
-                    telemetry.addData("In", "This loop");
                     ballsLoaded += 1;
                     lastBallProcessedTime = currentTime;
                     if(ballsLoaded < 3) {
@@ -200,46 +200,73 @@ public class IntakeSpindexer_shreyas {
                         getMotor(MotorNames.intake).setPower(0.5);
                     }
                 }
+                if(ballsLoaded == 3 && currentTime - lastBallProcessedTime > 300) {
+                    getMotor(MotorNames.intake).setVelocity(-0.5);
+                }
                 break;
             case SHOOTING:
                 getMotor(MotorNames.intake).setPower(0.65);
                 if(ballsLoaded == 1) {
-                    rotateSpindexer60(1);
-                    if(currentTime - shootCallTime > 400) {
+                    if(kickstartShootChain) {
+                        rotateSpindexer60(1);
+                        shooter1 = true;
+                        kickstartShootChain = false;
+                    }
+                    if(shooter1 && currentTime - shootCallTime > 250) {
+                        shooter1 = false;
                         getServo(ServoNames.kicker).setPosition(0.4);
+                        shooter2 = true;
                     }
-                    if(currentTime - shootCallTime > 400 + 100) {
+                    if(shooter2 && currentTime - shootCallTime > 250 + 150) {
                         getServo(ServoNames.kicker).setPosition(0.225);
+                        shooter2 = false;
+                        shooter3 = true;
                     }
-                    if(currentTime - shootCallTime > 400 + 100 + 100) {
+                    if(shooter3 && currentTime - shootCallTime > 250 + 150 + 150) {
                         homeSpindexer();
                         shootDone = true;
+                        shooter3 = false;
                     }
                 }
                 else if (ballsLoaded == 2) {
-                    rotateSpindexer60(-1);
-                    if(currentTime - shootCallTime > 400) {
+                    if(kickstartShootChain) {
+                        rotateSpindexer60(-1);
+                        kickstartShootChain = false;
+                        shooter1 = true;
+                    }
+                    if(shooter1 && currentTime - shootCallTime > 250) {
                         getServo(ServoNames.kicker).setPosition(0.4);
+                        shooter1 = false;
+                        shooter2 = true;
                     }
-                    if(currentTime - shootCallTime > 400 + 100) {
+                    if(shooter2 && currentTime - shootCallTime > 250 + 150) {
                         getServo(ServoNames.kicker).setPosition(0.225);
+                        shooter2 = false;
+                        shooter3 = true;
                     }
-                    if(currentTime - shootCallTime > 400 + 100 + 100) {
+                    if(shooter3 && currentTime - shootCallTime > 250 + 150 + 150) {
                         rotateSpindexer120(1);
+                        shooter3 = false;
+                        shooter4 = true;
                     }
-                    if(currentTime - shootCallTime > 400 + 100 + 100 + 800) {
+                    if(shooter4 && currentTime - shootCallTime > 250 + 150 + 150 + 400) {
                         getServo(ServoNames.kicker).setPosition(0.4);
+                        shooter4 = false;
+                        shooter5 = true;
                     }
-                    if(currentTime - shootCallTime > 400 + 100 + 100 + 800 + 100) {
+                    if(shooter5 && currentTime - shootCallTime > 250 + 150 + 150 + 400 + 150) {
                         getServo(ServoNames.kicker).setPosition(0.225);
+                        shooter5 = false;
+                        shooter6 = true;
                     }
-                    if(currentTime - shootCallTime > 400 + 100 + 100 + 800 + 100 + 100) {
+                    if(shooter6 && currentTime - shootCallTime > 250 + 150 + 150 + 400 + 150 + 150) {
                         homeSpindexer();
+                        shooter6 = false;
                         shootDone = true;
                     }
                 }
                 else if (ballsLoaded == 3) {
-                    shootTime = 100 + 100 + 400 + 100 + 100 + 400 + 100 + 100;
+                    shootTime = 150 + 100 + 400 + 150 + 100 + 400 + 150 + 100;
                     if(kickstartShootChain) {
                         getServo(ServoNames.kicker).setPosition(0.4);
                         shooter1 = true;
@@ -250,37 +277,37 @@ public class IntakeSpindexer_shreyas {
                         shooter1 = false;
                         shooter2 = true;
                     }
-                    if(shooter2 && currentTime - shootCallTime > 150 + 100) {
+                    if(shooter2 && currentTime - shootCallTime > 150 + 150) {
                         rotateSpindexer120(1);
                         shooter2 = false;
                         shooter3 = true;
                     }
-                    if(shooter3 && currentTime - shootCallTime > 150 + 100 + 400) {
+                    if(shooter3 && currentTime - shootCallTime > 150 + 150 + 400) {
                         getServo(ServoNames.kicker).setPosition(0.4);
                         shooter3 = false;
                         shooter4 = true;
                     }
-                    if(shooter4 && currentTime - shootCallTime > 150 + 100 + 400 + 150) {
+                    if(shooter4 && currentTime - shootCallTime > 150 + 150 + 400 + 150) {
                         getServo(ServoNames.kicker).setPosition(0.225);
                         shooter4 = false;
                         shooter5 = true;
                     }
-                    if(shooter5 && currentTime - shootCallTime > 150 + 100 + 400 + 150 + 100) {
+                    if(shooter5 && currentTime - shootCallTime > 150 + 150 + 400 + 150 + 150) {
                         rotateSpindexer120(1);
                         shooter5 = false;
                         shooter6 = true;
                     }
-                    if(shooter6 && currentTime - shootCallTime > 150 + 100 + 400 + 150 + 100 + 400) {
+                    if(shooter6 && currentTime - shootCallTime > 150 + 150 + 400 + 150 + 150 + 400) {
                         getServo(ServoNames.kicker).setPosition(0.4);
                         shooter6 = false;
                         shooter7 = true;
                     }
-                    if(shooter7 && currentTime - shootCallTime > 150 + 100 + 400 + 150 + 100 + 400 + 150) {
+                    if(shooter7 && currentTime - shootCallTime > 150 + 150 + 400 + 150 + 150 + 400 + 150) {
                         getServo(ServoNames.kicker).setPosition(0.225);
                         shooter7 = false;
                         shooter8 = true;
                     }
-                    if(shooter8 && currentTime - shootCallTime > 100 + 100 + 400 + 150 + 100 + 400 + 150 + 100) {
+                    if(shooter8 && currentTime - shootCallTime > 150 + 150 + 400 + 150 + 150 + 400 + 150 + 150) {
                         homeSpindexer();
                         shootDone = true;
                         shooter8 = false;
