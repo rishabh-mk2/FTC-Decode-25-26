@@ -103,7 +103,7 @@ public class TurretShooter_shreyas {
         limelight.start();
         addTelemetry("TurretShooter", "Ready");
 
-        getServo(ServoNames.hood).setPosition(0.05);
+        getServo(ServoNames.hood).setPosition(0.95);
     }
     //endregion
 

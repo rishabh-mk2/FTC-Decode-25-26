@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Robot.Decode.Auto.Rishabh; // make sure this aligns with class location
 
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
@@ -25,18 +26,28 @@ public class backSpike extends OpMode {
 
     // START POSE
     private final Pose startPose = new Pose(95, 12, Math.toRadians(45));
+    double targetVel = 0.0;
+    double limelightOffset = 0.0;
+    private PIDController controller;
+    final double p = 0.75, i = 0, d = 0.05, f = 1.0;
 
-
-
-    private PathChain intake1_1, intake1_2, shoot1, intake2_1, intake2_2, intake2_3, shoot2, intake3, shoot3, intake4, shoot4, intake5, shoot5;
+    private PathChain shoot0, intake1_1, intake1_2, shoot1, intake2_1, intake2_2, intake2_3, shoot2, intake3, shoot3, intake4, shoot4, intake5, shoot5;
 
     public void buildPaths() {
-        intake1_1 = follower.pathBuilder().addPath(
+        shoot0 = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(95.000, 12.000),
+                                new Pose(92, 15)
+                        )
+                ).setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(35))
+                .build();
+
+        intake1_1 = follower.pathBuilder().addPath(
+                        new BezierLine(
+                                new Pose(92, 15),
                                 new Pose(107, 29.5)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(45))
+                ).setLinearHeadingInterpolation(Math.toRadians(35), Math.toRadians(45))
                 .build();
         intake1_2 = follower.pathBuilder().addPath(
                         new BezierLine(
@@ -136,20 +147,21 @@ public class backSpike extends OpMode {
         switch(pathState) {
             case 0:
                 if(!follower.isBusy()) {
-                    turretShooter.shoot(1750, 1.0);
+                    targetVel = 1900;
+                    follower.followPath(shoot0,0.8, true);
                     setPathState(1);
                 }
                 break;
             case 1:
                 if(!follower.isBusy()) {
-                    if(pathTimer.getElapsedTime() > 1000) {
+                    if(pathTimer.getElapsedTime() > 400) {
                         setPathState(2);
                     }
                 }
                 break;
             case 2:
                 if(!follower.isBusy()) {
-                    intakeSpindexer.ballsLoaded = 3;
+//                    intakeSpindexer.ballsLoaded = 3;
                     intakeSpindexer.kickstartShootChain = true;
                     intakeSpindexer.shootDone = false;
                     intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
@@ -166,7 +178,7 @@ public class backSpike extends OpMode {
                 break;
             case 4:
                 if(!follower.isBusy()) {
-                    turretShooter.shoot(1750, 1.0);
+                    targetVel = 500;
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
                     follower.followPath(intake1_1, 1.0, false);
                     setPathState(5);
@@ -182,7 +194,7 @@ public class backSpike extends OpMode {
                 if(!follower.isBusy()) {
                     follower.followPath(shoot1, 1.0, true);
                     setPathState(7);
-                    turretShooter.shoot(1750, 1.0);
+                    targetVel = 1950;
                 }
                 break;
             case 7:
@@ -195,7 +207,7 @@ public class backSpike extends OpMode {
             case 8:
                 if(!follower.isBusy()) {
                     // TODO: REMOVE LINE BELOW LATER
-                    intakeSpindexer.ballsLoaded = 3;
+//                    intakeSpindexer.ballsLoaded = 3;
                     intakeSpindexer.kickstartShootChain = true;
                     intakeSpindexer.shootDone = false;
                     intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
@@ -212,7 +224,7 @@ public class backSpike extends OpMode {
                 break;
             case 10:
                 if(!follower.isBusy()) {
-                    turretShooter.shoot(1750, 1.0);
+                    targetVel = 500;
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
                     follower.followPath(intake2_1, 1.0, true);
                     setPathState(11);
@@ -239,7 +251,7 @@ public class backSpike extends OpMode {
                 break;
             case 14:
                 if(!follower.isBusy()) {
-                    turretShooter.shoot(1750, 1.0);
+                    targetVel = 1950;
                     follower.followPath(shoot2, 1.0, true);
                     setPathState(32);
                 }
@@ -254,7 +266,7 @@ public class backSpike extends OpMode {
             case 15:
                 if(!follower.isBusy()) {
                     // TODO: REMOVE LINE BELOW LATER
-                    intakeSpindexer.ballsLoaded = 3;
+//                    intakeSpindexer.ballsLoaded = 3;
                     intakeSpindexer.kickstartShootChain = true;
                     intakeSpindexer.shootDone = false;
                     intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
@@ -271,7 +283,7 @@ public class backSpike extends OpMode {
                 break;
             case 17:
                 if(!follower.isBusy()) {
-                    turretShooter.shoot(1750, 1.0);
+                    targetVel = 500;
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
                     follower.followPath(intake3, 1.0, true);
                     setPathState(18);
@@ -286,7 +298,7 @@ public class backSpike extends OpMode {
                 break;
             case 19:
                 if(!follower.isBusy()) {
-                    turretShooter.shoot(1750, 1.0);
+                    targetVel = 1950;
                     follower.followPath(shoot3, 1.0, true);
                     setPathState(20);
                 }
@@ -294,7 +306,7 @@ public class backSpike extends OpMode {
             case 20:
                 if(!follower.isBusy()) {
                     // TODO: REMOVE LINE BELOW LATER
-                    intakeSpindexer.ballsLoaded = 3;
+//                    intakeSpindexer.ballsLoaded = 3;
                     intakeSpindexer.kickstartShootChain = true;
                     intakeSpindexer.shootDone = false;
                     intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
@@ -311,7 +323,7 @@ public class backSpike extends OpMode {
                 break;
             case 22:
                 if(!follower.isBusy()) {
-                    turretShooter.shoot(1750, 1.0);
+                    targetVel = 500;
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
                     follower.followPath(intake4, 1.0, true);
                     setPathState(23);
@@ -327,7 +339,7 @@ public class backSpike extends OpMode {
                 break;
             case 24:
                 if(!follower.isBusy()) {
-                    turretShooter.shoot(1750, 1.0);
+                    targetVel = 1950;
                     follower.followPath(shoot4, 1.0, true);
                     setPathState(25);
                 }
@@ -335,7 +347,7 @@ public class backSpike extends OpMode {
             case 25:
                 if(!follower.isBusy()) {
                     // TODO: REMOVE LINE BELOW LATER
-                    intakeSpindexer.ballsLoaded = 3;
+//                    intakeSpindexer.ballsLoaded = 3;
                     intakeSpindexer.kickstartShootChain = true;
                     intakeSpindexer.shootDone = false;
                     intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
@@ -352,7 +364,7 @@ public class backSpike extends OpMode {
                 break;
             case 27:
                 if(!follower.isBusy()) {
-                    turretShooter.shoot(1750, 1.0);
+                    targetVel = 500;
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
                     follower.followPath(intake5, 1.0, true);
                     setPathState(28);
@@ -368,7 +380,7 @@ public class backSpike extends OpMode {
                 break;
             case 29:
                 if(!follower.isBusy()) {
-                    turretShooter.shoot(1750, 1.0);
+                    targetVel = 1950;
                     follower.followPath(shoot5, 1.0, true);
                     setPathState(30);
                 }
@@ -376,7 +388,7 @@ public class backSpike extends OpMode {
             case 30:
                 if(!follower.isBusy()) {
                     // TODO: REMOVE LINE BELOW LATER
-                    intakeSpindexer.ballsLoaded = 3;
+//                    intakeSpindexer.ballsLoaded = 3;
                     intakeSpindexer.kickstartShootChain = true;
                     intakeSpindexer.shootDone = false;
                     intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
@@ -404,7 +416,14 @@ public class backSpike extends OpMode {
         follower.update();
         autonomousPathUpdate();
         intakeSpindexer.update(opmodeTimer.getElapsedTime());
-        turretShooter.trackAprilTag();
+        turretShooter.trackAprilTag(3);
+        turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(1.0);
+
+        double currentVelocity = turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).getVelocity();
+        double pid = controller.calculate(currentVelocity, targetVel);
+        double velocity = pid + f*targetVel;
+
+        turretShooter.setShooterVelocity(velocity);
 
         telemetry.addData("path state", pathState);
         telemetry.addData("x", follower.getPose().getX());
@@ -422,6 +441,9 @@ public class backSpike extends OpMode {
 
         intakeSpindexer = new IntakeSpindexer_shreyas(this, true);
         turretShooter = new TurretShooter_shreyas(this, Alliance.RED);
+
+        controller = new PIDController(p, i, d);
+        controller.setPID(p, i, d);
 
         follower = Constants.createFollower(hardwareMap);
         buildPaths();
