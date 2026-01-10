@@ -90,8 +90,8 @@ public class TurretShooter_shreyas {
         getMotor(MotorNames.rightShooter).setDirection(DcMotorSimple.Direction.FORWARD);
 
         // TUNABLE: Start with these values and tune using the method described
-        turretPID = new PIDController(0.02, 0.0, 0.5);
-        turretPID.setPID(0.02, 0.0, 0.5);
+        turretPID = new PIDController(0.015, 0.0, 0.0);
+        turretPID.setPID(0.015, 0.0, 0.0);
 
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
 
@@ -113,6 +113,9 @@ public class TurretShooter_shreyas {
 
     public Servo getServo(ServoNames name) {
         return Servos.get(name.ordinal());
+    }
+    public Limelight3A getLimelight() {
+        return limelight;
     }
 
     double limelightMountAngleDegrees = 20.0;
@@ -174,7 +177,7 @@ public class TurretShooter_shreyas {
 
         double pid = turretPID.calculate(turretPos, targetTicks);
 
-        getMotor(MotorNames.turret).setPower(pid);
+        getMotor(MotorNames.turret).setPower(pid + 0.01*targetTicks);
 
         telemetry.addData("Fiducial ID", id);
         telemetry.addData("Current Target Degrees", currentTargetDeg);
@@ -391,7 +394,7 @@ public class TurretShooter_shreyas {
 
         double pid = turretPID.calculate(turretPos, targetTicks);
 
-        getMotor(MotorNames.turret).setPower(pid);
+        getMotor(MotorNames.turret).setPower(pid + 0.01*targetTicks);
 
         telemetry.addData("Fiducial ID", id);
         telemetry.addData("Current Target Degrees", currentTargetDeg);
