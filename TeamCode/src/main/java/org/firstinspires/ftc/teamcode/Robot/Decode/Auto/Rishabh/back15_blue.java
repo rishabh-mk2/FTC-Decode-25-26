@@ -8,15 +8,15 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Robot.Decode.Alliance;
 import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.IntakeSpindexer_shreyas;
 import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.TurretShooter_shreyas;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Back Spike", group = "Autonomous")
-public class backSpike extends OpMode {
+@Autonomous(name = "Back Blue 15", group = "Autonomous")
+public class back15_blue extends OpMode {
 
     private Follower follower;
     IntakeSpindexer_shreyas intakeSpindexer;
@@ -26,7 +26,22 @@ public class backSpike extends OpMode {
     private int pathState = 0;
 
     // START POSE
-    private final Pose startPose = new Pose(95, 12, Math.toRadians(45));
+    private final Pose startPose = new Pose(95, 12, Math.toRadians(45)).mirror();
+    private final Pose shoot0Pose = new Pose(92, 15, Math.toRadians(35)).mirror();
+    private final Pose intake1_1Pose = new Pose(106, 28, Math.toRadians(45)).mirror();
+    private final Pose intake1_2Pose = new Pose(124.5, 28, Math.toRadians(45)).mirror();
+    private final Pose shoot1Pose = new Pose(93, 15.5, Math.toRadians(45)).mirror();
+    private final Pose intake2_1Pose = new Pose(146, 17.5, Math.toRadians(0)).mirror();
+    private final Pose shoot2Pose = new Pose(90, 17.5, Math.toRadians(15)).mirror();
+    private final Pose intake3ControlPose = new Pose(129.604, 9.724).mirror();
+    private final Pose intake3EndPose = new Pose(134.759, 44.620).mirror();
+    private final Pose shoot3Pose = new Pose(90, 15, Math.toRadians(33.4)).mirror();
+    private final Pose intake4ControlPose = new Pose(129.604, 9.724).mirror();
+    private final Pose intake4EndPose = new Pose(134.759, 44.620).mirror();
+    private final Pose shoot4Pose = new Pose(90, 15, Math.toRadians(33.4)).mirror();
+    private final Pose intake5ControlPose = new Pose(129.604, 9.724).mirror();
+    private final Pose intake5EndPose = new Pose(134.759, 44.620).mirror();
+    private final Pose shoot5Pose = new Pose(90, 15, Math.toRadians(33.4)).mirror();
     double targetVel = 0.0;
     double limelightOffset = 0.0;
     private PIDController controller;
@@ -37,47 +52,47 @@ public class backSpike extends OpMode {
     public void buildPaths() {
         shoot0 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(95.000, 12.000),
-                                new Pose(92, 15)
+                                startPose,
+                                shoot0Pose
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(35))
+                ).setLinearHeadingInterpolation(startPose.getHeading(), shoot0Pose.getHeading())
                 .build();
 
         intake1_1 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(92, 15),
-                                new Pose(106, 28)
+                                shoot0Pose,
+                                intake1_1Pose
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(35), Math.toRadians(45))
+                ).setLinearHeadingInterpolation(shoot0Pose.getHeading(), intake1_1Pose.getHeading())
                 .build();
         intake1_2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(106, 28),
-                                new Pose(124.5, 28)
+                                intake1_1Pose,
+                                intake1_2Pose
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(45))
+                ).setLinearHeadingInterpolation(intake1_1Pose.getHeading(), intake1_2Pose.getHeading())
                 .build();
 
         shoot1 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(124.5, 28),
-                                new Pose(93, 15.5)
+                                intake1_2Pose,
+                                shoot1Pose
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(45))
+                ).setLinearHeadingInterpolation(intake1_2Pose.getHeading(), shoot1Pose.getHeading())
                 .build();
         intake2_1 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(93, 15.5),
-                                new Pose(127, 9.5)
+                                shoot1Pose,
+                                intake2_1Pose
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(0))
+                ).setConstantHeadingInterpolation(intake2_1Pose.getHeading())
                 .build();
         intake2_2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(127, 9.5),
-                                new Pose(118, 5.5)
+                                intake2_1Pose,
+                                shoot2Pose
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(0))
+                ).setConstantHeadingInterpolation(shoot2Pose.getHeading())
                 .build();
 
         intake2_3 = follower.pathBuilder().addPath(
@@ -90,68 +105,67 @@ public class backSpike extends OpMode {
 
         shoot2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(125.25, 5.5),
-                                new Pose(90, 9)
+                                intake2_1Pose,
+                                shoot2Pose
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(15))
+                ).setLinearHeadingInterpolation(intake2_1Pose.getHeading(), shoot2Pose.getHeading())
                 .build();
 
         intake3 = follower.pathBuilder().addPath(
                         new BezierCurve(
-                                new Pose(90, 9),
-                                new Pose(129.604, 9.724),
-                                new Pose(134.759, 44.620)
+                                shoot2Pose,
+                                intake3ControlPose,
+                                intake3EndPose
                         )
                 ).setTangentHeadingInterpolation()
                 .build();
 
         shoot3 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(134.759, 44.620),
-                                new Pose(90, 15)
+                                intake3EndPose,
+                                shoot3Pose
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(33.4))
+                ).setConstantHeadingInterpolation(shoot3Pose.getHeading())
                 .build();
 
         intake4 = follower.pathBuilder().addPath(
                         new BezierCurve(
-                                new Pose(90, 15),
-                                new Pose(129.604, 9.724),
-                                new Pose(134.759, 44.620)
+                                shoot3Pose,
+                                intake4ControlPose,
+                                intake4EndPose
                         )
                 ).setTangentHeadingInterpolation()
                 .build();
 
         shoot4 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(134.759, 44.620),
-                                new Pose(90, 15)
+                                intake4EndPose,
+                                shoot4Pose
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(33.4))
+                ).setConstantHeadingInterpolation(shoot4Pose.getHeading())
                 .build();
 
         intake5 = follower.pathBuilder().addPath(
                         new BezierCurve(
-                                new Pose(90, 15),
-                                new Pose(129.604, 9.724),
-                                new Pose(134.759, 44.620)
+                                shoot4Pose,
+                                intake5ControlPose,
+                                intake5EndPose
                         )
                 ).setTangentHeadingInterpolation()
                 .build();
 
         shoot5 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(134.759, 44.620),
-                                new Pose(90, 15)
+                                intake5EndPose,
+                                shoot5Pose
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(33.4))
+                ).setConstantHeadingInterpolation(shoot5Pose.getHeading())
                 .build();
     }
     public void autonomousPathUpdate() {
         switch(pathState) {
             case 0:
                 if(!follower.isBusy()) {
-                    limelightOffset = 0.0;
                     targetVel = 1875;
                     follower.followPath(shoot0,1.0, true);
                     setPathState(1);
@@ -207,7 +221,7 @@ public class backSpike extends OpMode {
                 if(!follower.isBusy()) {
                     if(pathTimer.getElapsedTime() > 1000) {
                         setPathState(8);
-                        limelightOffset = -3;
+//                        limelightOffset = -3;
                     }
                 }
                 break;
@@ -260,7 +274,6 @@ public class backSpike extends OpMode {
             case 14:
                 if(!follower.isBusy()) {
 //                    targetVel = 1850;
-                    limelightOffset = 1;
                     follower.followPath(shoot2, 1.0, true);
                     setPathState(32);
                 }
@@ -402,7 +415,7 @@ public class backSpike extends OpMode {
         follower.update();
         autonomousPathUpdate();
         intakeSpindexer.update(opmodeTimer.getElapsedTime());
-        turretShooter.trackAprilTag(limelightOffset);
+        turretShooter.trackAprilTag(5);
         turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(1.0);
 
         double currentVelocity = turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).getVelocity();
@@ -426,7 +439,7 @@ public class backSpike extends OpMode {
         opmodeTimer.resetTimer();
 
         intakeSpindexer = new IntakeSpindexer_shreyas(this, true);
-        turretShooter = new TurretShooter_shreyas(this, Alliance.RED);
+        turretShooter = new TurretShooter_shreyas(this, Alliance.BLUE);
 
         controller = new PIDController(p, i, d);
         controller.setPID(p, i, d);

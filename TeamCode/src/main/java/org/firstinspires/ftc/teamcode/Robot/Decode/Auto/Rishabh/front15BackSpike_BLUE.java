@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.IntakeSpindexer_shreyas
 import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.TurretShooter_shreyas;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "BLUE Front Side", group = "Autonomous")
+@Autonomous(name = "Blue Front 15 Back Spike", group = "Autonomous")
 public class front15BackSpike_BLUE extends OpMode {
 
     private Follower follower;
