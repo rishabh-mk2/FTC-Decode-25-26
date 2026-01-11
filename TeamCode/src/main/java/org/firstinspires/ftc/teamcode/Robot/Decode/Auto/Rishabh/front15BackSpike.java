@@ -46,21 +46,21 @@ public class front15BackSpike extends OpMode {
         intake1_1 = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(91, 88.5),
-                                new Pose(104, 60)
+                                new Pose(104, 61)
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         intake1_2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(104, 60),
-                                new Pose(121, 60)
+                                new Pose(104, 61),
+                                new Pose(121, 61)
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
         shoot2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(121, 60),
+                                new Pose(121, 61),
                                 new Pose(94, 76)
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(0))
@@ -76,7 +76,7 @@ public class front15BackSpike extends OpMode {
 
         intake2_2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(132, 63),
+                                new Pose(132, 62),
                                 new Pose(137.5, 62)
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(27.75))
@@ -145,7 +145,7 @@ public class front15BackSpike extends OpMode {
                 if(!follower.isBusy()) {
                     targetVel = 1600;
                     intakeSpindexer.ballsLoaded = 3;
-                    turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(0.6);
+                    turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(0.7);
                     follower.followPath(shoot1, 1.0, true);
                     setPathState(1);
                 }
@@ -211,7 +211,7 @@ public class front15BackSpike extends OpMode {
                 if(!follower.isBusy()) {
                     targetVel = 1200;
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
-                    follower.followPath(intake2_1, 0.9, true);
+                    follower.followPath(intake2_1, 1.0, true);
                     setPathState(9);
                 }
                 break;
@@ -226,7 +226,7 @@ public class front15BackSpike extends OpMode {
 
             case 10:
                 if(!follower.isBusy()) {
-                    follower.followPath(intake2_2, 0.3, true);
+                    follower.followPath(intake2_2, 0.5, true);
                     setPathState(11);
                 }
                 break;
@@ -241,14 +241,14 @@ public class front15BackSpike extends OpMode {
 
             case 12:
                 if(!follower.isBusy()) {
-                    follower.followPath(intake2_3, 0.35, true);
+                    follower.followPath(intake2_3, 0.5, true);
                     setPathState(13);
                 }
                 break;
 
             case 13:
                 if(!follower.isBusy()) {
-                    follower.followPath(intake2_2, 0.35, true);
+                    follower.followPath(intake2_2, 0.5, true);
                     setPathState(14);
                 }
                 break;
@@ -283,82 +283,82 @@ public class front15BackSpike extends OpMode {
                 }
                 break;
 
-            case 18:
-                if(!follower.isBusy()) {
-                    targetVel = 1200;
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
-                    follower.followPath(intake3_1, 1.0, true);
-                    setPathState(19);
-                }
-                break;
-
-            case 19:
-                if(!follower.isBusy()) {
-                    follower.followPath(intake3_2, 0.28, true);
-                    setPathState(20);
-                }
-                break;
-
-            case 20:
-                if(!follower.isBusy()) {
-                    targetVel = 1600;
-                    turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(0.7);
-                    follower.followPath(shoot4, 1.0, true);
-                    setPathState(21);
-                }
-                break;
-
-            case 21:
-                if(!follower.isBusy()) {
-                    intakeSpindexer.kickstartShootChain = true;
-                    intakeSpindexer.shootDone = false;
-                    intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
-                    setPathState(22);
-                }
-                break;
-            case 22:
-                if(!follower.isBusy()) {
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
-                    if(pathTimer.getElapsedTime() > 150 + 150 + 400 + 150 + 150 + 400 + 150 + 150) {
-                        setPathState(23);
-                    }
-                }
-                break;
-
-            case 23:
-                if(!follower.isBusy()) {
-                    targetVel = 1500;
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
-                    follower.followPath(intake4, 0.75, true);
-                    setPathState(24);
-                }
-                break;
-
-            case 24:
-                if(!follower.isBusy()) {
-                    targetVel = 1500;
-                    turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(0.7);
-                    follower.followPath(shoot5, 1.0, true);
-                    setPathState(25);
-                }
-                break;
-
-            case 25:
-                if(!follower.isBusy()) {
-                    intakeSpindexer.kickstartShootChain = true;
-                    intakeSpindexer.shootDone = false;
-                    intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
-                    setPathState(26);
-                }
-                break;
-            case 26:
-                if(!follower.isBusy()) {
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
-                    if(pathTimer.getElapsedTime() > 150 + 150 + 400 + 150 + 150 + 400 + 150 + 150) {
-                        setPathState(-1);
-                    }
-                }
-                break;
+//            case 18:
+//                if(!follower.isBusy()) {
+//                    targetVel = 1200;
+//                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
+//                    follower.followPath(intake3_1, 1.0, true);
+//                    setPathState(19);
+//                }
+//                break;
+//
+//            case 19:
+//                if(!follower.isBusy()) {
+//                    follower.followPath(intake3_2, 0.28, true);
+//                    setPathState(20);
+//                }
+//                break;
+//
+//            case 20:
+//                if(!follower.isBusy()) {
+//                    targetVel = 1600;
+//                    turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(0.7);
+//                    follower.followPath(shoot4, 1.0, true);
+//                    setPathState(21);
+//                }
+//                break;
+//
+//            case 21:
+//                if(!follower.isBusy()) {
+//                    intakeSpindexer.kickstartShootChain = true;
+//                    intakeSpindexer.shootDone = false;
+//                    intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
+//                    setPathState(22);
+//                }
+//                break;
+//            case 22:
+//                if(!follower.isBusy()) {
+//                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
+//                    if(pathTimer.getElapsedTime() > 150 + 150 + 400 + 150 + 150 + 400 + 150 + 150) {
+//                        setPathState(23);
+//                    }
+//                }
+//                break;
+//
+//            case 23:
+//                if(!follower.isBusy()) {
+//                    targetVel = 1500;
+//                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
+//                    follower.followPath(intake4, 0.75, true);
+//                    setPathState(24);
+//                }
+//                break;
+//
+//            case 24:
+//                if(!follower.isBusy()) {
+//                    targetVel = 1500;
+//                    turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(0.7);
+//                    follower.followPath(shoot5, 1.0, true);
+//                    setPathState(25);
+//                }
+//                break;
+//
+//            case 25:
+//                if(!follower.isBusy()) {
+//                    intakeSpindexer.kickstartShootChain = true;
+//                    intakeSpindexer.shootDone = false;
+//                    intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
+//                    setPathState(26);
+//                }
+//                break;
+//            case 26:
+//                if(!follower.isBusy()) {
+//                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
+//                    if(pathTimer.getElapsedTime() > 150 + 150 + 400 + 150 + 150 + 400 + 150 + 150) {
+//                        setPathState(-1);
+//                    }
+//                }
+//                break;
         }
     }
 

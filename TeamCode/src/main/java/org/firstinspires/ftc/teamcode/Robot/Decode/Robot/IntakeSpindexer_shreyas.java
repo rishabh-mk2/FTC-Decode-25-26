@@ -101,7 +101,7 @@ public class IntakeSpindexer_shreyas {
     public enum ServoNames {
         spin1,
         spin2,
-        kicker
+        kicker, kicker2
     }
 
     public boolean kickstartShootChain = false;
@@ -143,6 +143,7 @@ public class IntakeSpindexer_shreyas {
         }
 
         getServo(ServoNames.kicker).setPosition(0.225);
+        getServo(ServoNames.kicker2).setPosition(0.225);
 
         frontSensor1 = hardwareMap.get(RevColorSensorV3.class, "front1");
         frontSensor2 = hardwareMap.get(RevColorSensorV3.class, "front2");
@@ -215,10 +216,12 @@ public class IntakeSpindexer_shreyas {
                     if(shooter1 && currentTime - shootCallTime > 250) {
                         shooter1 = false;
                         getServo(ServoNames.kicker).setPosition(0.4);
+                        getServo(ServoNames.kicker2).setPosition(0.4);
                         shooter2 = true;
                     }
                     if(shooter2 && currentTime - shootCallTime > 250 + 150) {
                         getServo(ServoNames.kicker).setPosition(0.225);
+                        getServo(ServoNames.kicker2).setPosition(0.225);
                         shooter2 = false;
                         shooter3 = true;
                     }
@@ -236,11 +239,13 @@ public class IntakeSpindexer_shreyas {
                     }
                     if(shooter1 && currentTime - shootCallTime > 250) {
                         getServo(ServoNames.kicker).setPosition(0.4);
+                        getServo(ServoNames.kicker2).setPosition(0.4);
                         shooter1 = false;
                         shooter2 = true;
                     }
                     if(shooter2 && currentTime - shootCallTime > 250 + 150) {
                         getServo(ServoNames.kicker).setPosition(0.225);
+                        getServo(ServoNames.kicker2).setPosition(0.225);
                         shooter2 = false;
                         shooter3 = true;
                     }
@@ -251,11 +256,13 @@ public class IntakeSpindexer_shreyas {
                     }
                     if(shooter4 && currentTime - shootCallTime > 250 + 150 + 150 + 400) {
                         getServo(ServoNames.kicker).setPosition(0.4);
+                        getServo(ServoNames.kicker2).setPosition(0.4);
                         shooter4 = false;
                         shooter5 = true;
                     }
                     if(shooter5 && currentTime - shootCallTime > 250 + 150 + 150 + 400 + 150) {
                         getServo(ServoNames.kicker).setPosition(0.225);
+                        getServo(ServoNames.kicker2).setPosition(0.225);
                         shooter5 = false;
                         shooter6 = true;
                     }
@@ -269,11 +276,13 @@ public class IntakeSpindexer_shreyas {
                     shootTime = 150 + 100 + 400 + 150 + 100 + 400 + 150 + 100;
                     if(kickstartShootChain) {
                         getServo(ServoNames.kicker).setPosition(0.4);
+                        getServo(ServoNames.kicker2).setPosition(0.4);
                         shooter1 = true;
                         kickstartShootChain = false;
                     }
                     if(shooter1 && currentTime - shootCallTime > 150) {
                         getServo(ServoNames.kicker).setPosition(0.225);
+                        getServo(ServoNames.kicker2).setPosition(0.225);
                         shooter1 = false;
                         shooter2 = true;
                     }
@@ -284,11 +293,13 @@ public class IntakeSpindexer_shreyas {
                     }
                     if(shooter3 && currentTime - shootCallTime > 150 + 150 + 400) {
                         getServo(ServoNames.kicker).setPosition(0.4);
+                        getServo(ServoNames.kicker2).setPosition(0.4);
                         shooter3 = false;
                         shooter4 = true;
                     }
                     if(shooter4 && currentTime - shootCallTime > 150 + 150 + 400 + 150) {
                         getServo(ServoNames.kicker).setPosition(0.225);
+                        getServo(ServoNames.kicker2).setPosition(0.225);
                         shooter4 = false;
                         shooter5 = true;
                     }
@@ -299,11 +310,13 @@ public class IntakeSpindexer_shreyas {
                     }
                     if(shooter6 && currentTime - shootCallTime > 150 + 150 + 400 + 150 + 150 + 400) {
                         getServo(ServoNames.kicker).setPosition(0.4);
+                        getServo(ServoNames.kicker2).setPosition(0.4);
                         shooter6 = false;
                         shooter7 = true;
                     }
                     if(shooter7 && currentTime - shootCallTime > 150 + 150 + 400 + 150 + 150 + 400 + 150) {
                         getServo(ServoNames.kicker).setPosition(0.225);
+                        getServo(ServoNames.kicker2).setPosition(0.225);
                         shooter7 = false;
                         shooter8 = true;
                     }
@@ -328,10 +341,12 @@ public class IntakeSpindexer_shreyas {
                     if(shooter1 && currentTime - shootCallTime > 250) {
                         shooter1 = false;
                         getServo(ServoNames.kicker).setPosition(0.4);
+                        getServo(ServoNames.kicker2).setPosition(0.4);
                         shooter2 = true;
                     }
                     if(shooter2 && currentTime - shootCallTime > 250 + 150) {
                         getServo(ServoNames.kicker).setPosition(0.225);
+                        getServo(ServoNames.kicker2).setPosition(0.225);
                         shooter2 = false;
                         shooter3 = true;
                     }
@@ -349,11 +364,13 @@ public class IntakeSpindexer_shreyas {
                     }
                     if(shooter1 && currentTime - shootCallTime > 250) {
                         getServo(ServoNames.kicker).setPosition(0.4);
+                        getServo(ServoNames.kicker2).setPosition(0.4);
                         shooter1 = false;
                         shooter2 = true;
                     }
                     if(shooter2 && currentTime - shootCallTime > 250 + 150) {
                         getServo(ServoNames.kicker).setPosition(0.225);
+                        getServo(ServoNames.kicker2).setPosition(0.225);
                         shooter2 = false;
                         shooter3 = true;
                     }
@@ -364,11 +381,13 @@ public class IntakeSpindexer_shreyas {
                     }
                     if(shooter4 && currentTime - shootCallTime > 250 + 150 + 150 + 500) {
                         getServo(ServoNames.kicker).setPosition(0.4);
+                        getServo(ServoNames.kicker2).setPosition(0.4);
                         shooter4 = false;
                         shooter5 = true;
                     }
                     if(shooter5 && currentTime - shootCallTime > 250 + 150 + 150 + 500 + 150) {
                         getServo(ServoNames.kicker).setPosition(0.225);
+                        getServo(ServoNames.kicker2).setPosition(0.225);
                         shooter5 = false;
                         shooter6 = true;
                     }
@@ -382,11 +401,13 @@ public class IntakeSpindexer_shreyas {
                     shootTime = 150 + 150 + 500 + 150 + 150 + 500 + 150 + 150;
                     if(kickstartShootChain) {
                         getServo(ServoNames.kicker).setPosition(0.4);
+                        getServo(ServoNames.kicker2).setPosition(0.4);
                         shooter1 = true;
                         kickstartShootChain = false;
                     }
                     if(shooter1 && currentTime - shootCallTime > 150) {
                         getServo(ServoNames.kicker).setPosition(0.225);
+                        getServo(ServoNames.kicker2).setPosition(0.225);
                         shooter1 = false;
                         shooter2 = true;
                     }
@@ -397,11 +418,13 @@ public class IntakeSpindexer_shreyas {
                     }
                     if(shooter3 && currentTime - shootCallTime > 150 + 150 + 500) {
                         getServo(ServoNames.kicker).setPosition(0.4);
+                        getServo(ServoNames.kicker2).setPosition(0.4);
                         shooter3 = false;
                         shooter4 = true;
                     }
                     if(shooter4 && currentTime - shootCallTime > 150 + 150 + 500 + 150) {
                         getServo(ServoNames.kicker).setPosition(0.225);
+                        getServo(ServoNames.kicker2).setPosition(0.225);
                         shooter4 = false;
                         shooter5 = true;
                     }
@@ -412,11 +435,13 @@ public class IntakeSpindexer_shreyas {
                     }
                     if(shooter6 && currentTime - shootCallTime > 150 + 150 + 500 + 150 + 150 + 500) {
                         getServo(ServoNames.kicker).setPosition(0.4);
+                        getServo(ServoNames.kicker2).setPosition(0.4);
                         shooter6 = false;
                         shooter7 = true;
                     }
                     if(shooter7 && currentTime - shootCallTime > 150 + 150 + 500 + 150 + 150 + 500 + 150) {
                         getServo(ServoNames.kicker).setPosition(0.225);
+                        getServo(ServoNames.kicker2).setPosition(0.225);
                         shooter7 = false;
                         shooter8 = true;
                     }
