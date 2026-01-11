@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Robot.Decode.Auto.Rishabh; // make sure t
 
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
@@ -96,51 +97,54 @@ public class backSpike extends OpMode {
                 .build();
 
         intake3 = follower.pathBuilder().addPath(
-                        new BezierLine(
+                        new BezierCurve(
                                 new Pose(90, 9),
-                                new Pose(130, 29)
+                                new Pose(129.604, 9.724),
+                                new Pose(134.759, 44.620)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(15), Math.toRadians(50))
+                ).setTangentHeadingInterpolation()
                 .build();
 
         shoot3 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(130, 29),
-                                new Pose(90, 6)
+                                new Pose(134.759, 44.620),
+                                new Pose(90, 15)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(50), Math.toRadians(50))
+                ).setConstantHeadingInterpolation(Math.toRadians(33.4))
                 .build();
 
         intake4 = follower.pathBuilder().addPath(
-                        new BezierLine(
-                                new Pose(90, 6),
-                                new Pose(130, 29)
+                        new BezierCurve(
+                                new Pose(90, 15),
+                                new Pose(129.604, 9.724),
+                                new Pose(134.759, 44.620)
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(50))
+                ).setTangentHeadingInterpolation()
                 .build();
 
         shoot4 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(130, 29),
-                                new Pose(90, 6)
+                                new Pose(134.759, 44.620),
+                                new Pose(90, 15)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(50), Math.toRadians(50))
+                ).setConstantHeadingInterpolation(Math.toRadians(33.4))
                 .build();
 
         intake5 = follower.pathBuilder().addPath(
-                        new BezierLine(
-                                new Pose(90, 6),
-                                new Pose(130, 36)
+                        new BezierCurve(
+                                new Pose(90, 15),
+                                new Pose(129.604, 9.724),
+                                new Pose(134.759, 44.620)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(50), Math.toRadians(50))
+                ).setTangentHeadingInterpolation()
                 .build();
 
         shoot5 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(130, 36),
-                                new Pose(90, 12)
+                                new Pose(134.759, 44.620),
+                                new Pose(90, 15)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(50), Math.toRadians(50))
+                ).setConstantHeadingInterpolation(Math.toRadians(33.4))
                 .build();
     }
     public void autonomousPathUpdate() {
@@ -149,7 +153,7 @@ public class backSpike extends OpMode {
                 if(!follower.isBusy()) {
                     limelightOffset = 0.0;
                     targetVel = 1875;
-                    follower.followPath(shoot0,0.8, true);
+                    follower.followPath(shoot0,1.0, true);
                     setPathState(1);
                 }
                 break;
@@ -187,7 +191,7 @@ public class backSpike extends OpMode {
                 break;
             case 5:
                 if(!follower.isBusy()) {
-                    follower.followPath(intake1_2, 0.35, true);
+                    follower.followPath(intake1_2, 0.4, true);
                     setPathState(6);
                 }
                 break;
@@ -232,12 +236,13 @@ public class backSpike extends OpMode {
                     setPathState(11);
                 }
                 break;
-//            case 11:
-//                if(!follower.isBusy()) {
-//                    follower.followPath(intake2_2, 0.8, true);
-//                    setPathState(12);
-//                }
-//                break;
+            case 11:
+                if(!follower.isBusy()) {
+                    if(pathTimer.getElapsedTime() > 750) {
+                        setPathState(14);
+                    }
+                }
+                break;
 //            case 12:
 //                if(!follower.isBusy()) {
 //                    follower.followPath(intake2_3, 1.0, true);
@@ -251,160 +256,138 @@ public class backSpike extends OpMode {
 //                    }
 //                }
 //                break;
-//            case 14:
-//                if(!follower.isBusy()) {
-//                    targetVel = 1950;
-//                    follower.followPath(shoot2, 1.0, true);
-//                    setPathState(32);
-//                }
-//                break;
-//            case 32:
-//                if(!follower.isBusy()) {
-//                    if(pathTimer.getElapsedTime() > 1000) {
-//                        setPathState(15);
-//                    }
-//                }
-//                break;
-//            case 15:
-//                if(!follower.isBusy()) {
-//                    // TODO: REMOVE LINE BELOW LATER
-////                    intakeSpindexer.ballsLoaded = 3;
-//                    intakeSpindexer.kickstartShootChain = true;
-//                    intakeSpindexer.shootDone = false;
-//                    intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
-//                    setPathState(16);
-//                }
-//                break;
-//            case 16:
-//                if(!follower.isBusy()) {
-//                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
-//                    if(pathTimer.getElapsedTime() > 150 + 100 + 400 + 150 + 100 + 400 + 150 + 100) {
-//                        setPathState(17);
-//                    }
-//                }
-//                break;
-//            case 17:
-//                if(!follower.isBusy()) {
-//                    targetVel = 500;
-//                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
-//                    follower.followPath(intake3, 1.0, true);
-//                    setPathState(18);
-//                }
-//                break;
-//            case 18:
-//                if(!follower.isBusy()) {
-//                    if(pathTimer.getElapsedTime() > 500) {
-//                        setPathState(19);
-//                    }
-//                }
-//                break;
-//            case 19:
-//                if(!follower.isBusy()) {
-//                    targetVel = 1950;
-//                    follower.followPath(shoot3, 1.0, true);
-//                    setPathState(20);
-//                }
-//                break;
-//            case 20:
-//                if(!follower.isBusy()) {
-//                    // TODO: REMOVE LINE BELOW LATER
-////                    intakeSpindexer.ballsLoaded = 3;
-//                    intakeSpindexer.kickstartShootChain = true;
-//                    intakeSpindexer.shootDone = false;
-//                    intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
-//                    setPathState(21);
-//                }
-//                break;
-//            case 21:
-//                if(!follower.isBusy()) {
-//                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
-//                    if(pathTimer.getElapsedTime() > 150 + 100 + 400 + 150 + 100 + 400 + 150 + 100) {
-//                        setPathState(22);
-//                    }
-//                }
-//                break;
-//            case 22:
-//                if(!follower.isBusy()) {
-//                    targetVel = 500;
-//                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
-//                    follower.followPath(intake4, 1.0, true);
-//                    setPathState(23);
-//                }
-//                break;
-//
-//            case 23:
-//                if(!follower.isBusy()) {
-//                    if (pathTimer.getElapsedTime() > 500) {
-//                        setPathState(24);
-//                    }
-//                }
-//                break;
-//            case 24:
-//                if(!follower.isBusy()) {
-//                    targetVel = 1950;
-//                    follower.followPath(shoot4, 1.0, true);
-//                    setPathState(25);
-//                }
-//                break;
-//            case 25:
-//                if(!follower.isBusy()) {
-//                    // TODO: REMOVE LINE BELOW LATER
-////                    intakeSpindexer.ballsLoaded = 3;
-//                    intakeSpindexer.kickstartShootChain = true;
-//                    intakeSpindexer.shootDone = false;
-//                    intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
-//                    setPathState(26);
-//                }
-//                break;
-//            case 26:
-//                if(!follower.isBusy()) {
-//                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
-//                    if(pathTimer.getElapsedTime() > 150 + 100 + 400 + 150 + 100 + 400 + 150 + 100) {
-//                        setPathState(27);
-//                    }
-//                }
-//                break;
-//            case 27:
-//                if(!follower.isBusy()) {
-//                    targetVel = 500;
-//                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
-//                    follower.followPath(intake5, 1.0, true);
-//                    setPathState(28);
-//                }
-//                break;
-//
-//            case 28:
-//                if(!follower.isBusy()) {
-//                    if (pathTimer.getElapsedTime() > 1000) {
-//                        setPathState(29);
-//                    }
-//                }
-//                break;
-//            case 29:
-//                if(!follower.isBusy()) {
-//                    targetVel = 1950;
-//                    follower.followPath(shoot5, 1.0, true);
-//                    setPathState(30);
-//                }
-//                break;
-//            case 30:
-//                if(!follower.isBusy()) {
-//                    // TODO: REMOVE LINE BELOW LATER
-////                    intakeSpindexer.ballsLoaded = 3;
-//                    intakeSpindexer.kickstartShootChain = true;
-//                    intakeSpindexer.shootDone = false;
-//                    intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
-//                    setPathState(31);
-//                }
-//                break;
-//            case 31:
-//                if(!follower.isBusy()) {
-//                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
-//                    if(pathTimer.getElapsedTime() > 150 + 100 + 400 + 150 + 100 + 400 + 150 + 100) {
-//                        setPathState(-1);
-//                    }
-//                }
-//                break;
+            case 14:
+                if(!follower.isBusy()) {
+                    targetVel = 1850;
+                    limelightOffset = 1;
+                    follower.followPath(shoot2, 1.0, true);
+                    setPathState(32);
+                }
+                break;
+            case 32:
+                if(!follower.isBusy()) {
+                    if(pathTimer.getElapsedTime() > 1000) {
+                        setPathState(15);
+                    }
+                }
+                break;
+            case 15:
+                if(!follower.isBusy()) {
+                    // TODO: REMOVE LINE BELOW LATER
+//                    intakeSpindexer.ballsLoaded = 3;
+                    intakeSpindexer.kickstartShootChain = true;
+                    intakeSpindexer.shootDone = false;
+                    intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
+                    setPathState(16);
+                }
+                break;
+            case 16:
+                if(!follower.isBusy()) {
+                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
+                    if(pathTimer.getElapsedTime() > 150 + 150 + 400 + 150 + 150 + 400 + 150 + 150) {
+                        setPathState(17);
+                    }
+                }
+                break;
+            case 17:
+                if(!follower.isBusy()) {
+                    targetVel = 1250;
+                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
+                    follower.followPath(intake3, 1.0, true);
+                    setPathState(19);
+                }
+                break;
+            case 19:
+                if(!follower.isBusy()) {
+                    targetVel = 1850;
+                    follower.followPath(shoot3, 1.0, true);
+                    setPathState(20);
+                }
+                break;
+            case 20:
+                if(!follower.isBusy()) {
+                    // TODO: REMOVE LINE BELOW LATER
+//                    intakeSpindexer.ballsLoaded = 3;
+                    intakeSpindexer.kickstartShootChain = true;
+                    intakeSpindexer.shootDone = false;
+                    intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
+                    setPathState(21);
+                }
+                break;
+            case 21:
+                if(!follower.isBusy()) {
+                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
+                    if(pathTimer.getElapsedTime() > 150 + 150 + 400 + 150 + 150 + 400 + 150 + 150) {
+                        setPathState(22);
+                    }
+                }
+                break;
+            case 22:
+                if(!follower.isBusy()) {
+                    targetVel = 1250;
+                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
+                    follower.followPath(intake4, 1.0, true);
+                    setPathState(24);
+                }
+                break;
+            case 24:
+                if(!follower.isBusy()) {
+                    targetVel = 1850;
+                    follower.followPath(shoot4, 1.0, true);
+                    setPathState(25);
+                }
+                break;
+            case 25:
+                if(!follower.isBusy()) {
+                    // TODO: REMOVE LINE BELOW LATER
+//                    intakeSpindexer.ballsLoaded = 3;
+                    intakeSpindexer.kickstartShootChain = true;
+                    intakeSpindexer.shootDone = false;
+                    intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
+                    setPathState(26);
+                }
+                break;
+            case 26:
+                if(!follower.isBusy()) {
+                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
+                    if(pathTimer.getElapsedTime() > 150 + 150 + 400 + 150 + 150 + 400 + 150 + 150) {
+                        setPathState(27);
+                    }
+                }
+                break;
+            case 27:
+                if(!follower.isBusy()) {
+                    targetVel = 1250;
+                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
+                    follower.followPath(intake5, 1.0, true);
+                    setPathState(29);
+                }
+                break;
+            case 29:
+                if(!follower.isBusy()) {
+                    targetVel = 1950;
+                    follower.followPath(shoot5, 1.0, true);
+                    setPathState(30);
+                }
+                break;
+            case 30:
+                if(!follower.isBusy()) {
+                    // TODO: REMOVE LINE BELOW LATER
+//                    intakeSpindexer.ballsLoaded = 3;
+                    intakeSpindexer.kickstartShootChain = true;
+                    intakeSpindexer.shootDone = false;
+                    intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
+                    setPathState(31);
+                }
+                break;
+            case 31:
+                if(!follower.isBusy()) {
+                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
+                    if(pathTimer.getElapsedTime() > 150 + 150 + 400 + 150 + 150 + 400 + 150 + 150) {
+                        setPathState(-1);
+                    }
+                }
+                break;
         }
     }
 
