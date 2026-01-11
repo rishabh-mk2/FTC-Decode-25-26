@@ -224,14 +224,14 @@ public class backSpike extends OpMode {
                     }
                 }
                 break;
-//            case 10:
-//                if(!follower.isBusy()) {
-//                    targetVel = 500;
-//                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
-//                    follower.followPath(intake2_1, 1.0, true);
-//                    setPathState(11);
-//                }
-//                break;
+            case 10:
+                if(!follower.isBusy()) {
+                    targetVel = 1200;
+                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
+                    follower.followPath(intake2_1, 1.0, true);
+                    setPathState(11);
+                }
+                break;
 //            case 11:
 //                if(!follower.isBusy()) {
 //                    follower.followPath(intake2_2, 0.8, true);
