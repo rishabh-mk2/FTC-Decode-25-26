@@ -14,12 +14,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot.Decode.Alliance;
 import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.IntakeSpindexer_shreyas;
-import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.TurretShooter;
 import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.TurretShooter_shreyas;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 @Config
-@TeleOp(name = "Teleop FINAL Actual", group = "TeleOp")
-public class Teleopo_FINAL extends OpMode {
+@TeleOp(name = "Red TeleOp", group = "TeleOp")
+public class RED_Teleopo_FINAL extends OpMode {
     private final ElapsedTime runtime = new ElapsedTime();
     Follower follower;
     TurretShooter_shreyas turretShooter;
@@ -48,6 +47,10 @@ public class Teleopo_FINAL extends OpMode {
     private PIDController controller;
     public static double p = 0.75, i = 0, d = 0.05, f = 1.0;
 
+    boolean slowMode = false;
+    boolean manualTurret = false;
+//    boolean manualSpindexer = false;
+
     @Override
     public void init() {
         follower = Constants.createFollower(hardwareMap);
@@ -56,6 +59,8 @@ public class Teleopo_FINAL extends OpMode {
 
         controller = new PIDController(p, i, d);
         controller.setPID(p, i, d);
+
+        intakeSpindexer.getMotor(IntakeSpindexer_shreyas.MotorNames.intake).setPower(1.0);
 
         telemetry.setAutoClear(true);
         runtime.reset();
@@ -75,18 +80,49 @@ public class Teleopo_FINAL extends OpMode {
     public void loop() {
         // --- DRIVE ---
         follower.update();
-        follower.setTeleOpDrive(
-                -gamepad1.left_stick_y,
-                -gamepad1.left_stick_x,
-                -gamepad1.right_stick_x * 0.4,
-                true
-        );
+        if(gamepad2.bWasPressed()) {
+            slowMode = !slowMode;
+        }
+        if(gamepad2.aWasPressed()) {
+            manualTurret = !manualTurret;
+        }
+//        if(gamepad2.yWasPressed()) {
+//            manualSpindexer = !manualSpindexer;
+//        }
+
+        if(slowMode) {
+            follower.setTeleOpDrive(
+                    -0.15*gamepad1.left_stick_y,
+                    -0.15*gamepad1.left_stick_x,
+                    -0.15*gamepad1.right_stick_x * 0.4,
+                    true
+            );
+        } else {
+            follower.setTeleOpDrive(
+                    -gamepad1.left_stick_y,
+                    -gamepad1.left_stick_x,
+                    -gamepad1.right_stick_x * 0.4,
+                    true
+            );
+        }
+
+        if(manualTurret) {
+            if(gamepad2.dpad_right) {
+                turretShooter.getMotor(TurretShooter_shreyas.MotorNames.turret).setPower(-0.2);
+            } else if (gamepad2.dpad_left) {
+                turretShooter.getMotor(TurretShooter_shreyas.MotorNames.turret).setPower(0.2);
+            } else {
+                turretShooter.getMotor(TurretShooter_shreyas.MotorNames.turret).setPower(0.0);
+            }
+        } else {
+            turretShooter.trackAprilTag(3);
+        }
 
         // --- SUBSYSTEM UPDATES ---
         double distance = turretShooter.getAprilTagDistance();
         limelightOffset = turretShooter.getLLOffset(distance);
 //        turretShooter.trackAprilTag(turretShooter.getLLOffset(distance));
-        turretShooter.trackAprilTag(3);
+
         intakeSpindexer.update(runtime.milliseconds());
         turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(turretShooter.getHoodPosFromLL(distance));
 
