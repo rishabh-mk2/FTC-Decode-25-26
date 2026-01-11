@@ -109,14 +109,14 @@ public class front15BackSpike extends OpMode {
         intake3_2 = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(104, 36),
-                                new Pose(136, 36)
+                                new Pose(122, 36)
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         shoot4 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(136, 36),
+                                new Pose(122, 36),
                                 new Pose(94, 76)
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(0))
@@ -141,9 +141,9 @@ public class front15BackSpike extends OpMode {
         leave = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(110, 100),
-                                new Pose(125, 85)
+                                new Pose(117, 65)
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(0))
+                ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(-90))
                 .build();
     }
 
@@ -193,7 +193,7 @@ public class front15BackSpike extends OpMode {
             case 5:
                 if(!follower.isBusy()) {
                     targetVel = 1600;
-                    intakeSpindexer.ballsLoaded = 3;
+//                    intakeSpindexer.ballsLoaded = 3;
                     turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(0.7);
                     follower.followPath(shoot2, 1.0, true);
                     setPathState(6);
@@ -217,7 +217,7 @@ public class front15BackSpike extends OpMode {
                 }
                 break;
             case 8:
-                if(!follower.isBusy()) {
+                if(!follower.isBusy() || intakeSpindexer.ballsLoaded == 3) {
                     targetVel = 1200;
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
                     follower.followPath(intake2_1, 1.0, true);
@@ -226,7 +226,7 @@ public class front15BackSpike extends OpMode {
                 break;
 
             case 9:
-                if(!follower.isBusy()) {
+                if(!follower.isBusy() || intakeSpindexer.ballsLoaded == 3) {
                     if(pathTimer.getElapsedTime() > 100) {
                         setPathState(10);
                     }
@@ -234,14 +234,14 @@ public class front15BackSpike extends OpMode {
                 break;
 
             case 10:
-                if(!follower.isBusy()) {
+                if(!follower.isBusy() || intakeSpindexer.ballsLoaded == 3) {
                     follower.followPath(intake2_2, 0.4, true);
                     setPathState(11);
                 }
                 break;
 
             case 11:
-                if(!follower.isBusy()) {
+                if(!follower.isBusy() || intakeSpindexer.ballsLoaded == 3) {
                     if(pathTimer.getElapsedTime() > 1750 || intakeSpindexer.ballsLoaded == 3) {
                         setPathState(12);
                     }
@@ -249,14 +249,14 @@ public class front15BackSpike extends OpMode {
                 break;
 
             case 12:
-                if(!follower.isBusy()) {
+                if(!follower.isBusy() || intakeSpindexer.ballsLoaded == 3) {
                     follower.followPath(intake2_3, 0.4, true);
                     setPathState(13);
                 }
                 break;
 
             case 13:
-                if(!follower.isBusy()) {
+                if(!follower.isBusy() || intakeSpindexer.ballsLoaded == 3) {
                     follower.followPath(intake2_2, 0.4, true);
                     setPathState(14);
                 }
@@ -270,7 +270,7 @@ public class front15BackSpike extends OpMode {
             case 15:
                 if(!follower.isBusy()) {
                     targetVel = 1600;
-                    intakeSpindexer.ballsLoaded = 3;
+//                    intakeSpindexer.ballsLoaded = 3;
                     follower.followPath(shoot3, 1.0, true);
                     setPathState(16);
                 }
@@ -304,7 +304,7 @@ public class front15BackSpike extends OpMode {
 
             case 19:
                 if(!follower.isBusy()) {
-                    follower.followPath(intake3_2, 1.0, true);
+                    follower.followPath(intake3_2, 0.25, true);
                     setPathState(20);
                 }
                 break;
@@ -312,7 +312,7 @@ public class front15BackSpike extends OpMode {
             case 20:
                 if(!follower.isBusy()) {
                     targetVel = 1600;
-                    intakeSpindexer.ballsLoaded = 3;
+//                    intakeSpindexer.ballsLoaded = 3;
                     intakeSpindexer.getMotor(IntakeSpindexer_shreyas.MotorNames.intake).setPower(-0.5);
                     turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(0.7);
                     follower.followPath(shoot4, 1.0, true);
@@ -350,7 +350,7 @@ public class front15BackSpike extends OpMode {
             case 24:
                 if(!follower.isBusy()) {
                     targetVel = 1500;
-                    intakeSpindexer.ballsLoaded = 3;
+//                    intakeSpindexer.ballsLoaded = 3;
                     turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(0.7);
                     follower.followPath(shoot5, 1.0, true);
                     setPathState(25);

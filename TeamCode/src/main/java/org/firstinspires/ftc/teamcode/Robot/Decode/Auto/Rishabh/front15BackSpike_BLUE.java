@@ -45,7 +45,7 @@ public class front15BackSpike_BLUE extends OpMode {
     private final Pose shoot4End = new Pose(92, 76, Math.toRadians(0)).mirror();
 
     // FOURTH INTAKING -> SHOOTING; 15 Balls shot
-    private final Pose intake4End = new Pose(122, 90, Math.toRadians(0)).mirror();
+    private final Pose intake4End = new Pose(124, 90, Math.toRadians(0)).mirror();
     private final Pose shoot5End = new Pose(110, 100, Math.toRadians(0)).mirror();
 
 
@@ -200,7 +200,7 @@ public class front15BackSpike_BLUE extends OpMode {
 
             case 4:
                 if(!follower.isBusy()) {
-                    follower.followPath(intake1_2, 0.28, true);
+                    follower.followPath(intake1_2, 0.3, true);
                     setPathState(5);
                 }
                 break;
@@ -357,10 +357,7 @@ public class front15BackSpike_BLUE extends OpMode {
                 break;
 
             case 24:
-                if(!follower.isBusy()) {
-                    targetVel = 1500;
-                    turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(0.7);
-                    follower.followPath(shoot5, 1.0, true);
+                if(!follower.isBusy() && pathTimer.getElapsedTime() > 250) {
                     setPathState(25);
                 }
                 break;

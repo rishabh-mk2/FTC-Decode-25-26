@@ -159,7 +159,7 @@ public class backSpike extends OpMode {
                 break;
             case 1:
                 if(!follower.isBusy()) {
-                    if(pathTimer.getElapsedTime() > 1000) {
+                    if(pathTimer.getElapsedTime() > 1250) {
                         setPathState(2);
                     }
                 }
@@ -183,7 +183,7 @@ public class backSpike extends OpMode {
                 break;
             case 4:
                 if(!follower.isBusy()) {
-                    targetVel = 1400;
+//                    targetVel = 1400;
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
                     follower.followPath(intake1_1, 1.0, false);
                     setPathState(5);
@@ -191,6 +191,7 @@ public class backSpike extends OpMode {
                 break;
             case 5:
                 if(!follower.isBusy()) {
+                    targetVel = 1900;
                     follower.followPath(intake1_2, 0.4, true);
                     setPathState(6);
                 }
@@ -199,7 +200,7 @@ public class backSpike extends OpMode {
                 if(!follower.isBusy()) {
                     follower.followPath(shoot1, 1.0, true);
                     setPathState(7);
-                    targetVel = 1830;
+//                    targetVel = 1830;
                 }
                 break;
             case 7:
@@ -230,7 +231,7 @@ public class backSpike extends OpMode {
                 break;
             case 10:
                 if(!follower.isBusy()) {
-                    targetVel = 1200;
+//                    targetVel = 1200;
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
                     follower.followPath(intake2_1, 1.0, true);
                     setPathState(11);
@@ -258,7 +259,7 @@ public class backSpike extends OpMode {
 //                break;
             case 14:
                 if(!follower.isBusy()) {
-                    targetVel = 1850;
+//                    targetVel = 1850;
                     limelightOffset = 1;
                     follower.followPath(shoot2, 1.0, true);
                     setPathState(32);
@@ -291,7 +292,7 @@ public class backSpike extends OpMode {
                 break;
             case 17:
                 if(!follower.isBusy()) {
-                    targetVel = 1250;
+//                    targetVel = 1250;
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
                     follower.followPath(intake3, 1.0, true);
                     setPathState(19);
@@ -299,7 +300,7 @@ public class backSpike extends OpMode {
                 break;
             case 19:
                 if(!follower.isBusy()) {
-                    targetVel = 1850;
+//                    targetVel = 1850;
                     follower.followPath(shoot3, 1.0, true);
                     setPathState(20);
                 }
@@ -324,7 +325,7 @@ public class backSpike extends OpMode {
                 break;
             case 22:
                 if(!follower.isBusy()) {
-                    targetVel = 1250;
+//                    targetVel = 1250;
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
                     follower.followPath(intake4, 1.0, true);
                     setPathState(24);
@@ -332,7 +333,7 @@ public class backSpike extends OpMode {
                 break;
             case 24:
                 if(!follower.isBusy()) {
-                    targetVel = 1850;
+//                    targetVel = 1850;
                     follower.followPath(shoot4, 1.0, true);
                     setPathState(25);
                 }
@@ -357,7 +358,7 @@ public class backSpike extends OpMode {
                 break;
             case 27:
                 if(!follower.isBusy()) {
-                    targetVel = 1250;
+//                    targetVel = 1250;
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
                     follower.followPath(intake5, 1.0, true);
                     setPathState(29);
@@ -365,7 +366,7 @@ public class backSpike extends OpMode {
                 break;
             case 29:
                 if(!follower.isBusy()) {
-                    targetVel = 1950;
+//                    targetVel = 1950;
                     follower.followPath(shoot5, 1.0, true);
                     setPathState(30);
                 }
