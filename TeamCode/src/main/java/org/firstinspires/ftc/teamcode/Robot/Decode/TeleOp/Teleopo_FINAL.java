@@ -43,10 +43,10 @@ public class Teleopo_FINAL extends OpMode {
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashBoardTelemetry = dashboard.getTelemetry();
-    double targetVel = 0.0;
+    public static double targetVel = 0.0;
     double limelightOffset = 0.0;
     private PIDController controller;
-    final double p = 0.75, i = 0, d = 0.05, f = 1.0;
+    public static double p = 0.75, i = 0, d = 0.05, f = 1.0;
 
     @Override
     public void init() {
@@ -86,7 +86,7 @@ public class Teleopo_FINAL extends OpMode {
         double distance = turretShooter.getAprilTagDistance();
         limelightOffset = turretShooter.getLLOffset(distance);
 //        turretShooter.trackAprilTag(turretShooter.getLLOffset(distance));
-        turretShooter.trackAprilTag();
+        turretShooter.trackAprilTag(3);
         intakeSpindexer.update(runtime.milliseconds());
         turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(turretShooter.getHoodPosFromLL(distance));
 
@@ -106,19 +106,36 @@ public class Teleopo_FINAL extends OpMode {
             time = runtime.milliseconds();
             shoot1 = true;
         }
-        if(shoot1 && runtime.milliseconds() - time > 1000) {
+        if(shoot1 && runtime.milliseconds() - time > 1500) {
             shoot1 = false;
-            if (intakeSpindexer.ballsLoaded == 1) {
-                stopShooterTime = 250 + 150 + 150 + 250;
-            } else if (intakeSpindexer.ballsLoaded == 2) {
-                stopShooterTime = 250 + 150 + 150 + 400 + 150 + 150 + 250;
-            } else if (intakeSpindexer.ballsLoaded == 3) {
-                stopShooterTime = 150 + 150 + 400 + 150 + 150 + 400 + 150 + 150 + 250;
+            if(distance < 90) {
+                if (intakeSpindexer.ballsLoaded == 1) {
+                    stopShooterTime = 250 + 150 + 150 + 250;
+                } else if (intakeSpindexer.ballsLoaded == 2) {
+                    stopShooterTime = 250 + 150 + 150 + 400 + 150 + 150 + 250;
+                } else if (intakeSpindexer.ballsLoaded == 3) {
+                    stopShooterTime = 150 + 150 + 400 + 150 + 150 + 400 + 150 + 150 + 250;
+                }
+                intakeSpindexer.kickstartShootChain = true;
+                intakeSpindexer.shootDone = false;
+                intakeSpindexer.shootCallTime = runtime.milliseconds();
+                intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
+            } else {
+                if (intakeSpindexer.ballsLoaded == 1) {
+                    stopShooterTime = 250 + 150 + 150 + 250;
+                } else if (intakeSpindexer.ballsLoaded == 2) {
+                    stopShooterTime = 250 + 150 + 150 + 500 + 150 + 150 + 250;
+                } else if (intakeSpindexer.ballsLoaded == 3) {
+                    stopShooterTime = 150 + 150 + 500 + 150 + 150 + 500 + 150 + 150 + 250;
+                }
+                intakeSpindexer.kickstartShootChain = true;
+                intakeSpindexer.shootDone = false;
+                intakeSpindexer.shootCallTime = runtime.milliseconds();
+                intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING_FAR);
             }
-            intakeSpindexer.kickstartShootChain = true;
-            intakeSpindexer.shootDone = false;
-            intakeSpindexer.shootCallTime = runtime.milliseconds();
-            intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
+
+
+
             time = runtime.milliseconds();
             shoot2 = true;
         }
