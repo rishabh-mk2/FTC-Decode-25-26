@@ -60,13 +60,13 @@ public class backSpike extends OpMode {
         shoot1 = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(124.5, 28),
-                                new Pose(93, 14)
+                                new Pose(93, 15.5)
                         )
                 ).setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(45))
                 .build();
         intake2_1 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(93, 14),
+                                new Pose(93, 15.5),
                                 new Pose(127, 9.5)
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(0))
@@ -147,6 +147,7 @@ public class backSpike extends OpMode {
         switch(pathState) {
             case 0:
                 if(!follower.isBusy()) {
+                    limelightOffset = 0.0;
                     targetVel = 1875;
                     follower.followPath(shoot0,0.8, true);
                     setPathState(1);
@@ -194,13 +195,14 @@ public class backSpike extends OpMode {
                 if(!follower.isBusy()) {
                     follower.followPath(shoot1, 1.0, true);
                     setPathState(7);
-                    targetVel = 1875;
+                    targetVel = 1830;
                 }
                 break;
             case 7:
                 if(!follower.isBusy()) {
                     if(pathTimer.getElapsedTime() > 1000) {
                         setPathState(8);
+                        limelightOffset = -3;
                     }
                 }
                 break;
@@ -416,7 +418,7 @@ public class backSpike extends OpMode {
         follower.update();
         autonomousPathUpdate();
         intakeSpindexer.update(opmodeTimer.getElapsedTime());
-        turretShooter.trackAprilTag();
+        turretShooter.trackAprilTag(limelightOffset);
         turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(1.0);
 
         double currentVelocity = turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).getVelocity();
