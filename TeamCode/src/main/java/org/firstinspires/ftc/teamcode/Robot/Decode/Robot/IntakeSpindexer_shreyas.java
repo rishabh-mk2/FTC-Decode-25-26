@@ -83,7 +83,8 @@ public class IntakeSpindexer_shreyas {
         IDLE,
         INTAKING,
         SHOOTING,
-        SHOOTING_FAR
+        SHOOTING_FAR,
+        EXPEL
     }
 
     public IntakeState state = IntakeState.IDLE;
@@ -433,6 +434,10 @@ public class IntakeSpindexer_shreyas {
             case IDLE:
                 getMotor(MotorNames.intake).setPower(0);
                 break;
+            case EXPEL:
+                getMotor(MotorNames.intake).setPower(-1.0);
+                break;
+
         }
         telemetry.addData("Balls Loaded", ballsLoaded);
     }

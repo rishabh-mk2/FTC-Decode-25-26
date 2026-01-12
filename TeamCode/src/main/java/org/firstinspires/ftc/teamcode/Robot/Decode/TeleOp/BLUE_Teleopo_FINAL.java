@@ -3,22 +3,22 @@ package org.firstinspires.ftc.teamcode.Robot.Decode.TeleOp;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
-import com.qualcomm.robotcore.util.ElapsedTime;
-
 import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot.Decode.Alliance;
 import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.IntakeSpindexer_shreyas;
 import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.TurretShooter_shreyas;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+
 @Config
-@TeleOp(name = "Red TeleOp", group = "TeleOp")
-public class RED_Teleopo_FINAL extends OpMode {
+@TeleOp(name = "Blue TeleOp", group = "TeleOp")
+public class BLUE_Teleopo_FINAL extends OpMode {
     private final ElapsedTime runtime = new ElapsedTime();
     Follower follower;
     TurretShooter_shreyas turretShooter;
@@ -55,7 +55,7 @@ public class RED_Teleopo_FINAL extends OpMode {
     public void init() {
         follower = Constants.createFollower(hardwareMap);
         intakeSpindexer = new IntakeSpindexer_shreyas(this, true);
-        turretShooter = new TurretShooter_shreyas(this, Alliance.RED);
+        turretShooter = new TurretShooter_shreyas(this, Alliance.BLUE);
 
         controller = new PIDController(p, i, d);
         controller.setPID(p, i, d);
@@ -88,16 +88,6 @@ public class RED_Teleopo_FINAL extends OpMode {
         if(gamepad2.aWasPressed()) {
             manualTurret = !manualTurret;
         }
-
-        if(gamepad2.yWasPressed()) {
-            shot = 1;
-        }
-        if(gamepad2.xWasPressed()) {
-            shot = 2;
-        }
-        if(gamepad2.dpadUpWasPressed()) {
-            shot = 0;
-        }
 //        if(gamepad2.yWasPressed()) {
 //            manualSpindexer = !manualSpindexer;
 //        }
@@ -116,6 +106,16 @@ public class RED_Teleopo_FINAL extends OpMode {
                     -gamepad1.right_stick_x * 0.4,
                     true
             );
+        }
+
+        if(gamepad2.yWasPressed()) {
+            shot = 1;
+        }
+        if(gamepad2.xWasPressed()) {
+            shot = 2;
+        }
+        if(gamepad2.dpadUpWasPressed()) {
+            shot = 0;
         }
 
         if(manualTurret) {
@@ -146,6 +146,14 @@ public class RED_Teleopo_FINAL extends OpMode {
         // INTAKE
         if(gamepad1.xWasReleased()) {
             intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
+        }
+
+        if(gamepad1.bWasReleased()) {
+            intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.EXPEL);
+        }
+
+        if(gamepad2.dpadDownWasReleased()) {
+            intakeSpindexer.ballsLoaded = Math.min(intakeSpindexer.ballsLoaded + 1, 3);
         }
 
         // SHOOT SEQUENCE
@@ -197,21 +205,14 @@ public class RED_Teleopo_FINAL extends OpMode {
         }
 
         // SORTING
-        if(gamepad1.bWasReleased()) {
-            intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.EXPEL);
-        }
-
-        if(gamepad2.dpadDownWasReleased()) {
-            intakeSpindexer.ballsLoaded = Math.min(intakeSpindexer.ballsLoaded + 1, 3);
-        }
 
         // FAILSAFES
 
 //        dashBoardTelemetry.addData("PID", pid);
-        telemetry.addData("Target Velocity", turretShooter.getRPMFromLL(distance));
-        telemetry.addData("Hood pos", turretShooter.getHoodPosFromLL(distance));
-        telemetry.addData("Distance", turretShooter.getAprilTagDistance());
-        telemetry.update();
+        dashBoardTelemetry.addData("Target Velocity", targetVel);
+        dashBoardTelemetry.addData("Distance", turretShooter.getAprilTagDistance());
+        dashBoardTelemetry.addData("Current Velocity", turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).getVelocity());
+        dashBoardTelemetry.update();
 
         telemetry.update();
     }

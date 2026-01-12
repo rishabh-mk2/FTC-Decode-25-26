@@ -46,51 +46,51 @@ public class back15_red extends OpMode {
         intake1_1 = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(92, 15),
-                                new Pose(106, 28)
+                                new Pose(98, 30)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(35), Math.toRadians(45))
+                ).setLinearHeadingInterpolation(Math.toRadians(35), Math.toRadians(0))
                 .build();
         intake1_2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(106, 28),
-                                new Pose(124.5, 28)
+                                new Pose(98, 30),
+                                new Pose(124.5, 30)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(45))
+                ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
 
         shoot1 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(124.5, 28),
+                                new Pose(124.5, 30),
                                 new Pose(93, 15.5)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(45))
+                ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(45))
                 .build();
         intake2_1 = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(93, 15.5),
-                                new Pose(127, 9.5)
+                                new Pose(127, 5.5)
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
         intake2_2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(127, 9.5),
-                                new Pose(118, 5.5)
+                                new Pose(127, 5.5),
+                                new Pose(118, 4.25)
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         intake2_3 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(118, 5.5),
-                                new Pose(125.25, 5.5)
+                                new Pose(118, 4.25),
+                                new Pose(125.25, 4.25)
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         shoot2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(125.25, 5.5),
+                                new Pose(125.25, 4.25),
                                 new Pose(90, 9)
                         )
                 ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(15))
@@ -100,51 +100,51 @@ public class back15_red extends OpMode {
                         new BezierCurve(
                                 new Pose(90, 9),
                                 new Pose(129.604, 9.724),
-                                new Pose(134.759, 44.620)
+                                new Pose(134.759, 36)
                         )
                 ).setTangentHeadingInterpolation()
                 .build();
 
         shoot3 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(134.759, 44.620),
+                                new Pose(134.759, 36),
                                 new Pose(90, 15)
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(33.4))
+                ).setConstantHeadingInterpolation(Math.toRadians(25.135))
                 .build();
 
         intake4 = follower.pathBuilder().addPath(
                         new BezierCurve(
                                 new Pose(90, 15),
                                 new Pose(129.604, 9.724),
-                                new Pose(134.759, 44.620)
+                                new Pose(134.759, 36)
                         )
                 ).setTangentHeadingInterpolation()
                 .build();
 
         shoot4 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(134.759, 44.620),
+                                new Pose(134.759, 36),
                                 new Pose(90, 15)
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(33.4))
+                ).setConstantHeadingInterpolation(Math.toRadians(25.135))
                 .build();
 
         intake5 = follower.pathBuilder().addPath(
                         new BezierCurve(
                                 new Pose(90, 15),
                                 new Pose(129.604, 9.724),
-                                new Pose(134.759, 44.620)
+                                new Pose(134.759, 36)
                         )
                 ).setTangentHeadingInterpolation()
                 .build();
 
         shoot5 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(134.759, 44.620),
+                                new Pose(134.759, 36),
                                 new Pose(90, 15)
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(33.4))
+                ).setConstantHeadingInterpolation(Math.toRadians(25.135))
                 .build();
     }
     public void autonomousPathUpdate() {
@@ -192,7 +192,7 @@ public class back15_red extends OpMode {
             case 5:
                 if(!follower.isBusy()) {
                     targetVel = 1900;
-                    follower.followPath(intake1_2, 0.4, true);
+                    follower.followPath(intake1_2, 0.35, true);
                     setPathState(6);
                 }
                 break;
@@ -240,23 +240,29 @@ public class back15_red extends OpMode {
             case 11:
                 if(!follower.isBusy()) {
                     if(pathTimer.getElapsedTime() > 750) {
+                        setPathState(27);
+                    }
+                }
+                break;
+            case 27:
+                if(!follower.isBusy()) {
+                    follower.followPath(intake2_2, 1.0, true);
+                    setPathState(12);
+                }
+                break;
+            case 12:
+                if(!follower.isBusy()) {
+                    follower.followPath(intake2_3, 1.0, true);
+                    setPathState(13);
+                }
+                break;
+            case 13:
+                if(!follower.isBusy()) {
+                    if(pathTimer.getElapsedTime() > 350) {
                         setPathState(14);
                     }
                 }
                 break;
-//            case 12:
-//                if(!follower.isBusy()) {
-//                    follower.followPath(intake2_3, 1.0, true);
-//                    setPathState(13);
-//                }
-//                break;
-//            case 13:
-//                if(!follower.isBusy()) {
-//                    if(pathTimer.getElapsedTime() > 200) {
-//                        setPathState(14);
-//                    }
-//                }
-//                break;
             case 14:
                 if(!follower.isBusy()) {
 //                    targetVel = 1850;
@@ -349,39 +355,6 @@ public class back15_red extends OpMode {
                 }
                 break;
             case 26:
-                if(!follower.isBusy()) {
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
-                    if(pathTimer.getElapsedTime() > 150 + 150 + 400 + 150 + 150 + 400 + 150 + 150) {
-                        setPathState(27);
-                    }
-                }
-                break;
-            case 27:
-                if(!follower.isBusy()) {
-//                    targetVel = 1250;
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
-                    follower.followPath(intake5, 1.0, true);
-                    setPathState(29);
-                }
-                break;
-            case 29:
-                if(!follower.isBusy()) {
-//                    targetVel = 1950;
-                    follower.followPath(shoot5, 1.0, true);
-                    setPathState(30);
-                }
-                break;
-            case 30:
-                if(!follower.isBusy()) {
-                    // TODO: REMOVE LINE BELOW LATER
-//                    intakeSpindexer.ballsLoaded = 3;
-                    intakeSpindexer.kickstartShootChain = true;
-                    intakeSpindexer.shootDone = false;
-                    intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
-                    setPathState(31);
-                }
-                break;
-            case 31:
                 if(!follower.isBusy()) {
                     intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
                     if(pathTimer.getElapsedTime() > 150 + 150 + 400 + 150 + 150 + 400 + 150 + 150) {

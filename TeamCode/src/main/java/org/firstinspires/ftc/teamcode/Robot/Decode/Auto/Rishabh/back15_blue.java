@@ -415,7 +415,7 @@ public class back15_blue extends OpMode {
         follower.update();
         autonomousPathUpdate();
         intakeSpindexer.update(opmodeTimer.getElapsedTime());
-        turretShooter.trackAprilTag(5);
+        turretShooter.trackAprilTag(3);
         turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(1.0);
 
         double currentVelocity = turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).getVelocity();
