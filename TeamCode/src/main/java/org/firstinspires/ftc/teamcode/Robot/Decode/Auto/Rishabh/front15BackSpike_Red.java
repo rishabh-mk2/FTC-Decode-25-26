@@ -10,16 +10,16 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Robot.Decode.Alliance;
-import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.IntakeSpindexer_shreyas;
-import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.TurretShooter_shreyas;
+import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.IntakeSpindexer;
+import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.TurretShooter;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Autonomous(name = "Red Front 15 Back Spike", group = "Autonomous")
 public class front15BackSpike_Red extends OpMode {
 
     private Follower follower;
-    IntakeSpindexer_shreyas intakeSpindexer;
-    TurretShooter_shreyas turretShooter;
+    IntakeSpindexer intakeSpindexer;
+    TurretShooter turretShooter;
     private Timer pathTimer, actionTimer, opmodeTimer;
 
     private int pathState = 0;
@@ -153,7 +153,7 @@ public class front15BackSpike_Red extends OpMode {
                 if(!follower.isBusy()) {
                     targetVel = 1500;
                     intakeSpindexer.ballsLoaded = 3;
-                    turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(0.6);
+                    turretShooter.getServo(TurretShooter.ServoNames.hood).setPosition(0.6);
                     follower.followPath(shoot1, 1.0, true);
                     setPathState(1);
                 }
@@ -168,7 +168,7 @@ public class front15BackSpike_Red extends OpMode {
                 break;
             case 2:
                 if(!follower.isBusy()) {
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
+                    intakeSpindexer.setIntakeState(IntakeSpindexer.IntakeState.SHOOTING);
                     if(pathTimer.getElapsedTime() > 150 + 150 + 400 + 150 + 150 + 400 + 150 + 150) {
                         setPathState(3);
                     }
@@ -177,7 +177,7 @@ public class front15BackSpike_Red extends OpMode {
             case 3:
                 if(!follower.isBusy()) {
                     targetVel = 1300;
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
+                    intakeSpindexer.setIntakeState(IntakeSpindexer.IntakeState.INTAKING);
                     follower.followPath(intake1_1, 1.0, false);
                     setPathState(4);
                 }
@@ -194,7 +194,7 @@ public class front15BackSpike_Red extends OpMode {
                 if(!follower.isBusy()) {
                     targetVel = 1600;
 //                    intakeSpindexer.ballsLoaded = 3;
-                    turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(0.7);
+                    turretShooter.getServo(TurretShooter.ServoNames.hood).setPosition(0.7);
                     follower.followPath(shoot2, 1.0, true);
                     setPathState(6);
                 }
@@ -210,7 +210,7 @@ public class front15BackSpike_Red extends OpMode {
                 break;
             case 7:
                 if(!follower.isBusy()) {
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
+                    intakeSpindexer.setIntakeState(IntakeSpindexer.IntakeState.SHOOTING);
                     if(pathTimer.getElapsedTime() > 150 + 150 + 400 + 150 + 150 + 400 + 150 + 150) {
                         setPathState(8);
                     }
@@ -219,7 +219,7 @@ public class front15BackSpike_Red extends OpMode {
             case 8:
                 if(!follower.isBusy() || intakeSpindexer.ballsLoaded == 3) {
                     targetVel = 1200;
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
+                    intakeSpindexer.setIntakeState(IntakeSpindexer.IntakeState.INTAKING);
                     follower.followPath(intake2_1, 1.0, true);
                     setPathState(9);
                 }
@@ -286,7 +286,7 @@ public class front15BackSpike_Red extends OpMode {
                 break;
             case 17:
                 if(!follower.isBusy()) {
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
+                    intakeSpindexer.setIntakeState(IntakeSpindexer.IntakeState.SHOOTING);
                     if(pathTimer.getElapsedTime() > 150 + 150 + 400 + 150 + 150 + 400 + 150 + 150) {
                         setPathState(18);
                     }
@@ -296,7 +296,7 @@ public class front15BackSpike_Red extends OpMode {
             case 18:
                 if(!follower.isBusy()) {
                     targetVel = 1200;
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
+                    intakeSpindexer.setIntakeState(IntakeSpindexer.IntakeState.INTAKING);
                     follower.followPath(intake3_1, 1.0, true);
                     setPathState(19);
                 }
@@ -313,8 +313,8 @@ public class front15BackSpike_Red extends OpMode {
                 if(!follower.isBusy()) {
                     targetVel = 1600;
 //                    intakeSpindexer.ballsLoaded = 3;
-                    intakeSpindexer.getMotor(IntakeSpindexer_shreyas.MotorNames.intake).setPower(-0.5);
-                    turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(0.7);
+                    intakeSpindexer.getMotor(IntakeSpindexer.MotorNames.intake).setPower(-0.5);
+                    turretShooter.getServo(TurretShooter.ServoNames.hood).setPosition(0.7);
                     follower.followPath(shoot4, 1.0, true);
                     setPathState(21);
                 }
@@ -322,7 +322,7 @@ public class front15BackSpike_Red extends OpMode {
 
             case 21:
                 if(!follower.isBusy()) {
-                    intakeSpindexer.getMotor(IntakeSpindexer_shreyas.MotorNames.intake).setPower(0.5);
+                    intakeSpindexer.getMotor(IntakeSpindexer.MotorNames.intake).setPower(0.5);
                     intakeSpindexer.kickstartShootChain = true;
                     intakeSpindexer.shootDone = false;
                     intakeSpindexer.shootCallTime = opmodeTimer.getElapsedTime();
@@ -331,7 +331,7 @@ public class front15BackSpike_Red extends OpMode {
                 break;
             case 22:
                 if(!follower.isBusy()) {
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
+                    intakeSpindexer.setIntakeState(IntakeSpindexer.IntakeState.SHOOTING);
                     if(pathTimer.getElapsedTime() > 150 + 150 + 400 + 150 + 150 + 400 + 150 + 150) {
                         setPathState(23);
                     }
@@ -341,7 +341,7 @@ public class front15BackSpike_Red extends OpMode {
             case 23:
                 if(!follower.isBusy()) {
                     targetVel = 1500;
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
+                    intakeSpindexer.setIntakeState(IntakeSpindexer.IntakeState.INTAKING);
                     follower.followPath(intake4, 0.75, true);
                     setPathState(24);
                 }
@@ -351,7 +351,7 @@ public class front15BackSpike_Red extends OpMode {
                 if(!follower.isBusy()) {
                     targetVel = 1500;
 //                    intakeSpindexer.ballsLoaded = 3;
-                    turretShooter.getServo(TurretShooter_shreyas.ServoNames.hood).setPosition(0.7);
+                    turretShooter.getServo(TurretShooter.ServoNames.hood).setPosition(0.7);
                     follower.followPath(shoot5, 1.0, true);
                     setPathState(25);
                 }
@@ -367,7 +367,7 @@ public class front15BackSpike_Red extends OpMode {
                 break;
             case 26:
                 if(!follower.isBusy()) {
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.SHOOTING);
+                    intakeSpindexer.setIntakeState(IntakeSpindexer.IntakeState.SHOOTING);
                     if(pathTimer.getElapsedTime() > 150 + 150 + 400 + 150 + 150 + 400 + 150 + 150) {
                         setPathState(27);
                     }
@@ -396,7 +396,7 @@ public class front15BackSpike_Red extends OpMode {
         intakeSpindexer.update(opmodeTimer.getElapsedTime());
         turretShooter.trackAprilTag(-2);
 
-        double currentVelocity = turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).getVelocity();
+        double currentVelocity = turretShooter.getMotor(TurretShooter.MotorNames.rightShooter).getVelocity();
         double pid = controller.calculate(currentVelocity, targetVel);
         double velocity = pid + f*targetVel;
 
@@ -416,8 +416,8 @@ public class front15BackSpike_Red extends OpMode {
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
 
-        intakeSpindexer = new IntakeSpindexer_shreyas(this, true);
-        turretShooter = new TurretShooter_shreyas(this, Alliance.RED);
+        intakeSpindexer = new IntakeSpindexer(this, true);
+        turretShooter = new TurretShooter(this, Alliance.RED);
 
         controller = new PIDController(p, i, d);
         controller.setPID(p, i, d);
@@ -427,8 +427,8 @@ public class front15BackSpike_Red extends OpMode {
         follower.setStartingPose(startPose);
 
         intakeSpindexer.ballsLoaded = 3;
-        intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin1).setPosition(0.097);
-        intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin2).setPosition(0.097);
+        intakeSpindexer.getServo(IntakeSpindexer.ServoNames.spin1).setPosition(0.097);
+        intakeSpindexer.getServo(IntakeSpindexer.ServoNames.spin2).setPosition(0.097);
     }
 
     @Override

@@ -1,111 +1,96 @@
 package org.firstinspires.ftc.teamcode.Robot.Decode.TeleOp;
 
-import static org.firstinspires.ftc.teamcode.Robot.Decode.Robot.IntakeSpindexer.ballsLoaded;
-
+import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.Robot.Decode.Alliance;
-import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.IntakeSpindexer;
-import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.TurretShooter;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@TeleOp(name = "TeleOpFinal", group = "TeleOp")
-@Disabled
+@Config
+@TeleOp(name = "TeleOp", group = "TeleOp")
 public class Teleop extends OpMode {
-
-    Follower follower;
-    TurretShooter turretShooter;
-    IntakeSpindexer intakeSpindexer;
-
-    boolean shootPressed = false;
     private final ElapsedTime runtime = new ElapsedTime();
-    int ballsToShoot = IntakeSpindexer.ballsLoaded;
-    double shootStartTime = 0;
-    boolean intake=false;
+    Follower follower;
 
-    boolean XisPressed = false;
-    boolean YisPressed= false;
+    DcMotorEx spindexer;
+    DcMotorEx leftShooter;
+    DcMotorEx rightShooter;
+    DcMotorEx intake;
+    public static double shooterPower = 0.6;
+    public static double intakePower = 1.0;
+    public static double spindexerPower = 0.45;
+    int turretPos = 0;
+    int targetTicks = 0;
+
     @Override
     public void init() {
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(Constants.createFollower(hardwareMap).getPose());
+
+        spindexer = this.hardwareMap.get(DcMotorEx.class, "spindexer");
+        leftShooter = this.hardwareMap.get(DcMotorEx.class, "leftShooter");
+        rightShooter = this.hardwareMap.get(DcMotorEx.class, "rightShooter");
+        intake = this.hardwareMap.get(DcMotorEx.class, "intake");
+
+        spindexer.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        intake.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        leftShooter.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        rightShooter.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+
+        turretPos = spindexer.getCurrentPosition();
+        targetTicks = turretPos;
+
+        telemetry.setAutoClear(true);
         runtime.reset();
 
-        turretShooter = new TurretShooter(this, Alliance.RED); // change alliance if needed
-        intakeSpindexer = new IntakeSpindexer(this);
+        telemetry.addData("Status", "Initialized");
+        telemetry.update();
     }
 
     @Override
     public void start() {
+        super.start();
         follower.startTeleopDrive(true);
+        runtime.reset();
     }
 
     @Override
     public void loop() {
         // --- DRIVE ---
         follower.update();
+
         follower.setTeleOpDrive(
                 -gamepad1.left_stick_y,
                 -gamepad1.left_stick_x,
-                -gamepad1.right_stick_x*0.4,
+                -gamepad1.right_stick_x * 0.4,
                 true
         );
 
-        // --- SUBSYSTEM UPDATES ---
-        turretShooter.updateTurretTracking();
-        intakeSpindexer.update();
+        leftShooter.setPower(shooterPower);
+        rightShooter.setPower(-shooterPower);
+        intake.setPower(intakePower);
+        if (gamepad1.xWasReleased()) {
+            targetTicks = turretPos - 450;
+        } else if (gamepad1.dpadUpWasReleased()) {
+            spindexer.setPower(spindexer.getPower() + 0.05);
+        } else if (gamepad1.dpadDownWasReleased()) {
+            spindexer.setPower(spindexer.getPower() - 0.05);
+        }
+        turretPos = spindexer.getCurrentPosition();
 
-        if(gamepad1.x && !XisPressed) {
-            XisPressed = true;
-            intake = true;
-        }
-        if(!gamepad1.x && XisPressed && intake) {
-            intakeSpindexer.setIntakeState(IntakeSpindexer.IntakeState.INTAKING);
-            if (intakeSpindexer.getColorSensor1().getDistance(DistanceUnit.MM) < 20 || intakeSpindexer.getColorSensor2().getDistance(DistanceUnit.MM) < 20) {
-                    intakeSpindexer.rotateSpindexer120();
-                    ballsToShoot+=1;
-                    intake = false;
-            }
-            XisPressed = false;
-        }
+        spindexer.setPower(-spindexerPower);
 
-        if(gamepad1.y && !YisPressed) {
-            YisPressed = true;
-            shootStartTime = runtime.milliseconds();
-        }
-        if(!gamepad1.y && YisPressed) {
-            double elapsed = runtime.milliseconds() - shootStartTime;
-            if(intakeSpindexer.getServo(IntakeSpindexer.ServoNames.spin1).getPosition() < 0.65){
-                intakeSpindexer.rotateSpindexer60();
-            }
-            turretShooter.shoot(1700, 0.95);
-            switch(ballsLoaded) {
-                case 3:
-                    if (elapsed > 800) {
-                        intakeSpindexer.getServo(IntakeSpindexer.ServoNames.kicker).setPosition(0.4);
-                    }
-                    if (elapsed > 1200) {
-                        turretShooter.stopShooter();
-                        intakeSpindexer.getServo(IntakeSpindexer.ServoNames.kicker).setPosition(0.225);
-                        intakeSpindexer.consumeBall();
-                    }
-            }
-        }
-        //telemetry.addData("distance1",intakeSpindexer.getColorSensor1().getDistance(DistanceUnit.MM));
-        //telemetry.addData("distance2",intakeSpindexer.getColorSensor2().getDistance(DistanceUnit.MM));
-        //telemetry.addData("position",intakeSpindexer.getServo(IntakeSpindexer.ServoNames.spin2).getPosition());
-        telemetry.addData("balls to shoot",ballsLoaded);
+        telemetry.addLine("==== Motor Speed ====");
+        telemetry.addData("Spindxer Speed", spindexer.getPower());
+        telemetry.addData("Spindexer Position", spindexer.getCurrentPosition());
         telemetry.update();
 
     }
 
     @Override
     public void stop() {
-        turretShooter.stop();
+
     }
 }

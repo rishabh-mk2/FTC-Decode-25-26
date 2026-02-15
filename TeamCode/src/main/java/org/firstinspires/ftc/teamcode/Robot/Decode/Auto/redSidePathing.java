@@ -9,8 +9,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Robot.Decode.Alliance;
-import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.IntakeSpindexer_shreyas;
-import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.TurretShooter_shreyas;
+import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.IntakeSpindexer;
+import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.TurretShooter;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Autonomous(name = "Red Side Pathing", group = "Autonomous")
@@ -21,8 +21,8 @@ public class redSidePathing extends OpMode {
     private Timer pathTimer, opmodeTimer;
     private int pathState;
     private double speed = 1.0;
-    TurretShooter_shreyas turretShooter;
-    IntakeSpindexer_shreyas intakeSpindexer;
+    TurretShooter turretShooter;
+    IntakeSpindexer intakeSpindexer;
 
     // Tracking flags for different phases
     private boolean hasStartedShooting = false;
@@ -118,8 +118,8 @@ public class redSidePathing extends OpMode {
                     hasStartedShooting = true;
                 }
                 if (pathTimer.getElapsedTimeSeconds() >= 1.0) {
-                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.leftShooter).setVelocity(400);
-                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).setVelocity(400);
+                    turretShooter.getMotor(TurretShooter.MotorNames.leftShooter).setVelocity(400);
+                    turretShooter.getMotor(TurretShooter.MotorNames.rightShooter).setVelocity(400);
                 }
 
                 // Once path is complete, call shooting function ONCE
@@ -142,7 +142,7 @@ public class redSidePathing extends OpMode {
 
                 // Start intaking 1 second after case starts
                 if (pathTimer.getElapsedTimeSeconds() >= 1.0 && !hasStartedIntaking) {
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
+                    intakeSpindexer.setIntakeState(IntakeSpindexer.IntakeState.INTAKING);
                     hasStartedIntaking = true;
                 }
 
@@ -179,8 +179,8 @@ public class redSidePathing extends OpMode {
                 }
 
                 if (pathTimer.getElapsedTimeSeconds() > 1) {
-                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.leftShooter).setVelocity(400);
-                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).setVelocity(400);
+                    turretShooter.getMotor(TurretShooter.MotorNames.leftShooter).setVelocity(400);
+                    turretShooter.getMotor(TurretShooter.MotorNames.rightShooter).setVelocity(400);
                 }
 
                 // Once path complete, call shooting function ONCE
@@ -203,7 +203,7 @@ public class redSidePathing extends OpMode {
 
                 // Start intaking 1 second after case starts
                 if (pathTimer.getElapsedTimeSeconds() >= 1.0 && !hasStartedIntaking) {
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
+                    intakeSpindexer.setIntakeState(IntakeSpindexer.IntakeState.INTAKING);
                     hasStartedIntaking = true;
                 }
 
@@ -223,8 +223,8 @@ public class redSidePathing extends OpMode {
                     hasStartedShooting = true;
                 }
                 if (pathTimer.getElapsedTimeSeconds() > 1) {
-                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.leftShooter).setVelocity(400);
-                    turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).setVelocity(400);
+                    turretShooter.getMotor(TurretShooter.MotorNames.leftShooter).setVelocity(400);
+                    turretShooter.getMotor(TurretShooter.MotorNames.rightShooter).setVelocity(400);
                 }
 
                 // Once path complete, call shooting function ONCE
@@ -247,7 +247,7 @@ public class redSidePathing extends OpMode {
 
                 // Start intaking 1 second after case starts
                 if (pathTimer.getElapsedTimeSeconds() >= 1.0 && !hasStartedIntaking) {
-                    intakeSpindexer.setIntakeState(IntakeSpindexer_shreyas.IntakeState.INTAKING);
+                    intakeSpindexer.setIntakeState(IntakeSpindexer.IntakeState.INTAKING);
                     hasStartedIntaking = true;
                 }
 
@@ -302,12 +302,12 @@ public class redSidePathing extends OpMode {
         follower.setStartingPose(startPose);
 
         // Initialize the subsystems
-        intakeSpindexer = new IntakeSpindexer_shreyas(this, false);
-        turretShooter = new TurretShooter_shreyas(this, Alliance.RED);
-        intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin1).setPosition(0.097);
-        intakeSpindexer.getServo(IntakeSpindexer_shreyas.ServoNames.spin2).setPosition(0.097);
+        intakeSpindexer = new IntakeSpindexer(this, false);
+        turretShooter = new TurretShooter(this, Alliance.RED);
+        intakeSpindexer.getServo(IntakeSpindexer.ServoNames.spin1).setPosition(0.097);
+        intakeSpindexer.getServo(IntakeSpindexer.ServoNames.spin2).setPosition(0.097);
         while (gamepad1.aWasPressed()) {
-            intakeSpindexer.getMotor(IntakeSpindexer_shreyas.MotorNames.intake).setPower(0.6);
+            intakeSpindexer.getMotor(IntakeSpindexer.MotorNames.intake).setPower(0.6);
         }
         buildPaths();
     }
@@ -316,7 +316,7 @@ public class redSidePathing extends OpMode {
     public void start() {
         opmodeTimer.resetTimer();
         intakeSpindexer.ballsLoaded = 3;
-        intakeSpindexer.state = IntakeSpindexer_shreyas.IntakeState.IDLE;
+        intakeSpindexer.state = IntakeSpindexer.IntakeState.IDLE;
         setPathState(0);
     }
 
@@ -329,12 +329,12 @@ public class redSidePathing extends OpMode {
 
         // Stop shooter motors when out of balls
         if (intakeSpindexer.ballsLoaded == 0) {
-            turretShooter.getMotor(TurretShooter_shreyas.MotorNames.leftShooter).setVelocity(0);
-            turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).setVelocity(0);
+            turretShooter.getMotor(TurretShooter.MotorNames.leftShooter).setVelocity(0);
+            turretShooter.getMotor(TurretShooter.MotorNames.rightShooter).setVelocity(0);
         }
         if (intakeSpindexer.ballsLoaded > 0 &&
-                intakeSpindexer.state == IntakeSpindexer_shreyas.IntakeState.IDLE) {
-            intakeSpindexer.getMotor(IntakeSpindexer_shreyas.MotorNames.intake).setPower(0.8);
+                intakeSpindexer.state == IntakeSpindexer.IntakeState.IDLE) {
+            intakeSpindexer.getMotor(IntakeSpindexer.MotorNames.intake).setPower(0.8);
         }
 
         telemetry.addData("Path State", pathState);

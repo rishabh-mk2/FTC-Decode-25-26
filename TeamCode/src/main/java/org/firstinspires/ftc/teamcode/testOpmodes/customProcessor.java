@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.testOpmodes;
 
 import android.util.Size;
+
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.vision.VisionPortal;
@@ -11,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @TeleOp(name = "ROI Processor Test", group = "Test")
+@Disabled
 public class customProcessor extends LinearOpMode {
 
     private VisionPortal visionPortal;

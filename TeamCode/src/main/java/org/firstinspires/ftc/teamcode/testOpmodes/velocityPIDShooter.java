@@ -3,24 +3,20 @@ package org.firstinspires.ftc.teamcode.testOpmodes;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
-import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.PIDCoefficients;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot.Decode.Alliance;
-import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.TurretShooter_shreyas;
+import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.TurretShooter;
 
 @Config
 @Disabled
 @TeleOp(name = "Shooter PID Tuner", group = "Tuning")
 public class velocityPIDShooter extends OpMode {
 
-    TurretShooter_shreyas turretShooter;
+    TurretShooter turretShooter;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashBoardTelemetry = dashboard.getTelemetry();
@@ -31,7 +27,7 @@ public class velocityPIDShooter extends OpMode {
 
     @Override
     public void init() {
-        turretShooter = new TurretShooter_shreyas(this, Alliance.RED);
+        turretShooter = new TurretShooter(this, Alliance.RED);
         controller = new PIDController(p, i, d);
     }
 
@@ -39,7 +35,7 @@ public class velocityPIDShooter extends OpMode {
     @Override
     public void loop() {
         controller.setPID(p, i, d);
-        double currentVelocity = turretShooter.getMotor(TurretShooter_shreyas.MotorNames.rightShooter).getVelocity();
+        double currentVelocity = turretShooter.getMotor(TurretShooter.MotorNames.rightShooter).getVelocity();
         double pid = controller.calculate(currentVelocity, targetVel);
 
         double velocity = pid + f*targetVel;

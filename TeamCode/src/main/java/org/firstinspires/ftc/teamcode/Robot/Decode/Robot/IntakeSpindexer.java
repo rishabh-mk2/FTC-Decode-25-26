@@ -1,10 +1,16 @@
 package org.firstinspires.ftc.teamcode.Robot.Decode.Robot;
 
+import android.graphics.Color;
+
+
+
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
@@ -19,40 +25,32 @@ public class IntakeSpindexer {
     public Telemetry telemetry;
     public HardwareMap hardwareMap;
 
-    public boolean isTelemetryEnabled = true;
-
     RevColorSensorV3 frontSensor1;
     RevColorSensorV3 frontSensor2;
+    RevColorSensorV3 backRightSensor1;
+    RevColorSensorV3 backRightSensor2;
+    RevColorSensorV3 backLeftSensor1;
+    RevColorSensorV3 backLeftSensor2;
+    double ballsLoaded = 0;
 
-    static final double BALL_DIST_MM = 20;
-    static final double SPIN_STEP = 0.194;
-
-    public static int ballsLoaded = 0;
-    boolean lastBallDetected = false;
-
+    public enum BallColor {
+        P,
+        G
+    }
     public enum IntakeState {
-        IDLE,
-        INTAKING,
-        INDEXING
-    }
 
-    IntakeState state = IntakeState.IDLE;
-    public void setIntakeState(IntakeState State){
-        state = State;
     }
-    long indexStartTime = 0;
 
     public enum MotorNames {
-        intake
+        intake, spindexer
     }
 
     public enum ServoNames {
-        spin1,
-        spin2,
-        kicker
+
     }
 
-    public IntakeSpindexer(OpMode opMode) {
+
+    public IntakeSpindexer(OpMode opMode, boolean wantStart0) {
         this.opmode = opMode;
         this.telemetry = opMode.telemetry;
         this.hardwareMap = opMode.hardwareMap;
@@ -72,14 +70,14 @@ public class IntakeSpindexer {
             Servos.add(servo);
         }
 
-        getServo(ServoNames.spin1).setPosition(0.0);
-        getServo(ServoNames.spin2).setPosition(0.0);
-        getServo(ServoNames.kicker).setPosition(0.225);
+        frontSensor1 = hardwareMap.get(RevColorSensorV3.class, "f1");
+        frontSensor2 = hardwareMap.get(RevColorSensorV3.class, "f2");
+        frontSensor1 = hardwareMap.get(RevColorSensorV3.class, "br1");
+        frontSensor2 = hardwareMap.get(RevColorSensorV3.class, "br2");
+        frontSensor1 = hardwareMap.get(RevColorSensorV3.class, "bl1");
+        frontSensor2 = hardwareMap.get(RevColorSensorV3.class, "bl2");
 
-        frontSensor1 = hardwareMap.get(RevColorSensorV3.class, "front1");
-        frontSensor2= hardwareMap.get(RevColorSensorV3.class, "front2");
-        ballsLoaded = 0;
-        addTelemetry("IntakeSpindexer", "Ready");
+        telemetry.addData("Intake_Spindexer", "Initialized");
     }
 
     public DcMotorEx getMotor(MotorNames name) {
@@ -90,86 +88,48 @@ public class IntakeSpindexer {
         return Servos.get(name.ordinal());
     }
 
-    public void rotateSpindexer120() {
-        getServo(ServoNames.spin1)
-                .setPosition(getServo(ServoNames.spin1).getPosition() + SPIN_STEP);
-        getServo(ServoNames.spin2)
-                .setPosition(getServo(ServoNames.spin2).getPosition() + SPIN_STEP);
-    }
-    public void rotateSpindexer60() {
-        getServo(ServoNames.spin1)
-                .setPosition(getServo(ServoNames.spin1).getPosition() + 0.096);
-        getServo(ServoNames.spin2)
-                .setPosition(getServo(ServoNames.spin2).getPosition() + 0.096);
+    public void homeSpindexer() {
+
     }
 
-    public void update() {
-        double dist = frontSensor1.getDistance(DistanceUnit.MM);
-        boolean ballDetected = dist < BALL_DIST_MM;
-
-        switch (state) {
-
-            case INTAKING:
-                getMotor(MotorNames.intake).setPower(0.85);
-
-                if (ballDetected && !lastBallDetected && ballsLoaded < 3) {
-                    ballsLoaded++;
-                    rotateSpindexer120();
-                    getMotor(MotorNames.intake).setPower(0);
-                    //getServo(ServoNames.kicker).setPosition(0.4); // kick up
-                    indexStartTime = System.currentTimeMillis();
-                    //state = IntakeState.INDEXING;
-                }
-                break;
-
-            case INDEXING:
-                if (System.currentTimeMillis() - indexStartTime > 100) {
-                    getServo(ServoNames.kicker).setPosition(0.225); // kick down
-                }
-                if (System.currentTimeMillis() - indexStartTime > 250) {
-                    state = ballsLoaded < 3 ? IntakeState.INTAKING : IntakeState.IDLE;
-                }
-                break;
-
-            case IDLE:
-                getMotor(MotorNames.intake).setPower(0);
-                break;
-        }
-
-        lastBallDetected = ballDetected;
-
-        //addTelemetry("Balls Loaded", ballsLoaded);
-        //addTelemetry("Intake State", state);
+    public void update(double currentTime) {
+        telemetry.addData("Balls Loaded", ballsLoaded);
     }
+    double d1 = 0.0;
+    double d2 = 0.0;
+    public boolean ballDetected() {
+        double d1 = frontSensor1.getDistance(DistanceUnit.CM);
+        double d2 = frontSensor2.getDistance(DistanceUnit.CM);
 
-    public boolean hasBalls() {
-        return ballsLoaded > 0;
-    }
-
-    public void consumeBall() {
-        if (ballsLoaded > 0) {
-            ballsLoaded--;
-            rotateSpindexer120();
+        if (d1 < 3.0 || d2 < 3.0) {
+            return true;
+        } else {
+            return false;
         }
     }
 
-    public static int getBallCount() {
-        return ballsLoaded;
-    }
+    private BallColor classifyBallColor(float red, float green, float blue) {
+        float[] hsv = new float[3];
+        int rgbRED = (int) (10000 * red);
+        int rgbGREEN = (int) (10000 * green);
+        int rgbBLUE = (int) (10000 * blue);
+        Color.RGBToHSV(rgbRED, rgbGREEN, rgbBLUE, hsv);
+        float hue = hsv[0];
 
-    public void addTelemetry(String caption, Object value) {
-        if (isTelemetryEnabled) {
-            telemetry.addData(caption, value);
-            telemetry.update();
+        if (hue >= 110 && hue <= 179) {
+            return BallColor.G;
+        } else if (hue >= 180 && hue <= 330) {
+            return BallColor.P;
+        } else {
+            return null;
         }
+        //if ((rgbGREEN - rgbRED < 20) && (rgbBLUE > rgbGREEN && rgbGREEN < rgbBLUE + 10)) {
+        /*if (rgbGREEN > rgbBLUE + 5){
+            return BallColor.G;
+        } else if (rgbBLUE > rgbGREEN + 10){
+            return BallColor.P;
+        } else {
+            return null;
+        }*/
     }
-    public RevColorSensorV3 getColorSensor1() {
-        return frontSensor1;
-    }
-
-    public RevColorSensorV3 getColorSensor2() {
-        return frontSensor2;
-    }
-
-
 }

@@ -1,18 +1,13 @@
 package org.firstinspires.ftc.teamcode.Robot.Decode.Auto;
 
 import com.pedropathing.follower.Follower;
-import com.qualcomm.hardware.dfrobot.HuskyLens;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot.Decode.Alliance;
-import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.IntakeSpindexer;
-import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.TurretShooter;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Autonomous(name = "Base Auto")
 public class BaseAuto extends LinearOpMode {
