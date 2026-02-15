@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Robot.Decode.TeleOp;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import com.pedropathing.follower.Follower;
@@ -17,6 +18,7 @@ import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.IntakeSpindexer_shreyas
 import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.TurretShooter_shreyas;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 @Config
+@Disabled
 @TeleOp(name = "Red TeleOp", group = "TeleOp")
 public class RED_Teleopo_FINAL extends OpMode {
     private final ElapsedTime runtime = new ElapsedTime();
