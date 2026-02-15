@@ -89,47 +89,39 @@ public class IntakeSpindexer {
     }
 
     public void homeSpindexer() {
-
+        // TODO: do it
     }
 
     public void update(double currentTime) {
+        // TODO: do it
         telemetry.addData("Balls Loaded", ballsLoaded);
     }
-    double d1 = 0.0;
-    double d2 = 0.0;
-    public boolean ballDetected() {
-        double d1 = frontSensor1.getDistance(DistanceUnit.CM);
-        double d2 = frontSensor2.getDistance(DistanceUnit.CM);
-
-        if (d1 < 3.0 || d2 < 3.0) {
-            return true;
-        } else {
-            return false;
-        }
+    public void ballDetected() {
+        // TODO: do it
     }
 
-    private BallColor classifyBallColor(float red, float green, float blue) {
-        float[] hsv = new float[3];
-        int rgbRED = (int) (10000 * red);
-        int rgbGREEN = (int) (10000 * green);
-        int rgbBLUE = (int) (10000 * blue);
-        Color.RGBToHSV(rgbRED, rgbGREEN, rgbBLUE, hsv);
-        float hue = hsv[0];
-
-        if (hue >= 110 && hue <= 179) {
-            return BallColor.G;
-        } else if (hue >= 180 && hue <= 330) {
-            return BallColor.P;
-        } else {
-            return null;
-        }
-        //if ((rgbGREEN - rgbRED < 20) && (rgbBLUE > rgbGREEN && rgbGREEN < rgbBLUE + 10)) {
-        /*if (rgbGREEN > rgbBLUE + 5){
-            return BallColor.G;
-        } else if (rgbBLUE > rgbGREEN + 10){
-            return BallColor.P;
-        } else {
-            return null;
-        }*/
-    }
+//    private BallColor classifyBallColor(float red, float green, float blue) {
+//        float[] hsv = new float[3];
+//        int rgbRED = (int) (10000 * red);
+//        int rgbGREEN = (int) (10000 * green);
+//        int rgbBLUE = (int) (10000 * blue);
+//        Color.RGBToHSV(rgbRED, rgbGREEN, rgbBLUE, hsv);
+//        float hue = hsv[0];
+//
+//        if (hue >= 110 && hue <= 179) {
+//            return BallColor.G;
+//        } else if (hue >= 180 && hue <= 330) {
+//            return BallColor.P;
+//        } else {
+//            return null;
+//        }
+//        //if ((rgbGREEN - rgbRED < 20) && (rgbBLUE > rgbGREEN && rgbGREEN < rgbBLUE + 10)) {
+//        /*if (rgbGREEN > rgbBLUE + 5){
+//            return BallColor.G;
+//        } else if (rgbBLUE > rgbGREEN + 10){
+//            return BallColor.P;
+//        } else {
+//            return null;
+//        }*/
+//    }
 }

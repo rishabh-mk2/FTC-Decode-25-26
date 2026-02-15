@@ -5,6 +5,7 @@ import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
@@ -16,6 +17,9 @@ public class Teleop extends OpMode {
     Follower follower;
 
     DcMotorEx spindexer;
+//    Servo turret1;
+    Servo turret2;
+    Servo turret3;
     DcMotorEx leftShooter;
     DcMotorEx rightShooter;
     DcMotorEx intake;
@@ -24,6 +28,7 @@ public class Teleop extends OpMode {
     public static double spindexerPower = 0.45;
     int turretPos = 0;
     int targetTicks = 0;
+    public static double turretPosition = 0.0;
 
     @Override
     public void init() {
@@ -33,6 +38,10 @@ public class Teleop extends OpMode {
         leftShooter = this.hardwareMap.get(DcMotorEx.class, "leftShooter");
         rightShooter = this.hardwareMap.get(DcMotorEx.class, "rightShooter");
         intake = this.hardwareMap.get(DcMotorEx.class, "intake");
+
+//        turret1 = this.hardwareMap.get(Servo.class, "turret1");
+        turret2 = this.hardwareMap.get(Servo.class, "turret2");
+        turret3 = this.hardwareMap.get(Servo.class, "turret3");
 
         spindexer.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         intake.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
@@ -79,6 +88,9 @@ public class Teleop extends OpMode {
             spindexer.setPower(spindexer.getPower() - 0.05);
         }
         turretPos = spindexer.getCurrentPosition();
+
+        turret2.setPosition(turretPosition);
+        turret3.setPosition(turretPosition);
 
         spindexer.setPower(-spindexerPower);
 
