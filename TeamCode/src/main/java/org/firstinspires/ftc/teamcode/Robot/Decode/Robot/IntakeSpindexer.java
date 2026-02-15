@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.Robot.Decode.Robot;
 import android.graphics.Color;
 
 
-
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -32,13 +32,14 @@ public class IntakeSpindexer {
     RevColorSensorV3 backLeftSensor1;
     RevColorSensorV3 backLeftSensor2;
     double ballsLoaded = 0;
+    PIDController spindexerVelocityPID;
 
     public enum BallColor {
         P,
         G
     }
     public enum IntakeState {
-
+        INTAKE, EXPEL, IDLE
     }
 
     public enum MotorNames {
@@ -48,6 +49,8 @@ public class IntakeSpindexer {
     public enum ServoNames {
 
     }
+
+    public static double p, i, d = 0;
 
 
     public IntakeSpindexer(OpMode opMode, boolean wantStart0) {
@@ -88,8 +91,26 @@ public class IntakeSpindexer {
         return Servos.get(name.ordinal());
     }
 
+    public void moveIntake(IntakeState intakeState) {
+        switch (intakeState) {
+            case INTAKE:
+                getMotor(MotorNames.intake).setPower(1.0);
+                break;
+            case EXPEL:
+                getMotor(MotorNames.intake).setPower(-1.0);
+                break;
+            case IDLE:
+                getMotor(MotorNames.intake).setPower(0.0);
+                break;
+        }
+    }
+
     public void homeSpindexer() {
         // TODO: do it
+    }
+
+    public void shoot() {
+
     }
 
     public void update(double currentTime) {
