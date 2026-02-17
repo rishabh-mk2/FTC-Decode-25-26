@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @TeleOp(name = "ROI Processor Test", group = "Test")
-@Disabled
+//@Disabled
 public class customProcessor extends LinearOpMode {
 
     private VisionPortal visionPortal;
@@ -28,8 +28,9 @@ public class customProcessor extends LinearOpMode {
         visionPortal = new VisionPortal.Builder()
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
                 .enableLiveView(true)
-                .setCameraResolution(new Size(1280, 960))
+                .setCameraResolution(new Size(1920, 1200))
                 .addProcessor(roiProcessor)
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .build();
 
         while (!isStarted() && !isStopRequested()) {
