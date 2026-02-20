@@ -28,7 +28,7 @@ public class Teleop extends OpMode {
     PIDController spindexerPID;
 
     DcMotorEx spindexer;
-    Servo turret1, turret2, turret3;
+    Servo turret1, turret2, turret3, spindexerBlock;
     DcMotorEx leftShooter, rightShooter, intake;
 
     RevColorSensorV3 frontSensor1, frontSensor2;
@@ -80,6 +80,8 @@ public class Teleop extends OpMode {
     double originalPosition;
     ElapsedTime spinTimer = new ElapsedTime();
 
+    public static double spindexerBlockPos = 0.21;
+
     @Override
     public void init() {
 
@@ -93,11 +95,12 @@ public class Teleop extends OpMode {
         turret1 = hardwareMap.get(Servo.class, "turret1");
         turret2 = hardwareMap.get(Servo.class, "turret2");
         turret3 = hardwareMap.get(Servo.class, "turret3");
+        spindexerBlock = hardwareMap.get(Servo.class, "spindexerBlock");
 
-        spindexer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        leftShooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightShooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        spindexer.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        intake.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        leftShooter.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        rightShooter.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
         spindexer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         spindexer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -135,6 +138,8 @@ public class Teleop extends OpMode {
     @Override
     public void loop() {
 
+        spindexerBlock.setPosition(spindexerBlockPos);
+
         loopCounter++;
 
         // --- DRIVE ---
@@ -146,8 +151,8 @@ public class Teleop extends OpMode {
                 true
         );
 
-        leftShooter.setPower(shooterPower);
-        rightShooter.setPower(-shooterPower);
+        leftShooter.setVelocity(shooterPower);
+        rightShooter.setVelocity(-shooterPower);
 
         turret1.setPosition(turretPosition);
         turret2.setPosition(turretPosition);
@@ -187,7 +192,7 @@ public class Teleop extends OpMode {
                 break;
 
             case SHOOTING:
-                spindexer.setPower(-0.4);
+                spindexer.setPower(-0.7);
                 if (spinTimer.seconds() >= 2.0) {
                     spindexerState = SpindexerState.INTAKING;
                 }

@@ -28,7 +28,7 @@ public class customProcessor extends LinearOpMode {
         visionPortal = new VisionPortal.Builder()
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
                 .enableLiveView(true)
-                .setCameraResolution(new Size(1920, 1200))
+                .setCameraResolution(new Size(1920, 1080))
                 .addProcessor(roiProcessor)
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .build();
@@ -107,7 +107,6 @@ public class customProcessor extends LinearOpMode {
             String mostPopulated = "None";
             int max = Math.max(count5, Math.max(count4, count3));
             //int max = Math.max(count5, Math.max(count4, Math.max(count3, Math.max(count2, count1))));
-
 
             if (max > 0) {
                 if (max == count5) mostPopulated = "ROI 5";

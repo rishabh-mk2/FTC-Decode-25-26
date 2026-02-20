@@ -78,7 +78,7 @@ public class ROIProcessorHough implements VisionProcessor {
         Imgproc.cvtColor(frame, hsvMat, Imgproc.COLOR_RGB2HSV);
         Imgproc.cvtColor(frame, grayMat, Imgproc.COLOR_RGB2GRAY);
         // TODO: if too much noise, increase new Size param
-        Imgproc.GaussianBlur(grayMat, grayMat, new Size(9,9), 2, 2);
+        Imgproc.GaussianBlur(grayMat, grayMat, new Size(1,1), 0, 0); // 9, 9, 2, 2
 
         purpleCenters.clear();
         greenCenters.clear();
