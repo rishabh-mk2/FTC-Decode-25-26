@@ -70,6 +70,7 @@ public class TurretShooter {
     public static double SHOOTER_OFFSET_INCHES = 1.9;    // forward offset from odometry center to shooter
     public static double TURRET_OVERLAP_OFFSET_RAD = -(Math.PI - 28.5 / 155.0); // CW from robot-forward to overlap (negative = CW)
 
+    public Vector GOAL_POSE_VECTOR;
 
     // Hood servo limits in radians (tune experimentally)
     public static double HOOD_MAX_ANGLE = 0;
@@ -115,6 +116,8 @@ public class TurretShooter {
             GOAL_POSE = new Pose(138, 138).mirror();
         }
 
+        GOAL_POSE_VECTOR = GOAL_POSE.getAsVector();
+
         dashboard = FtcDashboard.getInstance();
 
         addTelemetry("TurretShooter", "Ready");
@@ -148,7 +151,9 @@ public class TurretShooter {
         double shooterY = pose.getY() + SHOOTER_OFFSET_INCHES * Math.sin(heading);
         currentPose = new Pose(shooterX, shooterY, heading);
 
-        robotToGoalVector = GOAL_POSE.getAsVector().minus(currentPose.getAsVector());
+        GOAL_POSE_VECTOR = GOAL_POSE.getAsVector().minus(velocity);
+
+        robotToGoalVector = GOAL_POSE_VECTOR.minus(currentPose.getAsVector());
     }
 
     // endregion
