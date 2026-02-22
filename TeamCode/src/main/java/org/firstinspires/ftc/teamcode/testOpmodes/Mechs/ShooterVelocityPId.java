@@ -74,7 +74,7 @@ public class ShooterVelocityPId extends OpMode {
 
         double power = pid + ff;
 
-        power = Math.max(0, Math.min(power, 1));
+        power = Math.max(-1, Math.min(power, 1));
 
         leftShooter.setPower(power);
         rightShooter.setPower(-power);

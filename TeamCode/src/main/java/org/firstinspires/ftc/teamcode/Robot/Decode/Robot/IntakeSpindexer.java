@@ -40,8 +40,8 @@ public class IntakeSpindexer {
     public static double FRONT_THRESHOLD     = 45;   // mm
     public static double BACK_THRESHOLD      = 15;   // mm
     public static double GREEN_THRESHOLD     = 200;  // raw green value
-    public static double spindexerBlockClosed = 0.34; // hood closed (3 balls)
-    public static double spindexerBlockOpen   = 0.21; // hood open  (<3 balls)
+    public static double spindexerBlockClosed = 0.2525; // hood closed (3 balls)
+    public static double spindexerBlockOpen   = 0.105; // hood open  (<3 balls)
     public static double INTAKE_STALL_AMPS   = 9.0;
     public static double INTAKE_REVERSE_SECS = 0.2;
 
@@ -91,7 +91,9 @@ public class IntakeSpindexer {
     private int shotCount = 0;
 
     // Sensor distances (updated every N loops from outside, or call updateSensors())
-    private double f1Dist, f2Dist, br1Dist, br2Dist, bl1Dist, bl2Dist;
+    private double f1Dist  = 9999, f2Dist  = 9999;
+    private double br1Dist = 9999, br2Dist = 9999;
+    private double bl1Dist = 9999, bl2Dist = 9999;
     private int loopCounter = 0;
 
     // endregion
@@ -270,7 +272,7 @@ public class IntakeSpindexer {
 
         // Tighter cap during the small back-step to avoid overshooting
         if (spindexerState == SpindexerState.READY_TO_SHOOT && readyBackStepDone) {
-            pid = Math.max(-0.1, Math.min(0.1, pid));
+            pid = Math.max(-0.2, Math.min(0.2, pid));
         } else {
             pid = Math.max(-0.45, Math.min(0.45, pid));
         }

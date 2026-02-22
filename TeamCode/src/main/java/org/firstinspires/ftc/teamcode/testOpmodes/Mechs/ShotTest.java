@@ -51,7 +51,7 @@ public class ShotTest extends OpMode {
     public void loop() {
         follower.update();
         turretShooter.updateValues(follower.getPose(), follower.getVelocity());
-        turretShooter.updateTurretShooter();
+        turretShooter.updateTurret();
 
         follower.setTeleOpDrive(
                 -gamepad1.left_stick_y,
