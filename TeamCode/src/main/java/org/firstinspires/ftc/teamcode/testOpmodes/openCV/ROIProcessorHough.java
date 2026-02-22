@@ -5,191 +5,370 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.vision.VisionProcessor;
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-
+@Disabled
 public class ROIProcessorHough implements VisionProcessor {
-    private static final Scalar PURPLE_LOW_HSV  = new Scalar(130, 50, 50);
-    private static final Scalar PURPLE_HIGH_HSV = new Scalar(170, 255, 255);
-    private static final Scalar GREEN_LOW_HSV   = new Scalar(40, 50, 50);
-    private static final Scalar GREEN_HIGH_HSV  = new Scalar(90, 255, 255);
 
-    private final Mat grayMat = new Mat();
-    private final Mat hsvMat = new Mat();
-    private final Mat circlesMat = new Mat();
+    private static final double SCALE     = 0.5;
+    private static final double INV_SCALE = 1.0 / SCALE;
 
-    private final List<Point> purpleCenters = Collections.synchronizedList(new ArrayList<>());
-    private final List<Point> greenCenters = Collections.synchronizedList(new ArrayList<>());
+    private static final Scalar PURPLE_LOW  = new Scalar(115, 61, 67);
+    private static final Scalar PURPLE_HIGH = new Scalar(163, 255, 255);
 
-    public final MatOfPoint roi5MOP = new MatOfPoint();
-    public final MatOfPoint roi4MOP = new MatOfPoint();
+    private static final Scalar GREEN_LOW   = new Scalar(44, 180, 90);
+    private static final Scalar GREEN_HIGH  = new Scalar(86, 255, 255);
+
+
+    private static final double H_DP       = 1.2;
+    private static final double H_MIN_DIST = 16;
+    private static final double H_PARAM1   = 60;
+    private static final double H_PARAM2   = 14;
+    private static final int    H_MIN_R    =  5;
+    private static final int    H_MAX_R    = 52;
+
+    private static final double MIN_FILL_RATIO      = 0.42;
+    private static final double MIN_CIRCULARITY     = 0.72;
+    private static final double MAX_RADIUS_RATIO    = 1.35;
+    private static final double MIN_RADIUS_RATIO    = 0.65;
+
+
+
+
+    private static final Size CLOSE_SIZE  = new Size(5, 5);
+    private static final Size DILATE_SIZE = new Size(3, 3);
+    private static final Size ERODE_SIZE  = new Size(3, 3);
+    private static final Size BLUR_SIZE   = new Size(5, 5);
+
+
+    private Mat closeKernel, erodeKernel, dilateKernel;
+    private final Mat smallFrame = new Mat();
+    private final Mat hsvSmall   = new Mat();
+    private final Mat colorMask  = new Mat();
+    private final Mat validMask  = new Mat();
+    private final Mat circles    = new Mat();
+
+
+    public final MatOfPoint roi1MOP = new MatOfPoint();
+    public final MatOfPoint roi2MOP = new MatOfPoint();
     public final MatOfPoint roi3MOP = new MatOfPoint();
-    //public final MatOfPoint roi2MOP = new MatOfPoint();
-    //public final MatOfPoint roi1MOP = new MatOfPoint();
+    public final MatOfPoint roi4MOP = new MatOfPoint();
+    public final MatOfPoint roi5MOP = new MatOfPoint();
+    public final MatOfPoint roi6MOP = new MatOfPoint();
 
-    private final MatOfPoint2f roi5Boundary2f = new MatOfPoint2f();
-    private final MatOfPoint2f roi4Boundary2f = new MatOfPoint2f();
-    private final MatOfPoint2f roi3Boundary2f = new MatOfPoint2f();
-    //private final MatOfPoint2f roi2Boundary2f = new MatOfPoint2f();
-//private final MatOfPoint2f roi1Boundary2f = new MatOfPoint2f();
+    private final MatOfPoint2f roi1s = new MatOfPoint2f();
+    private final MatOfPoint2f roi2s = new MatOfPoint2f();
+    private final MatOfPoint2f roi3s = new MatOfPoint2f();
+    private final MatOfPoint2f roi4s = new MatOfPoint2f();
+    private final MatOfPoint2f roi5s = new MatOfPoint2f();
+    private final MatOfPoint2f roi6s = new MatOfPoint2f();
+
+    private final List<float[]> purpleCircles = new ArrayList<>();
+    private final List<float[]> greenCircles  = new ArrayList<>();
+
+    private Paint zonePaint1, zonePaint2, zonePaint3,
+            zonePaint4, zonePaint5, zonePaint6;
+    private Paint purpleFill, purpleStroke, greenFill, greenStroke, dotPaint;
+
+
     @Override
     public void init(int width, int height, CameraCalibration calibration) {
-        Point[] leftZonePoints = {
-                new Point(0, 0), new Point(400, 0),
-                new Point(400, 960), new Point(0, 960)
+
+        Point[] zone1 = {
+                new Point(183,  67), new Point(183,   0),
+                new Point(217,   0), new Point(217,  67),
+                new Point(  0, 313), new Point(  0, 178),
         };
-        Point[] centerZonePoints = {
-                new Point(400, 0), new Point(800, 0),
-                new Point(800, 960), new Point(400, 960)
+        Point[] zone2 = {
+                new Point(217,  67), new Point(217,   0),
+                new Point(267,   0), new Point(267,  67),
+                new Point( 33, 480), new Point(  0, 480),
+                new Point(  0, 313),
         };
-        Point[] rightZonePoints = {
-                new Point(800, 0), new Point(1200, 0),
-                new Point(1200, 960), new Point(800, 960)
+        Point[] zone3 = {
+                new Point(267,  67), new Point(267,   0),
+                new Point(300,   0), new Point(300,  67),
+                new Point(283, 480), new Point( 33, 480),
+        };
+        Point[] zone4 = {
+                new Point(300,  67), new Point(300,   0),
+                new Point(333,   0), new Point(333,  67),
+                new Point(442, 325), new Point(283, 347),
+        };
+        Point[] zone5 = {
+                new Point(333,  67), new Point(333,   0),
+                new Point(383,   0), new Point(383,  67),
+                new Point(600, 311), new Point(442, 325),
+        };
+        Point[] zone6 = {
+                new Point(383,  67), new Point(383,   0),
+                new Point(640,   0), new Point(640, 298),
+                new Point(600, 311),
         };
 
-        roi5MOP.fromArray(leftZonePoints);
-        roi4MOP.fromArray(centerZonePoints);
-        roi3MOP.fromArray(rightZonePoints);
-        //roi2MOP.fromArray(centerZonePoints);
-        //roi1MOP.fromArray(rightZonePoints);
+        roi1MOP.fromArray(zone1); buildScaled2f(zone1, roi1s);
+        roi2MOP.fromArray(zone2); buildScaled2f(zone2, roi2s);
+        roi3MOP.fromArray(zone3); buildScaled2f(zone3, roi3s);
+        roi4MOP.fromArray(zone4); buildScaled2f(zone4, roi4s);
+        roi5MOP.fromArray(zone5); buildScaled2f(zone5, roi5s);
+        roi6MOP.fromArray(zone6); buildScaled2f(zone6, roi6s);
 
-        roi5MOP.convertTo(roi5Boundary2f, CvType.CV_32F);
-        roi4MOP.convertTo(roi4Boundary2f, CvType.CV_32F);
-        roi3MOP.convertTo(roi3Boundary2f, CvType.CV_32F);
-        //roi2MOP.convertTo(roi2Boundary2f, CvType.CV_32F);
-        //roi1MOP.convertTo(roi1Boundary2f, CvType.CV_32F);
+        closeKernel  = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, CLOSE_SIZE);
+        erodeKernel  = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, ERODE_SIZE);
+        dilateKernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, DILATE_SIZE);
+
+        zonePaint1 = makeZonePaint(Color.argb(50,  79,  28,   0));
+        zonePaint2 = makeZonePaint(Color.argb(50,  60,   0,  60));
+        zonePaint3 = makeZonePaint(Color.argb(50,   0,  60, 255));
+        zonePaint4 = makeZonePaint(Color.argb(50,  60,  60,  60));
+        zonePaint5 = makeZonePaint(Color.argb(50,   0,   0, 255));
+        zonePaint6 = makeZonePaint(Color.argb(50, 255,   0,   0));
+
+        purpleFill   = makePaint(Color.argb(50, 200,   0, 200), Paint.Style.FILL);
+        purpleStroke = makePaint(Color.MAGENTA,                  Paint.Style.STROKE);
+        greenFill    = makePaint(Color.argb(50,   0, 200,   0), Paint.Style.FILL);
+        greenStroke  = makePaint(Color.GREEN,                    Paint.Style.STROKE);
+        dotPaint     = makePaint(Color.WHITE,                    Paint.Style.FILL);
+    }
+
+    private static void buildScaled2f(Point[] pts, MatOfPoint2f out) {
+        Point[] s = new Point[pts.length];
+        for (int i = 0; i < pts.length; i++)
+            s[i] = new Point(pts[i].x * SCALE, pts[i].y * SCALE);
+        MatOfPoint tmp = new MatOfPoint(s);
+        tmp.convertTo(out, CvType.CV_32F);
+        tmp.release();
     }
 
     @Override
     public Object processFrame(Mat frame, long captureTimeNanos) {
-        Imgproc.cvtColor(frame, hsvMat, Imgproc.COLOR_RGB2HSV);
-        Imgproc.cvtColor(frame, grayMat, Imgproc.COLOR_RGB2GRAY);
-        // TODO: if too much noise, increase new Size param
-        Imgproc.GaussianBlur(grayMat, grayMat, new Size(1,1), 0, 0); // 9, 9, 2, 2
+        Imgproc.resize(frame, smallFrame, new Size(), SCALE, SCALE, Imgproc.INTER_LINEAR);
+        Imgproc.cvtColor(smallFrame, hsvSmall, Imgproc.COLOR_RGB2HSV);
 
-        purpleCenters.clear();
-        greenCenters.clear();
-        //TODO: tune DP (resolution from my understanding) so it works for smaller circles (edge cases)
-        // TODO: Tune min dist between centers to doesn't miss nor detects false positives
-        // TODO:Tune param2; if getting false positives, increase; else decrease param2
-        // TODO: Tune minRadius and maxRadius based on real data
-        Imgproc.HoughCircles(
-                grayMat,
-                circlesMat,
-                Imgproc.HOUGH_GRADIENT,
-                1.5,
-                20,
-                150,
-                100,
-                50,
-                400
-        );
-
-        for (int i = 0; i < circlesMat.cols(); i++ ){
-            double[] data = circlesMat.get(0, i);
-            double x = data[0];
-            double y = data[1];
-            Point center = new Point(x, y);
-            //TODO: if code ever crashes, use the commented code below (AI GIVEN)
-           /*if (x < 0 || x >= hsvMat.cols() || y < 0 || y >= hsvMat.rows()) {
-               continue;
-           }*/
-
-            double[] pixelColor = hsvMat.get((int) y, (int) x);
-
-            if (isColorInBounds(pixelColor, PURPLE_LOW_HSV, PURPLE_HIGH_HSV)){
-                purpleCenters.add(center);
-            } else if (isColorInBounds(pixelColor, GREEN_LOW_HSV, GREEN_HIGH_HSV)){
-                greenCenters.add(center);
-            }
+        synchronized (purpleCircles) {
+            purpleCircles.clear();
+            detectCircles(PURPLE_LOW, PURPLE_HIGH, purpleCircles);
+        }
+        synchronized (greenCircles) {
+            greenCircles.clear();
+            detectCircles(GREEN_LOW, GREEN_HIGH, greenCircles);
         }
         return null;
     }
+
+    private void detectCircles(Scalar low, Scalar high, List<float[]> results) {
+        Core.inRange(hsvSmall, low, high, colorMask);
+
+        Imgproc.morphologyEx(colorMask, colorMask, Imgproc.MORPH_CLOSE, closeKernel);
+        Imgproc.erode(colorMask, colorMask, erodeKernel);
+        Imgproc.dilate(colorMask, colorMask, dilateKernel);
+
+        colorMask.copyTo(validMask);
+
+        Imgproc.GaussianBlur(colorMask, colorMask, BLUR_SIZE, 1.5);
+
+        circles.release();
+        Imgproc.HoughCircles(
+                colorMask, circles,
+                Imgproc.HOUGH_GRADIENT,
+                H_DP, H_MIN_DIST,
+                H_PARAM1, H_PARAM2,
+                H_MIN_R, H_MAX_R
+        );
+
+        if (circles.empty()) return;
+
+        int imgW = validMask.cols();
+        int imgH = validMask.rows();
+
+        for (int i = 0; i < circles.cols(); i++) {
+            double[] c = circles.get(0, i);
+            if (c == null) continue;
+
+            float cx = (float) c[0];
+            float cy = (float) c[1];
+            float r  = (float) c[2];
+
+            // ── Gate 1: bounds check ──────────────────────────────────────
+            int x0 = (int) Math.max(0, Math.floor(cx - r));
+            int y0 = (int) Math.max(0, Math.floor(cy - r));
+            int x1 = (int) Math.min(imgW - 1, Math.ceil(cx + r));
+            int y1 = (int) Math.min(imgH - 1, Math.ceil(cy + r));
+            int bw = x1 - x0;
+            int bh = y1 - y0;
+            if (bw < 4 || bh < 4) continue;
+
+            // ── Gate 2: FILL RATIO ────────────────────────────────────────
+            // Count colored pixels in the bounding box, compare to circle area.
+            Mat patch = validMask.submat(new Rect(x0, y0, bw, bh));
+            double coloredPx  = Core.countNonZero(patch);
+            patch.release();
+
+            double circleArea = Math.PI * r * r;
+            double fillRatio  = coloredPx / circleArea;
+            if (fillRatio < MIN_FILL_RATIO) continue;
+
+            // ── Gate 3: CIRCULARITY via largest contour in the patch ──────
+            // Extract contours from the clean mask within this circle's ROI
+            Mat patchMask = validMask.submat(new Rect(x0, y0, bw, bh));
+            List<MatOfPoint> contours = new ArrayList<>();
+            Mat hierarchy = new Mat();
+            Imgproc.findContours(patchMask.clone(), contours, hierarchy,
+                    Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+            hierarchy.release();
+            patchMask.release();
+
+            // Find the largest contour by area
+            double bestArea  = -1;
+            double bestPerim = -1;
+            for (MatOfPoint cnt : contours) {
+                double area = Imgproc.contourArea(cnt);
+                if (area > bestArea) {
+                    bestArea  = area;
+                    MatOfPoint2f cnt2f = new MatOfPoint2f(cnt.toArray());
+                    bestPerim = Imgproc.arcLength(cnt2f, true);
+                    cnt2f.release();
+                }
+                cnt.release();
+            }
+
+            if (bestArea < 4 || bestPerim < 4) continue;
+
+            // circularity = 4π·area / perimeter²  →  1.0 = perfect circle
+            double circularity = (4.0 * Math.PI * bestArea) / (bestPerim * bestPerim);
+            if (circularity < MIN_CIRCULARITY) continue;
+
+            // ── Gate 4: RADIUS AGREEMENT ──────────────────────────────────
+            // Radius implied by the contour area vs. the Hough radius.
+            // If they disagree by more than ±35%, Hough found a spurious arc.
+            double contourR = Math.sqrt(bestArea / Math.PI);
+            double rRatio   = contourR / r;
+            if (rRatio < MIN_RADIUS_RATIO || rRatio > MAX_RADIUS_RATIO) continue;
+
+            // ── ALL GATES PASSED — use contour-derived radius for tight fit ─
+            // The Hough radius tends to be slightly large; using the contour
+            // area radius gives a tighter, more accurate circle overlay.
+            float finalR = (float)(contourR + 1.5); // +1.5px padding for visual snugness
+
+            results.add(new float[]{
+                    (float)(cx  * INV_SCALE),
+                    (float)(cy  * INV_SCALE),
+                    (float)(finalR * INV_SCALE)
+            });
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    //  PUBLIC API
+    // ═══════════════════════════════════════════════════════════════════════
+
+    public List<float[]> getPurpleCircles() {
+        synchronized (purpleCircles) { return new ArrayList<>(purpleCircles); }
+    }
+
+    public List<float[]> getGreenCircles() {
+        synchronized (greenCircles) { return new ArrayList<>(greenCircles); }
+    }
+
+    public List<Point> getPurpleCenters() { return toCenterList(getPurpleCircles()); }
+    public List<Point> getGreenCenters()  { return toCenterList(getGreenCircles());  }
+
+    private static List<Point> toCenterList(List<float[]> list) {
+        List<Point> pts = new ArrayList<>(list.size());
+        for (float[] c : list) pts.add(new Point(c[0], c[1]));
+        return pts;
+    }
+
+    /**
+     * Returns zone 1–6 for a full-res point, or 0 if none.
+     * 1–2 = Left, 3–4 = Center, 5–6 = Right.
+     */
     public int getROIIndexForPoint(Point p) {
-        if (Imgproc.pointPolygonTest(roi5Boundary2f, p, false) >= 0) return 5;
-        if (Imgproc.pointPolygonTest(roi4Boundary2f, p, false) >= 0) return 4;
-        if (Imgproc.pointPolygonTest(roi3Boundary2f, p, false) >= 0) return 3;
-        //if (Imgproc.pointPolygonTest(roi2Boundary2f, p, false) >= 0) return 2;
-        //if (Imgproc.pointPolygonTest(roi1Boundary2f, p, false) >= 0) return 1;
+        Point ps = new Point(p.x * SCALE, p.y * SCALE);
+        if (Imgproc.pointPolygonTest(roi6s, ps, false) >= 0) return 6;
+        if (Imgproc.pointPolygonTest(roi5s, ps, false) >= 0) return 5;
+        if (Imgproc.pointPolygonTest(roi4s, ps, false) >= 0) return 4;
+        if (Imgproc.pointPolygonTest(roi3s, ps, false) >= 0) return 3;
+        if (Imgproc.pointPolygonTest(roi2s, ps, false) >= 0) return 2;
+        if (Imgproc.pointPolygonTest(roi1s, ps, false) >= 0) return 1;
         return 0;
     }
-    public List<Point> getPurpleCenters() {
-        synchronized (purpleCenters) { return new ArrayList<>(purpleCenters); }
-    }
 
-    public List<Point> getGreenCenters() {
-        synchronized (greenCenters) { return new ArrayList<>(greenCenters); }
-    }
-    private boolean isColorInBounds(double[] hsv, Scalar low, Scalar high) {
-        return hsv[0] >= low.val[0] && hsv[0] <= high.val[0] &&
-                hsv[1] >= low.val[1] && hsv[1] <= high.val[1] &&
-                hsv[2] >= low.val[2] && hsv[2] <= high.val[2];
-    }
+    // ═══════════════════════════════════════════════════════════════════════
+    //  DRAWING
+    // ═══════════════════════════════════════════════════════════════════════
 
     @Override
-    public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity, Object userContext) {
-        Paint leftPaint = new Paint();
-        leftPaint.setColor(Color.argb(128, 255, 0, 0));
-        leftPaint.setStyle(Paint.Style.FILL);
+    public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight,
+                            float scaleBmpPxToCanvasPx, float scaleCanvasDensity,
+                            Object userContext) {
 
-        Paint middleLeftPaint = new Paint();
-        middleLeftPaint.setColor(Color.argb(128, 0, 0, 255));
-        middleLeftPaint.setStyle(Paint.Style.FILL);
+        drawROI(canvas, roi1MOP, zonePaint1, scaleBmpPxToCanvasPx);
+        drawROI(canvas, roi2MOP, zonePaint2, scaleBmpPxToCanvasPx);
+        drawROI(canvas, roi3MOP, zonePaint3, scaleBmpPxToCanvasPx);
+        drawROI(canvas, roi4MOP, zonePaint4, scaleBmpPxToCanvasPx);
+        drawROI(canvas, roi5MOP, zonePaint5, scaleBmpPxToCanvasPx);
+        drawROI(canvas, roi6MOP, zonePaint6, scaleBmpPxToCanvasPx);
 
-        Paint centerPaint = new Paint();
-        centerPaint.setColor(Color.argb(128, 60, 60, 60));
-        centerPaint.setStyle(Paint.Style.FILL);
+        float sw   = 3 * scaleCanvasDensity;
+        float dotR = 5 * scaleCanvasDensity;
+        purpleStroke.setStrokeWidth(sw);
+        greenStroke.setStrokeWidth(sw);
 
-        Paint middleRightPaint = new Paint();
-        middleRightPaint.setColor(Color.argb(128, 0, 60, 255));
-        middleRightPaint.setStyle(Paint.Style.FILL);
-
-        Paint rightPaint = new Paint();
-        rightPaint.setColor(Color.argb(128, 60, 0, 60));
-        rightPaint.setStyle(Paint.Style.FILL);
-
-        Paint purpleMarker = new Paint();
-        purpleMarker.setColor(Color.MAGENTA);
-
-        Paint greenMarker = new Paint();
-        greenMarker.setColor(Color.GREEN);
-
-        drawROI(canvas, roi5MOP, leftPaint, scaleBmpPxToCanvasPx);
-        drawROI(canvas, roi4MOP, centerPaint, scaleBmpPxToCanvasPx);
-        drawROI(canvas, roi3MOP, rightPaint, scaleBmpPxToCanvasPx);
-       /*drawROI(canvas, roi3MOP, centerPaint, scaleBmpPxToCanvasPx);
-       drawROI(canvas, roi2MOP, middleLeftPaint, scaleBmpPxToCanvasPx);
-       drawROI(canvas, roi1MOP, leftPaint, scaleBmpPxToCanvasPx);*/
-
-        float radius = 10 * scaleCanvasDensity;
-        for (Point p : getPurpleCenters()) {
-            canvas.drawCircle((float)p.x * scaleBmpPxToCanvasPx, (float)p.y * scaleBmpPxToCanvasPx, radius, purpleMarker);
+        for (float[] c : getPurpleCircles()) {
+            float cx = c[0] * scaleBmpPxToCanvasPx;
+            float cy = c[1] * scaleBmpPxToCanvasPx;
+            float r  = c[2] * scaleBmpPxToCanvasPx;
+            canvas.drawCircle(cx, cy, r,    purpleFill);
+            canvas.drawCircle(cx, cy, r,    purpleStroke);
+            canvas.drawCircle(cx, cy, dotR, dotPaint);
         }
-        for (Point p : getGreenCenters()) {
-            canvas.drawCircle((float)p.x * scaleBmpPxToCanvasPx, (float)p.y * scaleBmpPxToCanvasPx, radius, greenMarker);
+
+        for (float[] c : getGreenCircles()) {
+            float cx = c[0] * scaleBmpPxToCanvasPx;
+            float cy = c[1] * scaleBmpPxToCanvasPx;
+            float r  = c[2] * scaleBmpPxToCanvasPx;
+            canvas.drawCircle(cx, cy, r,    greenFill);
+            canvas.drawCircle(cx, cy, r,    greenStroke);
+            canvas.drawCircle(cx, cy, dotR, dotPaint);
         }
     }
 
-    private void drawROI(Canvas canvas, MatOfPoint roi, Paint fill, float scale) {
+    // ── Helpers ───────────────────────────────────────────────────────────
+
+    private static Paint makePaint(int color, Paint.Style style) {
+        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        p.setColor(color);
+        p.setStyle(style);
+        return p;
+    }
+
+    private static Paint makeZonePaint(int c) { return makePaint(c, Paint.Style.FILL); }
+
+    private static void drawROI(Canvas canvas, MatOfPoint roi, Paint fill, float scale) {
         Point[] pts = roi.toArray();
         if (pts.length == 0) return;
-        Path drawPath = new Path();
-        drawPath.moveTo((float) pts[0].x * scale, (float) pts[0].y * scale);
-        for (int i = 1; i < pts.length; i++) drawPath.lineTo((float) pts[i].x * scale, (float) pts[i].y * scale);
-        drawPath.close();
-        canvas.drawPath(drawPath, fill);
+        Path path = new Path();
+        path.moveTo((float)(pts[0].x * scale), (float)(pts[0].y * scale));
+        for (int i = 1; i < pts.length; i++)
+            path.lineTo((float)(pts[i].x * scale), (float)(pts[i].y * scale));
+        path.close();
+        canvas.drawPath(path, fill);
     }
 }

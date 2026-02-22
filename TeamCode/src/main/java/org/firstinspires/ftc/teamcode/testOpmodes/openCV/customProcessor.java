@@ -44,6 +44,9 @@ public class customProcessor extends LinearOpMode {
             List<Point> purpleBalls = roiProcessor.getPurpleCenters();
             List<Point> greenBalls = roiProcessor.getGreenCenters();
 
+            List<Point> roi6Purple = new ArrayList<>();
+            List<Point> roi6Green = new ArrayList<>();
+
             List<Point> roi5Purple = new ArrayList<>();
             List<Point> roi5Green = new ArrayList<>();
 
@@ -53,32 +56,38 @@ public class customProcessor extends LinearOpMode {
             List<Point> roi3Purple = new ArrayList<>();
             List<Point> roi3Green = new ArrayList<>();
 
-            /*List<Point> roi2Purple = new ArrayList<>();
+            List<Point> roi2Purple = new ArrayList<>();
             List<Point> roi2Green = new ArrayList<>();
 
             List<Point> roi1Purple = new ArrayList<>();
-            List<Point> roi1Green = new ArrayList<>();*/
+            List<Point> roi1Green = new ArrayList<>();
 
             for (Point p : purpleBalls) {
                 int roi = roiProcessor.getROIIndexForPoint(p);
-                if (roi == 5) roi5Purple.add(p);
+                if (roi == 6) roi6Purple.add(p);
+                else if (roi == 5) roi5Purple.add(p);
                 else if (roi == 4) roi4Purple.add(p);
                 else if (roi == 3) roi3Purple.add(p);
-                //else if (roi == 2) roi2Purple.add(p);
-                //else if (roi == 1) roi1Purple.add(p);
+                else if (roi == 2) roi2Purple.add(p);
+                else if (roi == 1) roi1Purple.add(p);
             }
 
             for (Point p : greenBalls) {
                 int roi = roiProcessor.getROIIndexForPoint(p);
-                if (roi == 5) roi5Green.add(p);
+                if (roi == 6) roi6Green.add(p);
+                else if (roi == 5) roi5Green.add(p);
                 else if (roi == 4) roi4Green.add(p);
                 else if (roi == 3) roi3Green.add(p);
-                //else if (roi == 2) roi2Green.add(p);
-                //else if (roi == 1) roi1Green.add(p);
+                else if (roi == 2) roi2Green.add(p);
+                else if (roi == 1) roi1Green.add(p);
 
             }
 
-            telemetry.addLine("ROI 5:");
+            telemetry.addLine("ROI 6:");
+            for (Point p : roi6Purple) telemetry.addLine(String.format("P: (%.1f, %.1f)", p.x, p.y));
+            for (Point p : roi6Green) telemetry.addLine(String.format("G: (%.1f, %.1f)", p.x, p.y));
+
+            telemetry.addLine("\nROI 5:");
             for (Point p : roi5Purple) telemetry.addLine(String.format("P: (%.1f, %.1f)", p.x, p.y));
             for (Point p : roi5Green) telemetry.addLine(String.format("G: (%.1f, %.1f)", p.x, p.y));
 
@@ -90,30 +99,33 @@ public class customProcessor extends LinearOpMode {
             for (Point p : roi3Purple) telemetry.addLine(String.format("P: (%.1f, %.1f)", p.x, p.y));
             for (Point p : roi3Green) telemetry.addLine(String.format("G: (%.1f, %.1f)", p.x, p.y));
 
-            /*telemetry.addLine("\nROI 2:");
+            telemetry.addLine("\nROI 2:");
             for (Point p : roi2Purple) telemetry.addLine(String.format("P: (%.1f, %.1f)", p.x, p.y));
             for (Point p : roi2Green) telemetry.addLine(String.format("G: (%.1f, %.1f)", p.x, p.y));
 
             telemetry.addLine("\nROI 1:");
             for (Point p : roi1Purple) telemetry.addLine(String.format("P: (%.1f, %.1f)", p.x, p.y));
-            for (Point p : roi1Green) telemetry.addLine(String.format("G: (%.1f, %.1f)", p.x, p.y));*/
+            for (Point p : roi1Green) telemetry.addLine(String.format("G: (%.1f, %.1f)", p.x, p.y));
 
+
+            int count6 = roi6Purple.size() + roi6Green.size();
             int count5 = roi5Purple.size() + roi5Green.size();
             int count4 = roi4Purple.size() + roi4Green.size();
             int count3 = roi3Purple.size() + roi3Green.size();
-            //int count2 = roi2Purple.size() + roi2Green.size();
-            //int count1 = roi1Purple.size() + roi1Green.size();
+            int count2 = roi2Purple.size() + roi2Green.size();
+            int count1 = roi1Purple.size() + roi1Green.size();
 
             String mostPopulated = "None";
-            int max = Math.max(count5, Math.max(count4, count3));
-            //int max = Math.max(count5, Math.max(count4, Math.max(count3, Math.max(count2, count1))));
+            int max = Math.max(count5, Math.max(count4, Math.max(count3, Math.max(count2, count1))));
+
 
             if (max > 0) {
-                if (max == count5) mostPopulated = "ROI 5";
+                if (max == count6) mostPopulated = "ROI 6";
+                else if (max == count5) mostPopulated = "ROI 5";
                 else if (max == count4) mostPopulated = "ROI 4";
                 else if (max == count3) mostPopulated = "ROI 3";
-                    //else if (max == count2) mostPopulated = "ROI 2";
-                    //else if (max == count1) mostPopulated = "ROI 1";
+                else if (max == count2) mostPopulated = "ROI 2";
+                else if (max == count1) mostPopulated = "ROI 1";
                 else mostPopulated = "None";
             }
 
