@@ -320,8 +320,6 @@ public class ROIProcessorHough implements VisionProcessor {
         }
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────
-
     private static Paint makePaint(int color, Paint.Style style) {
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         p.setColor(color);
