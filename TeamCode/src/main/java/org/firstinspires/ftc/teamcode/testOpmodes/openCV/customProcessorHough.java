@@ -15,7 +15,7 @@ import java.util.List;
 @TeleOp(name = "Hough", group = "Test")
 public class customProcessorHough extends LinearOpMode {
 
-    private VisionPortal      visionPortal;
+    private VisionPortal visionPortal;
     private ROIProcessorHough processor;
 
     @Override
@@ -31,7 +31,6 @@ public class customProcessorHough extends LinearOpMode {
                 .enableLiveView(true)
                 .build();
 
-        // Wait for camera to actually be streaming before init'ing
         while (!isStarted() && !isStopRequested()) {
             if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
                 telemetry.addLine("Camera READY — waiting for start");
@@ -44,78 +43,96 @@ public class customProcessorHough extends LinearOpMode {
 
         waitForStart();
 
-        // Per-zone sorted lists (reused each loop)
-        List<Point> z1Purple = new ArrayList<>();
-        List<Point> z1Green  = new ArrayList<>();
-        List<Point> z2Purple = new ArrayList<>();
-        List<Point> z2Green  = new ArrayList<>();
-        List<Point> z3Purple = new ArrayList<>();
-        List<Point> z3Green  = new ArrayList<>();
+        List<Point> z1Purple = new ArrayList<>(); List<Point> z1Green = new ArrayList<>();
+        List<Point> z2Purple = new ArrayList<>(); List<Point> z2Green = new ArrayList<>();
+        List<Point> z3Purple = new ArrayList<>(); List<Point> z3Green = new ArrayList<>();
+        List<Point> z4Purple = new ArrayList<>(); List<Point> z4Green = new ArrayList<>();
+        List<Point> z5Purple = new ArrayList<>(); List<Point> z5Green = new ArrayList<>();
+        List<Point> z6Purple = new ArrayList<>(); List<Point> z6Green = new ArrayList<>();
 
         while (opModeIsActive()) {
 
-            // Grab snapshots once per loop (avoids repeated synchronized calls)
             List<float[]> purpleCircles = processor.getPurpleCircles();
             List<float[]> greenCircles  = processor.getGreenCircles();
 
-            // Clear zone buckets
             z1Purple.clear(); z1Green.clear();
             z2Purple.clear(); z2Green.clear();
             z3Purple.clear(); z3Green.clear();
+            z4Purple.clear(); z4Green.clear();
+            z5Purple.clear(); z5Green.clear();
+            z6Purple.clear(); z6Green.clear();
 
-            // Sort purple detections into zones
             for (float[] c : purpleCircles) {
                 Point p   = new Point(c[0], c[1]);
                 int   roi = processor.getROIIndexForPoint(p);
-                // ROI zones 1–6 map left→right across the frame.
-                // Zones 1–2 = Left, 3–4 = Center, 5–6 = Right
-                if      (roi == 1 || roi == 2) z1Purple.add(p);
-                else if (roi == 3 || roi == 4) z2Purple.add(p);
-                else if (roi == 5 || roi == 6) z3Purple.add(p);
+                switch (roi) {
+                    case 1: z1Purple.add(p); break;
+                    case 2: z2Purple.add(p); break;
+                    case 3: z3Purple.add(p); break;
+                    case 4: z4Purple.add(p); break;
+                    case 5: z5Purple.add(p); break;
+                    case 6: z6Purple.add(p); break;
+                }
             }
 
-            // Sort green detections into zones
             for (float[] c : greenCircles) {
                 Point p   = new Point(c[0], c[1]);
                 int   roi = processor.getROIIndexForPoint(p);
-                if      (roi == 1 || roi == 2) z1Green.add(p);
-                else if (roi == 3 || roi == 4) z2Green.add(p);
-                else if (roi == 5 || roi == 6) z3Green.add(p);
+                switch (roi) {
+                    case 1: z1Green.add(p); break;
+                    case 2: z2Green.add(p); break;
+                    case 3: z3Green.add(p); break;
+                    case 4: z4Green.add(p); break;
+                    case 5: z5Green.add(p); break;
+                    case 6: z6Green.add(p); break;
+                }
             }
-
-            // ── Telemetry ────────────────────────────────────────────────
-            telemetry.addLine("=== ZONE 1  (Left) ===");
+            telemetry.addLine("=== ROI 1 ===");
             reportZone(z1Purple, z1Green);
 
-            telemetry.addLine("=== ZONE 2  (Center) ===");
+            telemetry.addLine("=== ROI 2 ===");
             reportZone(z2Purple, z2Green);
 
-            telemetry.addLine("=== ZONE 3  (Right) ===");
+            telemetry.addLine("=== ROI 3 ===");
             reportZone(z3Purple, z3Green);
 
-            // Determine most populated zone by total circle count
-            int z1Count = z1Purple.size() + z1Green.size();
-            int z2Count = z2Purple.size() + z2Green.size();
-            int z3Count = z3Purple.size() + z3Green.size();
-            int maxCount = Math.max(z1Count, Math.max(z2Count, z3Count));
+            telemetry.addLine("=== ROI 4 ===");
+            reportZone(z4Purple, z4Green);
 
-            String mostPopulated = "None detected";
-            if (maxCount > 0) {
-                if      (z1Count == maxCount) mostPopulated = "Zone 1 — Left";
-                else if (z2Count == maxCount) mostPopulated = "Zone 2 — Center";
-                else                          mostPopulated = "Zone 3 — Right";
+            telemetry.addLine("=== ROI 5 ===");
+            reportZone(z5Purple, z5Green);
+
+            telemetry.addLine("=== ROI 6 ===");
+            reportZone(z6Purple, z6Green);
+
+
+            int[] counts = {
+                    z1Purple.size() + z1Green.size(),
+                    z2Purple.size() + z2Green.size(),
+                    z3Purple.size() + z3Green.size(),
+                    z4Purple.size() + z4Green.size(),
+                    z5Purple.size() + z5Green.size(),
+                    z6Purple.size() + z6Green.size(),
+            };
+
+            int maxCount  = 0;
+            int maxZone   = 0;
+            for (int i = 0; i < counts.length; i++) {
+                if (counts[i] > maxCount) {
+                    maxCount = counts[i];
+                    maxZone  = i + 1;
+                }
             }
 
-            telemetry.addLine("────────────────────────");
-            telemetry.addData("Most Populated Zone",  mostPopulated);
+            telemetry.addLine("===========================");
+            telemetry.addData("Most Populated ROI", maxCount > 0 ? "ROI " + maxZone : "None");
             telemetry.addData("Purple circles total", purpleCircles.size());
             telemetry.addData("Green  circles total", greenCircles.size());
-            telemetry.addData("Camera state",         visionPortal.getCameraState());
+            telemetry.addData("Camera state", visionPortal.getCameraState());
             telemetry.update();
 
             sleep(30);
         }
-
         visionPortal.close();
     }
 
