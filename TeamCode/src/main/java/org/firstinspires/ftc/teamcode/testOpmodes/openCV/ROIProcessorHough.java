@@ -26,34 +26,29 @@ import java.util.List;
 @Disabled
 public class ROIProcessorHough implements VisionProcessor {
 
-    private static final double SCALE     = 0.5;
+    private static final double SCALE = 0.5; // was 0.5
     private static final double INV_SCALE = 1.0 / SCALE;
 
     private static final Scalar PURPLE_LOW  = new Scalar(115, 61, 67);
     private static final Scalar PURPLE_HIGH = new Scalar(163, 255, 255);
+    private static final Scalar GREEN_LOW   = new Scalar(35, 180, 90);
+    private static final Scalar GREEN_HIGH  = new Scalar(90, 255, 255);
 
-    private static final Scalar GREEN_LOW   = new Scalar(44, 180, 90);
-    private static final Scalar GREEN_HIGH  = new Scalar(86, 255, 255);
+    private static final double H_DP = 1; // was 1.2
+    private static final double H_MIN_DIST = 30;
+    private static final double H_PARAM1 = 150; // was 60
+    private static final double H_PARAM2 = 14;
+    private static final int H_MIN_R =  5;
+    private static final int H_MAX_R = 300;
 
-
-    private static final double H_DP       = 1.2;
-    private static final double H_MIN_DIST = 16;
-    private static final double H_PARAM1   = 60;
-    private static final double H_PARAM2   = 14;
-    private static final int    H_MIN_R    =  5;
-    private static final int    H_MAX_R    = 52;
-
-    private static final double MIN_FILL_RATIO      = 0.42;
-    private static final double MIN_CIRCULARITY     = 0.72;
-    private static final double MAX_RADIUS_RATIO    = 1.35;
-    private static final double MIN_RADIUS_RATIO    = 0.65;
-
-
-
+    private static final double MIN_FILL_RATIO = 0.47; //was 0.42
+    private static final double MIN_CIRCULARITY = 0.72; // was 0.72
+    private static final double MAX_RADIUS_RATIO = 1.35;
+    private static final double MIN_RADIUS_RATIO = 0.65;
 
     private static final Size CLOSE_SIZE  = new Size(5, 5);
-    private static final Size DILATE_SIZE = new Size(3, 3);
-    private static final Size ERODE_SIZE  = new Size(3, 3);
+    private static final Size DILATE_SIZE = new Size(2, 2); // was 3, 3
+    private static final Size ERODE_SIZE  = new Size(3, 3); // was 3, 3
     private static final Size BLUR_SIZE   = new Size(5, 5);
 
 
@@ -135,16 +130,16 @@ public class ROIProcessorHough implements VisionProcessor {
 
         zonePaint1 = makeZonePaint(Color.argb(50,  79,  28,   0));
         zonePaint2 = makeZonePaint(Color.argb(50,  60,   0,  60));
-        zonePaint3 = makeZonePaint(Color.argb(50,   0,  60, 255));
+        zonePaint3 = makeZonePaint(Color.argb(50,   137,  60, 255));
         zonePaint4 = makeZonePaint(Color.argb(50,  60,  60,  60));
-        zonePaint5 = makeZonePaint(Color.argb(50,   0,   0, 255));
-        zonePaint6 = makeZonePaint(Color.argb(50, 255,   0,   0));
+        zonePaint5 = makeZonePaint(Color.argb(75,   0,   56, 255));
+        zonePaint6 = makeZonePaint(Color.argb(75, 255,   0,   0));
 
         purpleFill   = makePaint(Color.argb(50, 200,   0, 200), Paint.Style.FILL);
-        purpleStroke = makePaint(Color.MAGENTA,                  Paint.Style.STROKE);
-        greenFill    = makePaint(Color.argb(50,   0, 200,   0), Paint.Style.FILL);
-        greenStroke  = makePaint(Color.GREEN,                    Paint.Style.STROKE);
-        dotPaint     = makePaint(Color.WHITE,                    Paint.Style.FILL);
+        purpleStroke = makePaint(Color.MAGENTA, Paint.Style.STROKE);
+        greenFill    = makePaint(Color.argb(50,   0, 200, 0), Paint.Style.FILL);
+        greenStroke  = makePaint(Color.GREEN, Paint.Style.STROKE);
+        dotPaint     = makePaint(Color.WHITE, Paint.Style.FILL);
     }
 
     private static void buildScaled2f(Point[] pts, MatOfPoint2f out) {
@@ -205,7 +200,6 @@ public class ROIProcessorHough implements VisionProcessor {
             float cy = (float) c[1];
             float r  = (float) c[2];
 
-            // ── Gate 1: bounds check ──────────────────────────────────────
             int x0 = (int) Math.max(0, Math.floor(cx - r));
             int y0 = (int) Math.max(0, Math.floor(cy - r));
             int x1 = (int) Math.min(imgW - 1, Math.ceil(cx + r));
@@ -214,8 +208,6 @@ public class ROIProcessorHough implements VisionProcessor {
             int bh = y1 - y0;
             if (bw < 4 || bh < 4) continue;
 
-            // ── Gate 2: FILL RATIO ────────────────────────────────────────
-            // Count colored pixels in the bounding box, compare to circle area.
             Mat patch = validMask.submat(new Rect(x0, y0, bw, bh));
             double coloredPx  = Core.countNonZero(patch);
             patch.release();
@@ -224,8 +216,6 @@ public class ROIProcessorHough implements VisionProcessor {
             double fillRatio  = coloredPx / circleArea;
             if (fillRatio < MIN_FILL_RATIO) continue;
 
-            // ── Gate 3: CIRCULARITY via largest contour in the patch ──────
-            // Extract contours from the clean mask within this circle's ROI
             Mat patchMask = validMask.submat(new Rect(x0, y0, bw, bh));
             List<MatOfPoint> contours = new ArrayList<>();
             Mat hierarchy = new Mat();
@@ -234,7 +224,6 @@ public class ROIProcessorHough implements VisionProcessor {
             hierarchy.release();
             patchMask.release();
 
-            // Find the largest contour by area
             double bestArea  = -1;
             double bestPerim = -1;
             for (MatOfPoint cnt : contours) {
@@ -250,21 +239,14 @@ public class ROIProcessorHough implements VisionProcessor {
 
             if (bestArea < 4 || bestPerim < 4) continue;
 
-            // circularity = 4π·area / perimeter²  →  1.0 = perfect circle
             double circularity = (4.0 * Math.PI * bestArea) / (bestPerim * bestPerim);
             if (circularity < MIN_CIRCULARITY) continue;
 
-            // ── Gate 4: RADIUS AGREEMENT ──────────────────────────────────
-            // Radius implied by the contour area vs. the Hough radius.
-            // If they disagree by more than ±35%, Hough found a spurious arc.
             double contourR = Math.sqrt(bestArea / Math.PI);
             double rRatio   = contourR / r;
             if (rRatio < MIN_RADIUS_RATIO || rRatio > MAX_RADIUS_RATIO) continue;
 
-            // ── ALL GATES PASSED — use contour-derived radius for tight fit ─
-            // The Hough radius tends to be slightly large; using the contour
-            // area radius gives a tighter, more accurate circle overlay.
-            float finalR = (float)(contourR + 1.5); // +1.5px padding for visual snugness
+            float finalR = (float)(contourR + 1.5);
 
             results.add(new float[]{
                     (float)(cx  * INV_SCALE),
@@ -273,10 +255,6 @@ public class ROIProcessorHough implements VisionProcessor {
             });
         }
     }
-
-    // ═══════════════════════════════════════════════════════════════════════
-    //  PUBLIC API
-    // ═══════════════════════════════════════════════════════════════════════
 
     public List<float[]> getPurpleCircles() {
         synchronized (purpleCircles) { return new ArrayList<>(purpleCircles); }
@@ -295,10 +273,6 @@ public class ROIProcessorHough implements VisionProcessor {
         return pts;
     }
 
-    /**
-     * Returns zone 1–6 for a full-res point, or 0 if none.
-     * 1–2 = Left, 3–4 = Center, 5–6 = Right.
-     */
     public int getROIIndexForPoint(Point p) {
         Point ps = new Point(p.x * SCALE, p.y * SCALE);
         if (Imgproc.pointPolygonTest(roi6s, ps, false) >= 0) return 6;
@@ -309,10 +283,6 @@ public class ROIProcessorHough implements VisionProcessor {
         if (Imgproc.pointPolygonTest(roi1s, ps, false) >= 0) return 1;
         return 0;
     }
-
-    // ═══════════════════════════════════════════════════════════════════════
-    //  DRAWING
-    // ═══════════════════════════════════════════════════════════════════════
 
     @Override
     public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight,
