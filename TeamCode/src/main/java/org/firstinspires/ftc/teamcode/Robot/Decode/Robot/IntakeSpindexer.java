@@ -42,7 +42,7 @@ public class IntakeSpindexer {
     public static double GREEN_THRESHOLD     = 200;  // raw green value
     public static double spindexerBlockClosed = 0.2525; // hood closed (3 balls)
     public static double spindexerBlockOpen   = 0.105; // hood open  (<3 balls)
-    public static double INTAKE_STALL_AMPS   = 9.0;
+    public static double INTAKE_STALL_AMPS   = 20.0;
     public static double INTAKE_REVERSE_SECS = 0.2;
 
     // ---- REHOMING ----

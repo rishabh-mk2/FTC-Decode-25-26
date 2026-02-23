@@ -84,7 +84,6 @@ public class ROIProcessorHough implements VisionProcessor {
 
     @Override
     public void init(int width, int height, CameraCalibration calibration) {
-
         Point[] zone1 = {
                 new Point(183,  67), new Point(183,   0),
                 new Point(217,   0), new Point(217,  67),
@@ -99,7 +98,8 @@ public class ROIProcessorHough implements VisionProcessor {
         Point[] zone3 = {
                 new Point(267,  67), new Point(267,   0),
                 new Point(300,   0), new Point(300,  67),
-                new Point(283, 480), new Point( 33, 480),
+                new Point(283, 347), new Point(260, 347),
+                new Point( 120, 480), new Point(33, 480)
         };
         Point[] zone4 = {
                 new Point(300,  67), new Point(300,   0),
@@ -128,11 +128,11 @@ public class ROIProcessorHough implements VisionProcessor {
         erodeKernel  = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, ERODE_SIZE);
         dilateKernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, DILATE_SIZE);
 
-        zonePaint1 = makeZonePaint(Color.argb(50,  79,  28,   0));
-        zonePaint2 = makeZonePaint(Color.argb(50,  60,   0,  60));
-        zonePaint3 = makeZonePaint(Color.argb(50,   137,  60, 255));
-        zonePaint4 = makeZonePaint(Color.argb(50,  60,  60,  60));
-        zonePaint5 = makeZonePaint(Color.argb(75,   0,   56, 255));
+        zonePaint1 = makeZonePaint(Color.argb(75,  0,  255,   0));
+        zonePaint2 = makeZonePaint(Color.argb(75,  255,   0,  0));
+        zonePaint3 = makeZonePaint(Color.argb(75,   0,  0, 255));
+        zonePaint4 = makeZonePaint(Color.argb(75,  51,  255,  255));
+        zonePaint5 = makeZonePaint(Color.argb(75,   255,   0, 255));
         zonePaint6 = makeZonePaint(Color.argb(75, 255,   0,   0));
 
         purpleFill   = makePaint(Color.argb(50, 200,   0, 200), Paint.Style.FILL);

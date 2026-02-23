@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.opencv.core.Point;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -35,6 +36,7 @@ public class ZoneDetector {
     public OpMode     opmode;
     public Telemetry telemetry;
     public HardwareMap hardwareMap;
+    ExposureControl exposureControl;
 
     public ZoneDetector(OpMode opMode){
         this.opmode = opMode;

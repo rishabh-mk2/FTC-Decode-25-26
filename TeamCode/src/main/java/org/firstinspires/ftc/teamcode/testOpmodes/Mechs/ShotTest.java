@@ -50,7 +50,7 @@ public class ShotTest extends OpMode {
     @Override
     public void loop() {
         follower.update();
-        turretShooter.updateValues(follower.getPose(), follower.getVelocity());
+//        turretShooter.updateValues(follower.getPose(), follower.getVelocity());
         turretShooter.updateTurret();
 
         follower.setTeleOpDrive(

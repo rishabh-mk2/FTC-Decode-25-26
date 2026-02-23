@@ -38,6 +38,10 @@ public class Teleop extends OpMode {
     // Change to Alliance.BLUE if needed
     Alliance alliance = Alliance.RED;
 
+    public static double turretVel = 0.0;
+    public static double hoodPos = 1.0;
+    public static double recoil = 0.0;
+
     @Override
     public void init() {
         follower        = Constants.createFollower(hardwareMap);
@@ -75,23 +79,20 @@ public class Teleop extends OpMode {
                 true
         );
 
-        // --- SHOOTER VELOCITY PID (runs every loop) ---
-        turretShooter.updateValues(follower.getPose(), follower.getVelocity());
-        turretShooter.updateTurret();
+
 
         // --- INTAKE / SPINDEXER ---x
         boolean shoot = gamepad1.xWasReleased();
         boolean ready = gamepad1.yWasReleased();
         intakeSpindexer.update(shoot, ready);
 
+        // --- SHOOTER VELOCITY PID (runs every loop) ---
+        turretShooter.updateValues(follower.getPose(), follower.getVelocity(), turretVel, hoodPos, recoil, shoot);
+        turretShooter.updateTurret();
+
         dashboard.getTelemetry().addData("target", targetVelocity);
         dashboard.getTelemetry().addData("velocity", turretShooter.getMotor(TurretShooter.MotorNames.leftShooter).getVelocity());
         dashboard.getTelemetry().update();
-
-//        intakeSpindexer.getServo(IntakeSpindexer.ServoNames.spindexerBlock).setPosition(spindexBlockPos);
-
-//        turretShooter.getServo(TurretShooter.ServoNames.turret1).setPosition(turretPosition);
-//        turretShooter.getServo(TurretShooter.ServoNames.turret2).setPosition(turretPosition);
 
         // --- TELEMETRY ---
         telemetry.addData("Runtime", runtime.seconds());
