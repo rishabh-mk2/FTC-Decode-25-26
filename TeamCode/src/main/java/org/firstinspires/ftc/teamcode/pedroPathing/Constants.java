@@ -19,10 +19,11 @@ public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(13.244897204)
             .forwardZeroPowerAcceleration(-75.03783553528916)
-            .lateralZeroPowerAcceleration(-73.64708221147441);
+            .lateralZeroPowerAcceleration(-73.64708221147441)
+            .translationalPIDFCoefficients(new PIDFCoefficients(0.08, 0.0, 0.023, 0.01))
+            .headingPIDFCoefficients(new PIDFCoefficients(0.8, 0.0, 0.02, 0.035));
     /*
      * TODO: for automatic tuners, follow the steps on Pedropathing tutorial
-     * TODO: .forwardZeroPowerAcceleration(acceleration), .lateralZeroPowerAcceleration(acceleration) in FollowerConstants
      * */
 
 
@@ -48,7 +49,7 @@ public class Constants {
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
             .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
 
-    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);
+    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 0.9, 1);
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)
