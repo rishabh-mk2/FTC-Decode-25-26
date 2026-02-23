@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 
-import com.bylazar.ftcontrol.panels.plugins.html.primitives.P;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
