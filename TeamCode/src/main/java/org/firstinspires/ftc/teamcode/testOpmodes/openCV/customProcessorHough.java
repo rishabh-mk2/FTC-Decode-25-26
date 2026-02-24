@@ -16,12 +16,12 @@ import java.util.List;
 public class customProcessorHough extends LinearOpMode {
 
     private VisionPortal visionPortal;
-    private ROIProcessorHough processor;
+    private ROIProcessorHoughRed processor;
 
     @Override
     public void runOpMode() {
 
-        processor = new ROIProcessorHough();
+        processor = new ROIProcessorHoughRed();
 
         visionPortal = new VisionPortal.Builder()
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))

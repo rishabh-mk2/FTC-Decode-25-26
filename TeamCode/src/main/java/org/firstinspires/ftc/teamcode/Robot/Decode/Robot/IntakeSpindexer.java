@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Robot.Decode.Robot;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
@@ -27,15 +28,20 @@ public class IntakeSpindexer {
     public OpMode opmode;
     public Telemetry telemetry;
     public HardwareMap hardwareMap;
+    private FtcDashboard  dashboard;
+    public boolean isTelemetryEnabled = true;
 
     RevColorSensorV3 frontSensor1, frontSensor2;
     RevColorSensorV3 backRightSensor1, backRightSensor2;
     RevColorSensorV3 backLeftSensor1, backLeftSensor2;
 
     PIDController spindexerPID;
+    PIDController intakeVelocityPID;
 
     // ---- TUNABLE CONSTANTS ----
     public static double p = 0.01, i = 0.0, d = 0.0005;
+    public static double iP = 0.2, iI = 0.0, iD = 0.000; // "i" stands for intake
+    public static double intakeTargetVelocity = 0.0; // ticks/sec
     public static double homeTolerance       = 15;
     public static double FRONT_THRESHOLD     = 45;   // mm
     public static double BACK_THRESHOLD      = 15;   // mm
@@ -134,8 +140,10 @@ public class IntakeSpindexer {
         // Spindexer home
         spindexerHomePosition   = getMotor(MotorNames.spindexer).getCurrentPosition();
         spindexerTargetPosition = spindexerHomePosition;
+        dashboard = FtcDashboard.getInstance();
 
         spindexerPID = new PIDController(p, i, d);
+        intakeVelocityPID = new PIDController(iP, iI, iD);
 
         telemetry.addData("IntakeSpindexer", "Initialized");
     }
@@ -308,11 +316,17 @@ public class IntakeSpindexer {
             if (confirmedBallCount >= 3) {
                 intakePower = 0;
             } else if (spindexerState == SpindexerState.INTAKING) {
-                intakePower = 1.0;
+                intakePower = 3000; // needs to be 2780
             }
         }
 
-        getMotor(MotorNames.intake).setPower(intakePower);
+        if (intakePower < 1){
+            getMotor(MotorNames.intake).setPower(intakePower);
+        } else {
+            setIntakeVelocity(intakePower);
+        }
+        // TODO: figure out how to set intake power for reversing (line 310)
+        // TODO: figure out the velocity for intaking mode (line 318)
     }
 
     /** Manual intake control (call instead of update() when desired). */
@@ -326,6 +340,32 @@ public class IntakeSpindexer {
 
     // endregion
 
+    public void setIntakeVelocity(double velocityTicksPerSec) {
+        intakeTargetVelocity = velocityTicksPerSec;
+        updateIntakeVelocityPID();
+    }
+    public void updateIntakeVelocityPID() {
+        intakeVelocityPID.setPID(iP, iI, iD);
+
+        double currentVelocity = getMotor(MotorNames.intake).getVelocity();
+
+        double pid = intakeVelocityPID.calculate(currentVelocity, intakeTargetVelocity);
+        //double ff = targetVelocity * f; //TODO: may need feedforawrd; ask rishabh
+        double power = Math.max(-1, Math.min(pid + 0.0, 1)); // TODO: may need to replace 0.0 with ff
+
+        getMotor(MotorNames.intake).setPower(power);
+
+        if (dashboard != null) {
+            dashboard.getTelemetry().addData("Intake Target",   intakeTargetVelocity);
+            dashboard.getTelemetry().addData("Intake Velocity", currentVelocity);
+            dashboard.getTelemetry().addData("Intake Power",    power);
+            dashboard.getTelemetry().update();
+        }
+
+        addTelemetry("Intake Target",   intakeTargetVelocity);
+        addTelemetry("Intake Velocity", currentVelocity);
+        addTelemetry("Intake Power",    power);
+    }
     // region ===== SORTING =====
 
     /**
@@ -441,6 +481,12 @@ public class IntakeSpindexer {
         telemetry.addData("BL1", String.format("%.1f", bl1Dist));
         telemetry.addData("BL2", String.format("%.1f", bl2Dist));
     }
+    public void addTelemetry(String caption, Object value) {
+        if (isTelemetryEnabled) {
+            telemetry.addData(caption, value);
+        }
+    }
+
 
     // endregion
 }

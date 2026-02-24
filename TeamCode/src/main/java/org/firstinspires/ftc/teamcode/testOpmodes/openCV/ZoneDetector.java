@@ -10,7 +10,6 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.opencv.core.Point;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 /**
  * Outputs an integer 1 - 5 based on most populated zone
@@ -32,7 +31,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
  * **/
 public class ZoneDetector {
     private final VisionPortal visionPortal;
-    private final ROIProcessorHough HCTroi;
+    private final ROIProcessorHoughRed HCTroi;
     public OpMode     opmode;
     public Telemetry telemetry;
     public HardwareMap hardwareMap;
@@ -43,7 +42,7 @@ public class ZoneDetector {
         this.telemetry = opMode.telemetry;
         this.hardwareMap = opMode.hardwareMap;
 
-        HCTroi = new ROIProcessorHough();
+        HCTroi = new ROIProcessorHoughRed();
         visionPortal = new VisionPortal.Builder()
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
                 .setCameraResolution(new Size(640, 480))

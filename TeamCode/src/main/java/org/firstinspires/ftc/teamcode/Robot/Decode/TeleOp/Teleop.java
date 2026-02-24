@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Robot.Decode.TeleOp;
 
 import static org.firstinspires.ftc.teamcode.Robot.Decode.Robot.TurretShooter.targetVelocity;
+import static org.firstinspires.ftc.teamcode.Robot.Decode.Robot.IntakeSpindexer.intakeTargetVelocity;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -90,8 +91,12 @@ public class Teleop extends OpMode {
         turretShooter.updateValues(follower.getPose(), follower.getVelocity(), turretVel, hoodPos, recoil, shoot);
         turretShooter.updateTurret();
 
-        dashboard.getTelemetry().addData("target", targetVelocity);
-        dashboard.getTelemetry().addData("velocity", turretShooter.getMotor(TurretShooter.MotorNames.leftShooter).getVelocity());
+        dashboard.getTelemetry().addData("turret target", targetVelocity);
+        dashboard.getTelemetry().addData("turret velocity", turretShooter.getMotor(TurretShooter.MotorNames.leftShooter).getVelocity());
+
+        dashboard.getTelemetry().addData("intake target", intakeTargetVelocity);
+        dashboard.getTelemetry().addData("intake velocity", intakeSpindexer.getMotor(IntakeSpindexer.MotorNames.intake).getVelocity());
+
         dashboard.getTelemetry().update();
 
         // --- TELEMETRY ---

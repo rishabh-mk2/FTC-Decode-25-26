@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Disabled
-public class ROIProcessorHough implements VisionProcessor {
+public class ROIProcessorHoughRed implements VisionProcessor {
 
     private static final double SCALE = 0.5; // was 0.5
     private static final double INV_SCALE = 1.0 / SCALE;
