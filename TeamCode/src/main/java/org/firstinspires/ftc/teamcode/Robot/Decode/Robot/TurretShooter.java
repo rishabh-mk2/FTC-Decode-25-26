@@ -64,16 +64,15 @@ public class TurretShooter {
     // Turret servo calibration:
     //   The servo spans [0.0, 0.965] linearly over one full 360 deg rotation.
     //   The 0.0/0.965 overlap (dead zone) sits at (pi - 28.5/155.0) rad CW from robot-forward.
-    public static double TURRET_SERVO_MIN          = 0.0;    // servo position at the overlap boundary
-    public static double TURRET_SERVO_MAX          = 0.965;  // servo position at the other overlap edge
-    public static double SHOOTER_OFFSET_INCHES     = 1.9;    // forward offset from odometry center to shooter
-    public static double TURRET_OVERLAP_OFFSET_RAD = -(Math.PI - 28.5 / 155.0); // CW from robot-forward to overlap (negative = CW)
+    public static double TURRET_SERVO_MIN          = 0.0;
+    public static double TURRET_SERVO_MAX          = 0.965;
+    public static double SHOOTER_OFFSET_INCHES     = 1.9;
+    public static double TURRET_OVERLAP_OFFSET_RAD = -(Math.PI - 28.5 / 155.0);
 
     public static double RECOIL = 0.0;
 
     public Vector GOAL_POSE_VECTOR;
 
-    // Hood servo limits in radians (tune experimentally)
     public static double HOOD_MAX_ANGLE = 0;
     public static double HOOD_MIN_ANGLE = 0;
 
@@ -82,6 +81,56 @@ public class TurretShooter {
     public static double  SHOOT_LATCH_SECS  = 1.0;
     public static double  RECOIL_DELAY_SECS = 0.2;
     private final ElapsedTime shootTimer = new ElapsedTime();
+
+    // endregion
+
+    // region ===== LOOKUP TABLE =====
+
+    // Regionals data: { distance (in), hood position, RPM, recoil }
+    // Interpolated linearly between rows; clamped to first/last row outside range.
+    private static final double[][] LOOKUP = {
+            //  distance    hood     RPM     recoil
+            {   40.478,     0.000,   1450,   0.00  },
+            {   68.054,     0.300,   1600,   0.00  },
+            {   78.135,     0.600,   1650,   0.10  },
+            {   93.692,     0.750,   1800,   0.10  },
+            {  110.309,     0.900,   1950,   0.15  },
+            {  133.997,     0.900,   1975,   0.15  },
+            // Far Zone
+            {  135.500,     1.0,   2150,   0.24  },
+            {  141.400,     1.0,   2150,   0.26  },
+            {  145.700,     1.0,   2150,   0.265  },
+            {  153.000,     1.0,   2250,   0.29  },
+    };
+
+    // Ticks per revolution of the flywheel motor (GoBILDA 5203 = 28 ticks/rev at motor shaft).
+    // Adjust to match your actual motor spec.
+
+    /**
+     * Linearly interpolates a single output column from LOOKUP given a distance.
+     * Clamps to the first/last row if distance is outside the table range.
+     *
+     * @param distance  shooter-to-goal distance in inches
+     * @param col       column index: 1 = hood, 2 = RPM, 3 = recoil
+     */
+    private static double interpolate(double distance, int col) {
+        // Below first row → clamp to first row
+        if (distance <= LOOKUP[0][0]) return LOOKUP[0][col];
+        // Above last row → clamp to last row
+        if (distance >= LOOKUP[LOOKUP.length - 1][0]) return LOOKUP[LOOKUP.length - 1][col];
+
+        // Find surrounding rows and interpolate
+        for (int r = 0; r < LOOKUP.length - 1; r++) {
+            double d0 = LOOKUP[r][0],     d1 = LOOKUP[r + 1][0];
+            double v0 = LOOKUP[r][col],   v1 = LOOKUP[r + 1][col];
+            if (distance >= d0 && distance <= d1) {
+                double t = (distance - d0) / (d1 - d0);
+                return v0 + t * (v1 - v0);
+            }
+        }
+        // Should never reach here
+        return LOOKUP[LOOKUP.length - 1][col];
+    }
 
     // endregion
 
@@ -95,7 +144,6 @@ public class TurretShooter {
         DcMotorsEx = new ArrayList<>();
         Servos     = new ArrayList<>();
 
-        // Motors
         for (MotorNames name : MotorNames.values()) {
             DcMotorEx motor = hardwareMap.get(DcMotorEx.class, name.toString());
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -107,16 +155,13 @@ public class TurretShooter {
         getMotor(MotorNames.leftShooter ).setDirection(DcMotorSimple.Direction.FORWARD);
         getMotor(MotorNames.rightShooter).setDirection(DcMotorSimple.Direction.REVERSE);
 
-        // Servos
         for (ServoNames name : ServoNames.values()) {
             Servo servo = hardwareMap.get(Servo.class, name.toString());
             Servos.add(servo);
         }
 
-        // PID
         shooterVelocityPID = new PIDController(p, i, d);
 
-        // Goal pose by alliance
         if (alliance == Alliance.RED) {
             GOAL_POSE = new Pose(138, 138);
         } else {
@@ -124,7 +169,6 @@ public class TurretShooter {
         }
 
         GOAL_POSE_VECTOR = GOAL_POSE.getAsVector();
-
         dashboard = FtcDashboard.getInstance();
 
         addTelemetry("TurretShooter", "Ready");
@@ -144,25 +188,47 @@ public class TurretShooter {
 
     // endregion
 
+    public void update(Pose pose, Vector velocity, boolean shootP) {
+        updateValues(pose, velocity);
+        updateTurret();
+        updateShooter(shootP);
+    }
+
     // region ===== POSE / VELOCITY =====
 
+    // Computed each loop from the lookup table — used by updateShooter()
+    private double hoodPos    = 0.0;
+    private double shooterVel = 0.0;
+    private double recoil     = 0.0;
+
     /** Call every loop with the robot's current field pose and velocity vector. */
-    public void updateValues(Pose pose, Vector velocity, double turretVel, double hoodPos, double recoil, boolean shootP) {
+    public void updateValues(Pose pose, Vector velocity) {
         robotVelocity = velocity;
 
         // Translate the raw pose 1.9 inches forward along the robot's heading
-        // so all targeting calculations originate from the shooter position,
-        // not the robot center reported by the odometry.
-        double heading = pose.getHeading();
+        double heading  = pose.getHeading();
         double shooterX = pose.getX() + SHOOTER_OFFSET_INCHES * Math.cos(heading);
         double shooterY = pose.getY() + SHOOTER_OFFSET_INCHES * Math.sin(heading);
         currentPose = new Pose(shooterX, shooterY, heading);
 
-        GOAL_POSE_VECTOR = GOAL_POSE.getAsVector().minus(velocity);
-
+        GOAL_POSE_VECTOR    = GOAL_POSE.getAsVector().minus(velocity);
         shooterToGoalVector = GOAL_POSE_VECTOR.minus(currentPose.getAsVector());
 
-        setShooterVelocity(turretVel);
+        // Look up hood, RPM, and recoil from the distance table
+        double dist = shooterToGoalVector.getMagnitude();
+        hoodPos    = interpolate(dist, 1);
+        shooterVel = interpolate(dist, 2);
+        recoil     = interpolate(dist, 3);
+
+        addTelemetry("DistanceToGoal", dist);
+        addTelemetry("Hood (table)",   String.format("%.3f", hoodPos));
+        addTelemetry("RPM (table)",    String.format("%.0f", interpolate(dist, 2)));
+        addTelemetry("Recoil (table)", String.format("%.3f", recoil));
+        addTelemetry("Shoot",          shoot);
+    }
+
+    public void updateShooter(boolean shootP) {
+        setShooterVelocity(shooterVel);
         setRecoil(recoil);
 
         // Latch shoot true on rising edge of shootP; keep latched for SHOOT_LATCH_SECS
@@ -180,39 +246,24 @@ public class TurretShooter {
         } else {
             setHoodPosition(hoodPos);
         }
-
-        addTelemetry("DistanceToGoal", shooterToGoalVector.getMagnitude());
-        addTelemetry("Shoot", shoot);
     }
 
     // endregion
 
     // region ===== TURRET AIM =====
 
-    /**
-     * Aims the turret at the goal using only the current robot pose (no velocity compensation).
-     * Call every loop after updateValues().
-     */
     public void updateTurret() {
-        // Angle from robot to goal in the field frame
         double goalAngleField = shooterToGoalVector.getTheta();
 
-        // Robot-relative angle in radians, normalised to [-pi, pi]
         double relativeRad = goalAngleField - currentPose.getHeading();
         relativeRad = Math.atan2(Math.sin(relativeRad), Math.cos(relativeRad));
 
-        // Shift into the servo's own frame
         double servoFrameRad = relativeRad - TURRET_OVERLAP_OFFSET_RAD;
-
-        // Normalise servo-frame angle to [-pi, pi] so the wrap is always clean
         servoFrameRad = Math.atan2(Math.sin(servoFrameRad), Math.cos(servoFrameRad));
-        double servoFrameDeg = Math.toDegrees(servoFrameRad); // [-180, 180]
+        double servoFrameDeg = Math.toDegrees(servoFrameRad);
 
-        // Linear map: servo-frame 0 deg -> TURRET_SERVO_MIN, full 360 deg spans to TURRET_SERVO_MAX
         double range         = TURRET_SERVO_MAX - TURRET_SERVO_MIN;
         double servoPosition = TURRET_SERVO_MIN + (servoFrameDeg / 360.0) * range;
-
-        // Wrap into [TURRET_SERVO_MIN, TURRET_SERVO_MAX]
         servoPosition = ((servoPosition % TURRET_SERVO_MAX) + TURRET_SERVO_MAX) % TURRET_SERVO_MAX;
 
         setTurretPosition(servoPosition);
@@ -226,9 +277,6 @@ public class TurretShooter {
 
     // region ===== SHOOTER VELOCITY PID =====
 
-    /**
-     * Drives both flywheel motors to match targetVelocity using PID + feedforward.
-     */
     public void updateShooterVelocityPID() {
         shooterVelocityPID.setPID(p, i, d);
 
@@ -238,8 +286,8 @@ public class TurretShooter {
         double ff    = targetVelocity * f;
         double power = Math.max(-1, Math.min(pid + ff, 1));
 
-        getMotor(MotorNames.leftShooter ).setPower( power);
-        getMotor(MotorNames.rightShooter).setPower( power);
+        getMotor(MotorNames.leftShooter ).setPower(power);
+        getMotor(MotorNames.rightShooter).setPower(power);
 
         if (dashboard != null) {
             dashboard.getTelemetry().addData("Shooter Target",   targetVelocity);
@@ -253,7 +301,6 @@ public class TurretShooter {
         addTelemetry("Shooter Power",    power);
     }
 
-    /** Set a specific velocity and immediately run the PID. */
     public void setShooterVelocity(double velocityTicksPerSec) {
         targetVelocity = velocityTicksPerSec;
         updateShooterVelocityPID();
@@ -269,7 +316,6 @@ public class TurretShooter {
 
     // region ===== TURRET POSITION =====
 
-    /** Writes the servo position to all turret servos. */
     public void setTurretPosition(double position) {
         getServo(ServoNames.turret1).setPosition(position);
         getServo(ServoNames.turret2).setPosition(position);

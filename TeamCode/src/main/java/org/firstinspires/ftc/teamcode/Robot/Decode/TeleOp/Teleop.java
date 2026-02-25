@@ -32,8 +32,6 @@ public class Teleop extends OpMode {
     IntakeSpindexer  intakeSpindexer;
     TurretShooter    turretShooter;
 
-    public static double turretPosition = 0.0;
-
     Pose startPose = new Pose(72, 7, Math.toRadians(90));
 
     // Change to Alliance.BLUE if needed
@@ -42,6 +40,7 @@ public class Teleop extends OpMode {
     public static double turretVel = 0.0;
     public static double hoodPos = 1.0;
     public static double recoil = 0.0;
+    public static double turretPos = 0.5;
 
     @Override
     public void init() {
@@ -88,8 +87,7 @@ public class Teleop extends OpMode {
         intakeSpindexer.update(shoot, ready);
 
         // --- SHOOTER VELOCITY PID (runs every loop) ---
-        turretShooter.updateValues(follower.getPose(), follower.getVelocity(), turretVel, hoodPos, recoil, shoot);
-        turretShooter.updateTurret();
+        turretShooter.update(follower.getPose(), follower.getVelocity(), shoot);
 
         dashboard.getTelemetry().addData("turret target", targetVelocity);
         dashboard.getTelemetry().addData("turret velocity", turretShooter.getMotor(TurretShooter.MotorNames.leftShooter).getVelocity());

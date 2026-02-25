@@ -242,7 +242,7 @@ public class IntakeSpindexer {
 
             case SHOOTING:
                 getMotor(MotorNames.spindexer).setPower(-0.7);
-                if (spinTimer.seconds() >= 2.0) {
+                if (spinTimer.seconds() >= 1.0) {
                     confirmedBallCount = 0;
                     rotatedForThree    = false;
 
