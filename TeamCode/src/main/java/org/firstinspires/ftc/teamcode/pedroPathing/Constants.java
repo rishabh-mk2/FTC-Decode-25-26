@@ -21,7 +21,8 @@ public class Constants {
             .forwardZeroPowerAcceleration(-75.03783553528916)
             .lateralZeroPowerAcceleration(-73.64708221147441)
             .translationalPIDFCoefficients(new PIDFCoefficients(0.08, 0.0, 0.023, 0.01))
-            .headingPIDFCoefficients(new PIDFCoefficients(0.8, 0.0, 0.02, 0.035));
+            .headingPIDFCoefficients(new PIDFCoefficients(0.8, 0.0, 0.02, 0.035))
+            .centripetalScaling(0.0005);
     /*
      * TODO: for automatic tuners, follow the steps on Pedropathing tutorial
      * */

@@ -28,7 +28,6 @@ public class IntakeSpindexer {
     public OpMode opmode;
     public Telemetry telemetry;
     public HardwareMap hardwareMap;
-    private FtcDashboard  dashboard;
     public boolean isTelemetryEnabled = true;
 
     RevColorSensorV3 frontSensor1, frontSensor2;
@@ -36,11 +35,9 @@ public class IntakeSpindexer {
     RevColorSensorV3 backLeftSensor1, backLeftSensor2;
 
     PIDController spindexerPID;
-    PIDController intakeVelocityPID;
 
     // ---- TUNABLE CONSTANTS ----
     public static double p = 0.01, i = 0.0, d = 0.0005;
-    public static double iP = 0.2, iI = 0.0, iD = 0.000; // "i" stands for intake
     public static double intakeTargetVelocity = 0.0; // ticks/sec
     public static double homeTolerance       = 15;
     public static double FRONT_THRESHOLD     = 45;   // mm
@@ -86,7 +83,6 @@ public class IntakeSpindexer {
     private boolean rotatedForThree       = false;
 
     // Intake stall reversal
-    private double  intakePower = 1.0;
     private boolean intakeReversing = false;
     private final ElapsedTime intakeReverseTimer = new ElapsedTime();
 
@@ -101,6 +97,8 @@ public class IntakeSpindexer {
     private double br1Dist = 9999, br2Dist = 9999;
     private double bl1Dist = 9999, bl2Dist = 9999;
     private int loopCounter = 0;
+
+    double intakeVelocity = 0;
 
     // endregion
 
@@ -140,10 +138,8 @@ public class IntakeSpindexer {
         // Spindexer home
         spindexerHomePosition   = getMotor(MotorNames.spindexer).getCurrentPosition();
         spindexerTargetPosition = spindexerHomePosition;
-        dashboard = FtcDashboard.getInstance();
 
         spindexerPID = new PIDController(p, i, d);
-        intakeVelocityPID = new PIDController(iP, iI, iD);
 
         telemetry.addData("IntakeSpindexer", "Initialized");
     }
@@ -308,23 +304,20 @@ public class IntakeSpindexer {
         }
 
         if (intakeReversing) {
-            intakePower = -0.5;
+            intakeVelocity = -1000;
             if (intakeReverseTimer.seconds() >= INTAKE_REVERSE_SECS) {
                 intakeReversing = false;
             }
         } else {
             if (confirmedBallCount >= 3) {
-                intakePower = 0;
+                intakeVelocity = 0;
             } else if (spindexerState == SpindexerState.INTAKING) {
-                intakePower = 3000; // needs to be 2780
+                intakeVelocity = 2300;
             }
         }
 
-        if (intakePower < 1){
-            getMotor(MotorNames.intake).setPower(intakePower);
-        } else {
-            setIntakeVelocity(intakePower);
-        }
+        setIntakeVelocity(intakeVelocity);
+
         // TODO: figure out how to set intake power for reversing (line 310)
         // TODO: figure out the velocity for intaking mode (line 318)
     }
@@ -340,31 +333,8 @@ public class IntakeSpindexer {
 
     // endregion
 
-    public void setIntakeVelocity(double velocityTicksPerSec) {
-        intakeTargetVelocity = velocityTicksPerSec;
-        updateIntakeVelocityPID();
-    }
-    public void updateIntakeVelocityPID() {
-        intakeVelocityPID.setPID(iP, iI, iD);
-
-        double currentVelocity = getMotor(MotorNames.intake).getVelocity();
-
-        double pid = intakeVelocityPID.calculate(currentVelocity, intakeTargetVelocity);
-        //double ff = targetVelocity * f; //TODO: may need feedforawrd; ask rishabh
-        double power = Math.max(-1, Math.min(pid + 0.0, 1)); // TODO: may need to replace 0.0 with ff
-
-        getMotor(MotorNames.intake).setPower(power);
-
-        if (dashboard != null) {
-            dashboard.getTelemetry().addData("Intake Target",   intakeTargetVelocity);
-            dashboard.getTelemetry().addData("Intake Velocity", currentVelocity);
-            dashboard.getTelemetry().addData("Intake Power",    power);
-            dashboard.getTelemetry().update();
-        }
-
-        addTelemetry("Intake Target",   intakeTargetVelocity);
-        addTelemetry("Intake Velocity", currentVelocity);
-        addTelemetry("Intake Power",    power);
+    public void setIntakeVelocity(double velocity) {
+        getMotor(MotorNames.intake).setVelocity(velocity);
     }
     // region ===== SORTING =====
 
@@ -472,7 +442,7 @@ public class IntakeSpindexer {
         telemetry.addData("Shot Count",       shotCount + " / " + REHOME_EVERY_N_SHOTS);
         telemetry.addData("Ball Count (raw)", rawCount);
         telemetry.addData("Ball Count (confirmed)", confirmedBallCount);
-        telemetry.addData("Intake Power",     intakePower);
+        telemetry.addData("Intake Velocity",     intakeVelocity);
         telemetry.addLine("=== DISTANCES ===");
         telemetry.addData("F1",  String.format("%.1f", f1Dist));
         telemetry.addData("F2",  String.format("%.1f", f2Dist));
