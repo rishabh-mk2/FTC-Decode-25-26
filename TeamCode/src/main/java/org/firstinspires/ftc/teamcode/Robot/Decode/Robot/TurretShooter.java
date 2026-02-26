@@ -31,10 +31,9 @@ public class TurretShooter {
     public HardwareMap hardwareMap;
 
     private PIDController shooterVelocityPID;
-    private FtcDashboard  dashboard;
 
     private Pose   currentPose;
-    private Pose   GOAL_POSE;
+    public Pose   GOAL_POSE;
     private Vector robotVelocity;
     private Vector shooterToGoalVector;
 
@@ -169,7 +168,6 @@ public class TurretShooter {
         }
 
         GOAL_POSE_VECTOR = GOAL_POSE.getAsVector();
-        dashboard = FtcDashboard.getInstance();
 
         addTelemetry("TurretShooter", "Ready");
     }
@@ -188,10 +186,23 @@ public class TurretShooter {
 
     // endregion
 
-    public void update(Pose pose, Vector velocity, boolean shootP) {
+    public void update(Pose pose, Vector velocity, boolean shootP, boolean enableTurret, boolean enableShooter) {
         updateValues(pose, velocity);
-        updateTurret();
-        updateShooter(shootP);
+        if(enableTurret) {
+            updateTurret();
+        }
+        if(enableShooter) {
+            updateShooter(shootP);
+        }
+    }
+    public void update(Pose pose, Vector velocity, boolean shootP, boolean enableTurret, boolean enableShooter, double vel, double hoodPosition, double rec) {
+        updateValues(pose, velocity);
+        if(enableTurret) {
+            updateTurret();
+        }
+        if(enableShooter) {
+            updateShooter(shootP, vel, hoodPosition, rec);
+        }
     }
 
     // region ===== POSE / VELOCITY =====
@@ -216,9 +227,9 @@ public class TurretShooter {
 
         // Look up hood, RPM, and recoil from the distance table
         double dist = shooterToGoalVector.getMagnitude();
-        hoodPos    = interpolate(dist, 1);
-        shooterVel = interpolate(dist, 2);
-        recoil     = interpolate(dist, 3);
+//        hoodPos    = interpolate(dist, 1);
+//        shooterVel = interpolate(dist, 2);
+//        recoil     = interpolate(dist, 3);
 
         addTelemetry("DistanceToGoal", dist);
         addTelemetry("Hood (table)",   String.format("%.3f", hoodPos));
@@ -245,6 +256,27 @@ public class TurretShooter {
             setHoodPosition(hoodPos - RECOIL);
         } else {
             setHoodPosition(hoodPos);
+        }
+    }
+
+    public void updateShooter(boolean shootP, double vel, double hoodPosition, double rec) {
+        setShooterVelocity(vel);
+        setRecoil(rec);
+
+        // Latch shoot true on rising edge of shootP; keep latched for SHOOT_LATCH_SECS
+        if (shootP && !shoot) {
+            shoot = true;
+            shootTimer.reset();
+        }
+        if (shoot && shootTimer.seconds() >= SHOOT_LATCH_SECS) {
+            shoot = false;
+        }
+
+        // Hood: pull back by recoil amount only after RECOIL_DELAY_SECS into the shoot latch
+        if (shoot && shootTimer.seconds() >= RECOIL_DELAY_SECS) {
+            setHoodPosition(hoodPosition - rec);
+        } else {
+            setHoodPosition(hoodPosition);
         }
     }
 
@@ -288,13 +320,6 @@ public class TurretShooter {
 
         getMotor(MotorNames.leftShooter ).setPower(power);
         getMotor(MotorNames.rightShooter).setPower(power);
-
-        if (dashboard != null) {
-            dashboard.getTelemetry().addData("Shooter Target",   targetVelocity);
-            dashboard.getTelemetry().addData("Shooter Velocity", currentVelocity);
-            dashboard.getTelemetry().addData("Shooter Power",    power);
-            dashboard.getTelemetry().update();
-        }
 
         addTelemetry("Shooter Target",   targetVelocity);
         addTelemetry("Shooter Velocity", currentVelocity);

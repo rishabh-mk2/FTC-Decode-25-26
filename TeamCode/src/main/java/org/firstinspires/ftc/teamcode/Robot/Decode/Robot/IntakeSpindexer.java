@@ -229,12 +229,12 @@ public class IntakeSpindexer {
             case READY_TO_SHOOT:
                 if (!readyBackStepDone) {
                     // Advance +175 ticks toward shooter
-                    spindexerTargetPosition = spindexerHomePosition + 175;
+                    spindexerTargetPosition = spindexerHomePosition + 190;
 
                     // Once within 2 ticks, do a small back-step to seat the ball
                     if (Math.abs(getMotor(MotorNames.spindexer).getCurrentPosition()
-                            - spindexerTargetPosition) < 2) {
-                        spindexerTargetPosition -= 35;
+                            - spindexerTargetPosition) < 3) {
+                        spindexerTargetPosition -= 50;
                         readyBackStepDone = true;
                     }
                 }
@@ -242,7 +242,7 @@ public class IntakeSpindexer {
 
             case SHOOTING:
                 getMotor(MotorNames.spindexer).setPower(-0.7);
-                if (spinTimer.seconds() >= 1.0) {
+                if (spinTimer.seconds() >= 0.8) {
                     confirmedBallCount = 0;
                     rotatedForThree    = false;
 
@@ -255,7 +255,7 @@ public class IntakeSpindexer {
                         // Go to the closest multiple of 384.5 ticks (one full spindexer revolution)
                         double enc     = getMotor(MotorNames.spindexer).getCurrentPosition();
                         long   nearest = Math.round(enc / 384.5);
-                        spindexerTargetPosition = nearest * 384.5;
+                        spindexerHomePosition = nearest * 384.5;
                         spindexerState = SpindexerState.INTAKING;
                     }
                 }
@@ -276,7 +276,7 @@ public class IntakeSpindexer {
 
         // Tighter cap during the small back-step to avoid overshooting
         if (spindexerState == SpindexerState.READY_TO_SHOOT && readyBackStepDone) {
-            pid = Math.max(-0.2, Math.min(0.2, pid));
+            pid = Math.max(-0.1, Math.min(0.1, pid));
         } else {
             pid = Math.max(-0.45, Math.min(0.45, pid));
         }
