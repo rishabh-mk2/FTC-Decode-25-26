@@ -17,57 +17,51 @@ import org.opencv.core.Point;
  * Output 2 ==> 32 inches from corner
  * Output 3 ==> 24 inches from corner
  * Output 4 ==> 16 inches from corner
- * Output 1 ==> 8 inches from corner
+ * Output 5 ==> 8 inches from corner
  *
  * Example usage (for myself):
  * // init
- * BallZoneDetector detector = new BallZoneDetector(hardwareMap);
+ * ZoneDetector detector = new ZoneDetector(opMode);
  *
  * // during runtime
  * detector.getZone();
  *
  * // end
  * detector.close();
- * **/
+ **/
 public class ZoneDetector {
     private final VisionPortal visionPortal;
-    private final ROIProcessorHoughRed HCTroi;
-    public OpMode     opmode;
-    public Telemetry telemetry;
+    private final ROIProcessor roi;
+    public OpMode      opmode;
+    public Telemetry   telemetry;
     public HardwareMap hardwareMap;
-    ExposureControl exposureControl;
+    ExposureControl    exposureControl;
 
-    public ZoneDetector(OpMode opMode){
-        this.opmode = opMode;
-        this.telemetry = opMode.telemetry;
+    public ZoneDetector(OpMode opMode) {
+        this.opmode      = opMode;
+        this.telemetry   = opMode.telemetry;
         this.hardwareMap = opMode.hardwareMap;
 
-        HCTroi = new ROIProcessorHoughRed();
+        roi = new ROIProcessor();
         visionPortal = new VisionPortal.Builder()
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
                 .setCameraResolution(new Size(640, 480))
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
-                .addProcessor(HCTroi)
+                .addProcessor(roi)
                 .enableLiveView(true)
                 .build();
     }
 
     public int getZone() {
-        //creates an array for the 6 zones
-        int counts[] = new int[7];
+        int[] counts = new int[7];
 
-        // gets the data for which zone each center of the circle is in for each colored ball
-        for (float[] c : HCTroi.getPurpleCircles()){
-            int roi = HCTroi.getROIIndexForPoint(new Point(c[0], c[1]));
-            if (roi >= 1 && roi <= 6){
-                counts[roi]++;
-            }
+        for (Point p : roi.getPurpleCenters()) {
+            int zone = roi.getROIIndexForPoint(p);
+            if (zone >= 1 && zone <= 6) counts[zone]++;
         }
-        for (float[] c : HCTroi.getGreenCircles()){
-            int roi = HCTroi.getROIIndexForPoint(new Point(c[0], c[1]));
-            if (roi >= 1 && roi <= 6){
-                counts[roi]++;
-            }
+        for (Point p : roi.getGreenCenters()) {
+            int zone = roi.getROIIndexForPoint(p);
+            if (zone >= 1 && zone <= 6) counts[zone]++;
         }
 
         // checks each pair of zones
@@ -77,19 +71,19 @@ public class ZoneDetector {
         // output of above: 2                    example 2: 1
 
         // essentially outputs the smaller zone number of the pair
-        int bestPair = 0;
+        int bestPair  = 0;
         int bestCount = 0;
-        for (int i = 1; i <= 5; i++){
+        for (int i = 1; i <= 5; i++) {
             int pairCount = counts[i] + counts[i + 1];
-            if (pairCount > bestCount){
+            if (pairCount > bestCount) {
                 bestCount = pairCount;
-                bestPair = i;
+                bestPair  = i;
             }
         }
         return bestPair;
     }
 
-    public void close(){
+    public void close() {
         visionPortal.close();
     }
 }
