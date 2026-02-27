@@ -44,15 +44,15 @@ public class IntakeSpindexer {
     public static double BACK_THRESHOLD      = 15;   // mm
     public static double GREEN_THRESHOLD     = 200;  // raw green value
     public static double spindexerBlockClosed = 0.2525; // hood closed (3 balls)
-    public static double spindexerBlockOpen   = 0.105; // hood open  (<3 balls)
+    public static double spindexerBlockOpen   = 0.105;  // hood open  (<3 balls)
     public static double INTAKE_STALL_AMPS   = 20.0;
-    public static double INTAKE_REVERSE_SECS = 0.2;
+    public static double INTAKE_REVERSE_SECS = 0.4;  // duration for both jam-expel and full-expel
 
     // ---- REHOMING ----
-    public static int    REHOME_EVERY_N_SHOTS  = 5;    // trigger rehome after this many shots
-    public static double REHOME_POWER          = 0.35; // slow creep power during homing
-    public static double REHOME_BLUE_THRESHOLD = 200;  // raw blue value that indicates the home mark
-    public static double REHOME_DISTANCE_GATE  = 15;   // sensor must also be within this mm to confirm
+    public static int    REHOME_EVERY_N_SHOTS  = 5;
+    public static double REHOME_POWER          = 0.1;
+    public static double REHOME_BLUE_THRESHOLD = 200;
+    public static double REHOME_DISTANCE_GATE  = 15;
 
     // endregion
 
@@ -72,7 +72,7 @@ public class IntakeSpindexer {
 
     // region ===== STATE =====
 
-    // Ball tracking – count can only increase
+    // Ball tracking
     private int confirmedBallCount = 0;
 
     // Spindexer
@@ -82,23 +82,42 @@ public class IntakeSpindexer {
     private boolean readyBackStepDone     = false;
     private boolean rotatedForThree       = false;
 
-    // Intake stall reversal
+    // Intake stall (jam) reversal
     private boolean intakeReversing = false;
     private final ElapsedTime intakeReverseTimer = new ElapsedTime();
+
+    // Full-expel: when 3 balls loaded, expel briefly then stop
+    private boolean fullExpelling = false;
+    private boolean fullExpelDone = false;
+    private final ElapsedTime fullExpelTimer = new ElapsedTime();
 
     // Shooting timer
     private final ElapsedTime spinTimer = new ElapsedTime();
 
-    // Shot counter — triggers a rehome every REHOME_EVERY_N_SHOTS shots
+    // Hood-close delay before spinning on shoot
+    private boolean shootWaitingForHood = false;
+    private final ElapsedTime shootHoodTimer = new ElapsedTime();
+
+    // Shot counter
     private int shotCount = 0;
 
-    // Sensor distances (updated every N loops from outside, or call updateSensors())
+    // True while spindexer is travelling back to home after a shot or rehome
+    private boolean returningHome = false;
+
+    // Pre-computed target set once when triggerReady fires
+    private double readyTargetPosition = 0;
+
+    // Tracks intended block servo state — set explicitly, not derived from ball count alone
+    private boolean blockClosed = false;
+
+    // Sensor distances
     private double f1Dist  = 9999, f2Dist  = 9999;
     private double br1Dist = 9999, br2Dist = 9999;
     private double bl1Dist = 9999, bl2Dist = 9999;
     private int loopCounter = 0;
 
     double intakeVelocity = 0;
+    private boolean manualExpelActive = false;
 
     // endregion
 
@@ -112,7 +131,6 @@ public class IntakeSpindexer {
         DcMotorsEx = new ArrayList<>();
         Servos     = new ArrayList<>();
 
-        // Motors
         for (MotorNames name : MotorNames.values()) {
             DcMotorEx motor = hardwareMap.get(DcMotorEx.class, name.toString());
             motor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
@@ -121,25 +139,23 @@ public class IntakeSpindexer {
             DcMotorsEx.add(motor);
         }
 
-        // Servos
         for (ServoNames name : ServoNames.values()) {
             Servo servo = hardwareMap.get(Servo.class, name.toString());
             Servos.add(servo);
         }
 
-        // Sensors
-        frontSensor1    = hardwareMap.get(RevColorSensorV3.class, "f1");
-        frontSensor2    = hardwareMap.get(RevColorSensorV3.class, "f2");
+        frontSensor1     = hardwareMap.get(RevColorSensorV3.class, "f1");
+        frontSensor2     = hardwareMap.get(RevColorSensorV3.class, "f2");
         backRightSensor1 = hardwareMap.get(RevColorSensorV3.class, "br1");
         backRightSensor2 = hardwareMap.get(RevColorSensorV3.class, "br2");
         backLeftSensor1  = hardwareMap.get(RevColorSensorV3.class, "bl1");
         backLeftSensor2  = hardwareMap.get(RevColorSensorV3.class, "bl2");
 
-        // Spindexer home
         spindexerHomePosition   = getMotor(MotorNames.spindexer).getCurrentPosition();
         spindexerTargetPosition = spindexerHomePosition;
 
         spindexerPID = new PIDController(p, i, d);
+        spindexerPID.setPID(p, i, d);
 
         telemetry.addData("IntakeSpindexer", "Initialized");
     }
@@ -160,22 +176,14 @@ public class IntakeSpindexer {
 
     // region ===== MAIN UPDATE =====
 
-    /**
-     * Call this every loop() iteration.
-     * @param triggerShoot  true on the loop where the driver pressed "shoot"
-     * @param triggerReady  true on the loop where the driver pressed "ready to shoot"
-     */
-    public void update(boolean triggerShoot, boolean triggerReady) {
+    public void update(boolean triggerShoot, boolean triggerReady, boolean triggerExpel) {
 
-        spindexerPID.setPID(p, i, d);
         loopCounter++;
 
-        // 1. Poll sensors every 10 loops
         if (loopCounter % 10 == 0) {
             updateSensors();
         }
 
-        // 2. Determine raw ball count
         boolean spindexerHomed = Math.abs(
                 getMotor(MotorNames.spindexer).getCurrentPosition() - spindexerHomePosition
         ) < homeTolerance;
@@ -195,46 +203,80 @@ public class IntakeSpindexer {
         if (ballBackLeft)  rawCount++;
         if (ballBackRight) rawCount++;
 
-        // 3. Ball count can only increase (never drop)
         if (rawCount > confirmedBallCount) {
             confirmedBallCount = rawCount;
         }
 
-        // 4. Hood / block servo: close when 3 balls confirmed
         boolean full = (confirmedBallCount >= 3);
-        getServo(ServoNames.spindexerBlock).setPosition(full ? spindexerBlockClosed : spindexerBlockOpen);
 
-        // 5. When first filling to 3, trigger READY_TO_SHOOT rotation automatically
+        // Auto-close when 3 balls detected for the first time
         if (full && !rotatedForThree) {
             rotatedForThree = true;
-            triggerReady    = true; // treat as if driver pressed ready
+            blockClosed     = true;
+            triggerReady    = true;
         }
 
-        // 6. Handle driver buttons → state transitions
-        if (triggerShoot) {
-            spinTimer.reset();
-            spindexerState = SpindexerState.SHOOTING;
+        // While returning home: force block closed until we arrive
+        if (returningHome) {
+            blockClosed = true;
+            if (spindexerHomed) {
+                returningHome = false; // arrived — open block next loop
+                blockClosed   = false;
+            }
+        }
+
+        // Apply block servo position from flag (never overridden by ball count alone)
+        getServo(ServoNames.spindexerBlock).setPosition(blockClosed ? spindexerBlockClosed : spindexerBlockOpen);
+
+        if (triggerShoot && spindexerState == SpindexerState.READY_TO_SHOOT) {
+            boolean hoodClosed = getServo(ServoNames.spindexerBlock).getPosition() >= spindexerBlockClosed - 0.01;
+            if (hoodClosed) {
+                // Hood already closed — start spinning immediately
+                shootWaitingForHood = false;
+                spinTimer.reset();
+                spindexerState = SpindexerState.SHOOTING;
+            } else {
+                // Close the hood first, then wait before spinning
+                blockClosed = true;
+                shootWaitingForHood = true;
+                shootHoodTimer.reset();
+            }
         } else if (triggerReady) {
+            blockClosed = true;
+            // Compute target once here so it doesn't drift while moving
+            double encNow = getMotor(MotorNames.spindexer).getCurrentPosition();
+            if (Math.abs(encNow - spindexerHomePosition) >= 30) {
+                long nextSlot = (long) Math.ceil(encNow / 384.5);
+                readyTargetPosition = nextSlot * 384.5 + 190;
+            } else {
+                readyTargetPosition = spindexerHomePosition + 190;
+            }
             spindexerState    = SpindexerState.READY_TO_SHOOT;
             readyBackStepDone = false;
         }
 
-        // 7. Spindexer state machine
+        // If we're waiting for the hood to close before shooting, poll the timer
+        if (shootWaitingForHood && shootHoodTimer.seconds() >= 0.2) {
+            shootWaitingForHood = false;
+            spinTimer.reset();
+            spindexerState = SpindexerState.SHOOTING;
+        }
+
+        addTelemetry("Manual Spindexer", manualExpelActive);
+
         switch (spindexerState) {
 
             case INTAKING:
                 spindexerTargetPosition = spindexerHomePosition;
+                runIntake();
                 break;
 
             case READY_TO_SHOOT:
                 if (!readyBackStepDone) {
-                    // Advance +175 ticks toward shooter
-                    spindexerTargetPosition = spindexerHomePosition + 190;
-
-                    // Once within 2 ticks, do a small back-step to seat the ball
-                    if (Math.abs(getMotor(MotorNames.spindexer).getCurrentPosition()
-                            - spindexerTargetPosition) < 3) {
-                        spindexerTargetPosition -= 50;
+                    spindexerTargetPosition = readyTargetPosition;
+                    double enc = getMotor(MotorNames.spindexer).getCurrentPosition();
+                    if (Math.abs(enc - spindexerTargetPosition) < 3) {
+                        spindexerTargetPosition = readyTargetPosition - 50;
                         readyBackStepDone = true;
                     }
                 }
@@ -246,16 +288,15 @@ public class IntakeSpindexer {
                     confirmedBallCount = 0;
                     rotatedForThree    = false;
 
-                    // Increment shot count and decide whether to rehome
                     shotCount++;
                     if (shotCount >= REHOME_EVERY_N_SHOTS) {
                         shotCount      = 0;
                         spindexerState = SpindexerState.REHOMING;
                     } else {
-                        // Go to the closest multiple of 384.5 ticks (one full spindexer revolution)
                         double enc     = getMotor(MotorNames.spindexer).getCurrentPosition();
-                        long   nearest = Math.round(enc / 384.5);
+                        long   nearest = (long) Math.ceil(enc / 384.5);
                         spindexerHomePosition = nearest * 384.5;
+                        returningHome  = true;
                         spindexerState = SpindexerState.INTAKING;
                     }
                 }
@@ -267,14 +308,12 @@ public class IntakeSpindexer {
                 rehomeSpindexer();
                 runIntake();
                 updateTelemetry(rawCount);
-                return; // motor driven directly inside rehomeSpindexer, skip PID
+                return;
         }
 
-        // 8. PID drive for spindexer
         double currentPos = getMotor(MotorNames.spindexer).getCurrentPosition();
         double pid = spindexerPID.calculate(currentPos, spindexerTargetPosition);
 
-        // Tighter cap during the small back-step to avoid overshooting
         if (spindexerState == SpindexerState.READY_TO_SHOOT && readyBackStepDone) {
             pid = Math.max(-0.1, Math.min(0.1, pid));
         } else {
@@ -282,10 +321,7 @@ public class IntakeSpindexer {
         }
         getMotor(MotorNames.spindexer).setPower(pid);
 
-        // 9. Intake
         runIntake();
-
-        // 10. Telemetry
         updateTelemetry(rawCount);
     }
 
@@ -293,36 +329,73 @@ public class IntakeSpindexer {
 
     // region ===== INTAKE =====
 
-    /** Runs the intake with stall detection and ball-count gating. */
+    /**
+     * Runs the intake with jam detection and ball-count gating.
+     *
+     * Priority (highest → lowest):
+     *   1. Jam (overcurrent)  → expel at 0.5 power for INTAKE_REVERSE_SECS, then resume
+     *   2. Full (≥3 balls)    → expel at 0.5 power for INTAKE_REVERSE_SECS, then stop
+     *   3. Normal             → intake at full power (1.0)
+     */
     private void runIntake() {
-        double intakeCurrent = getMotor(MotorNames.intake).getCurrent(CurrentUnit.AMPS);
-
-        // Stall protection
-        if (intakeCurrent > INTAKE_STALL_AMPS && !intakeReversing) {
-            intakeReversing = true;
-            intakeReverseTimer.reset();
-        }
-
-        if (intakeReversing) {
-            intakeVelocity = -1000;
-            if (intakeReverseTimer.seconds() >= INTAKE_REVERSE_SECS) {
-                intakeReversing = false;
-            }
+        // 0. Manual expel override — highest priority, bypasses all other logic
+        if (manualExpelActive) {
+            getMotor(MotorNames.intake).setPower(-1.0);
+            return;
         } else {
+            double intakeCurrent = getMotor(MotorNames.intake).getCurrent(CurrentUnit.AMPS);
+
+            // 1. Jam: overcurrent → expel burst, highest priority
+            if (intakeCurrent > INTAKE_STALL_AMPS && !intakeReversing) {
+                intakeReversing = true;
+                intakeReverseTimer.reset();
+            }
+
+            if (intakeReversing) {
+                getMotor(MotorNames.intake).setPower(0.5);
+                if (intakeReverseTimer.seconds() >= INTAKE_REVERSE_SECS) {
+                    intakeReversing = false;
+                }
+                return; // jam handling overrides everything else
+            }
+
+            // 2. Returning home after shot/rehome → block stays down, slow-reverse intake
+            if (returningHome) {
+                getMotor(MotorNames.intake).setPower(-0.1);
+                return;
+            }
+
+            // 3. Full: 3 balls loaded → expel briefly then stop permanently until count resets
             if (confirmedBallCount >= 3) {
-                intakeVelocity = 0;
-            } else if (spindexerState == SpindexerState.INTAKING) {
-                intakeVelocity = 2300;
+                if (!fullExpelDone) {
+                    if (!fullExpelling) {
+                        fullExpelling = true;
+                        fullExpelTimer.reset();
+                    }
+                    getMotor(MotorNames.intake).setPower(0.5);
+                    if (fullExpelTimer.seconds() >= INTAKE_REVERSE_SECS) {
+                        fullExpelling = false;
+                        fullExpelDone = true;
+                    }
+                } else {
+                    getMotor(MotorNames.intake).setPower(0.0);
+                }
+                return;
+            }
+
+            // Reset full-expel flags once ball count drops back below 3 (e.g. after shooting)
+            fullExpelling = false;
+            fullExpelDone = false;
+
+            // 3. Normal: keep intaking
+            if (spindexerState == SpindexerState.INTAKING) {
+                getMotor(MotorNames.intake).setPower(1.0);
+            } else {
+                getMotor(MotorNames.intake).setPower(0.0);
             }
         }
-
-        setIntakeVelocity(intakeVelocity);
-
-        // TODO: figure out how to set intake power for reversing (line 310)
-        // TODO: figure out the velocity for intaking mode (line 318)
     }
 
-    /** Manual intake control (call instead of update() when desired). */
     public void moveIntake(IntakeState state) {
         switch (state) {
             case INTAKE: getMotor(MotorNames.intake).setPower(1.0);  break;
@@ -336,15 +409,9 @@ public class IntakeSpindexer {
     public void setIntakeVelocity(double velocity) {
         getMotor(MotorNames.intake).setVelocity(velocity);
     }
+
     // region ===== SORTING =====
 
-    /**
-     * Computes how many cyclic rotations of the spindexer are needed to best
-     * align the loaded balls with a target color order.
-     *
-     * @param targetSort 3-char string of 'G', 'P', or 'O' e.g. "GPP"
-     * @return 0, 1, or 2 — the number of spindexer positions to rotate
-     */
     public int getBestSortRotation(String targetSort) {
         char front     = detectPosition(frontSensor1,     frontSensor2,     FRONT_THRESHOLD);
         char backRight = detectPosition(backRightSensor1, backRightSensor2, BACK_THRESHOLD);
@@ -361,19 +428,18 @@ public class IntakeSpindexer {
         int score2 = scoreMatch(perm2, targetSort);
 
         int best = 0;
-        if (score1 > score0)              { best = 1; }
+        if (score1 > score0)                   { best = 1; }
         if (score2 > Math.max(score0, score1)) { best = 2; }
 
         return best;
     }
 
-    /** Detects whether a ball is present and its color at a sensor pair. */
     private char detectPosition(RevColorSensorV3 s1, RevColorSensorV3 s2, double threshold) {
         double d1 = s1.getDistance(DistanceUnit.MM);
         double d2 = s2.getDistance(DistanceUnit.MM);
 
         if (!(d1 <= threshold && d2 <= threshold)) {
-            return 'O'; // no ball
+            return 'O';
         }
 
         RevColorSensorV3 chosen = (d1 <= d2) ? s1 : s2;
@@ -392,31 +458,23 @@ public class IntakeSpindexer {
 
     // region ===== HELPERS =====
 
-    /**
-     * Slowly rotates the spindexer until the back-right sensor reads the neon-blue
-     * home marker, then resets spindexerHomePosition to that encoder value.
-     * Called every loop while state == REHOMING — no blocking.
-     */
-    private void rehomeSpindexer() {
-        // Read both back-right sensors fresh every loop during homing
-        double dist1  = backRightSensor1.getDistance(DistanceUnit.MM);
-        double dist2  = backRightSensor2.getDistance(DistanceUnit.MM);
-        double blue1  = backRightSensor1.blue();
-        double blue2  = backRightSensor2.blue();
+    public void rehomeSpindexer() {
+        double dist1  = backLeftSensor1.getDistance(DistanceUnit.MM);
+        double dist2  = backLeftSensor2.getDistance(DistanceUnit.MM);
+        double blue1  = backLeftSensor1.blue();
+        double blue2  = backLeftSensor2.blue();
 
-        // Use the closer sensor's blue reading for the color check
         boolean closeEnough = (dist1 < REHOME_DISTANCE_GATE) || (dist2 < REHOME_DISTANCE_GATE);
         double  blueReading = (dist1 <= dist2) ? blue1 : blue2;
         boolean seesBlue    = closeEnough && (blueReading >= REHOME_BLUE_THRESHOLD);
 
         if (seesBlue) {
-            // Found the home mark — latch position and return to intaking
             spindexerHomePosition   = getMotor(MotorNames.spindexer).getCurrentPosition();
             spindexerTargetPosition = spindexerHomePosition;
+            returningHome           = true;
             spindexerState          = SpindexerState.INTAKING;
             telemetry.addData("Rehome", "Complete @ " + spindexerHomePosition);
         } else {
-            // Keep creeping
             getMotor(MotorNames.spindexer).setPower(REHOME_POWER);
             telemetry.addData("Rehome", "Searching... blue=" + String.format("%.0f", blueReading));
         }
@@ -442,7 +500,8 @@ public class IntakeSpindexer {
         telemetry.addData("Shot Count",       shotCount + " / " + REHOME_EVERY_N_SHOTS);
         telemetry.addData("Ball Count (raw)", rawCount);
         telemetry.addData("Ball Count (confirmed)", confirmedBallCount);
-        telemetry.addData("Intake Velocity",     intakeVelocity);
+        telemetry.addData("Intake Reversing", intakeReversing);
+        telemetry.addData("Full Expel Done",  fullExpelDone);
         telemetry.addLine("=== DISTANCES ===");
         telemetry.addData("F1",  String.format("%.1f", f1Dist));
         telemetry.addData("F2",  String.format("%.1f", f2Dist));
@@ -451,12 +510,12 @@ public class IntakeSpindexer {
         telemetry.addData("BL1", String.format("%.1f", bl1Dist));
         telemetry.addData("BL2", String.format("%.1f", bl2Dist));
     }
+
     public void addTelemetry(String caption, Object value) {
         if (isTelemetryEnabled) {
             telemetry.addData(caption, value);
         }
     }
-
 
     // endregion
 }

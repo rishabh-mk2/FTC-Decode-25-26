@@ -31,9 +31,10 @@ public class TurretShooter {
     public HardwareMap hardwareMap;
 
     private PIDController shooterVelocityPID;
+    private FtcDashboard  dashboard;
 
     private Pose   currentPose;
-    public Pose   GOAL_POSE;
+    private Pose   GOAL_POSE;
     private Vector robotVelocity;
     private Vector shooterToGoalVector;
 
@@ -85,51 +86,50 @@ public class TurretShooter {
 
     // region ===== LOOKUP TABLE =====
 
-    // Regionals data: { distance (in), hood position, RPM, recoil }
-    // Interpolated linearly between rows; clamped to first/last row outside range.
+    // Lookup table for hood and recoil only — sorted by distance.
+    // RPM is computed from the linear equation: rpm = 6.49775 * distance + 1209.64627
+    // Hood and recoil: snap to the first row whose distance >= current distance (ceil lookup).
     private static final double[][] LOOKUP = {
-            //  distance    hood     RPM     recoil
-            {   40.478,     0.000,   1450,   0.00  },
-            {   68.054,     0.300,   1600,   0.00  },
-            {   78.135,     0.600,   1650,   0.10  },
-            {   93.692,     0.750,   1800,   0.10  },
-            {  110.309,     0.900,   1950,   0.15  },
-            {  133.997,     0.900,   1975,   0.15  },
-            // Far Zone
-            {  135.500,     1.0,   2150,   0.24  },
-            {  141.400,     1.0,   2150,   0.26  },
-            {  145.700,     1.0,   2150,   0.265  },
-            {  153.000,     1.0,   2250,   0.29  },
+            //  distance     hood    recoil
+            {    38.5621,   0.225,   0.00  },
+            {    46.4716,   0.400,   0.15  },
+            {     52.478,   0.600,   0.15  },
+            {      61.98,   0.750,   0.15  },
+            {       69.3,   0.800,   0.15  },
+            {      76.86,   0.925,   0.15  },
+            {       83.5,   1.000,   0.15  },
+            {       91.5,   1.000,   0.15  },
+            {      94.13,   1.000,   0.15  },
+            {       97.4,   1.000,   0.15  },
+            {    99.9075,   1.000,   0.15  },
+            {   116.3175,   1.000,   0.15  },
+            {    121.573,   1.000,   0.15  },
+            {   126.2259,   1.000,   0.15  },
+            {    131.703,   1.000,   0.15  },
+            {   136.3135,   1.000,   0.15  },
+            {   140.3279,   1.000,   0.15  },
     };
 
-    // Ticks per revolution of the flywheel motor (GoBILDA 5203 = 28 ticks/rev at motor shaft).
-    // Adjust to match your actual motor spec.
+    /** RPM from linear regression: y = 6.49775x + 1209.64627 */
+    private static double rpmFromDistance(double distance) {
+        return 6.49775 * distance + 1209.64627;
+    }
 
     /**
-     * Linearly interpolates a single output column from LOOKUP given a distance.
-     * Clamps to the first/last row if distance is outside the table range.
-     *
-     * @param distance  shooter-to-goal distance in inches
-     * @param col       column index: 1 = hood, 2 = RPM, 3 = recoil
+     * Ceil lookup: finds the first row whose distance >= current distance and returns that value.
+     * col: 1 = hood, 2 = recoil. Clamps to last row if distance exceeds all rows.
      */
-    private static double interpolate(double distance, int col) {
-        // Below first row → clamp to first row
-        if (distance <= LOOKUP[0][0]) return LOOKUP[0][col];
-        // Above last row → clamp to last row
-        if (distance >= LOOKUP[LOOKUP.length - 1][0]) return LOOKUP[LOOKUP.length - 1][col];
-
-        // Find surrounding rows and interpolate
-        for (int r = 0; r < LOOKUP.length - 1; r++) {
-            double d0 = LOOKUP[r][0],     d1 = LOOKUP[r + 1][0];
-            double v0 = LOOKUP[r][col],   v1 = LOOKUP[r + 1][col];
-            if (distance >= d0 && distance <= d1) {
-                double t = (distance - d0) / (d1 - d0);
-                return v0 + t * (v1 - v0);
+    private static double lookupCeil(double distance, int col) {
+        for (int r = 0; r < LOOKUP.length; r++) {
+            if (distance <= LOOKUP[r][0]) {
+                return LOOKUP[r][col];
             }
         }
-        // Should never reach here
         return LOOKUP[LOOKUP.length - 1][col];
     }
+
+
+
 
     // endregion
 
@@ -168,6 +168,7 @@ public class TurretShooter {
         }
 
         GOAL_POSE_VECTOR = GOAL_POSE.getAsVector();
+        dashboard = FtcDashboard.getInstance();
 
         addTelemetry("TurretShooter", "Ready");
     }
@@ -186,23 +187,10 @@ public class TurretShooter {
 
     // endregion
 
-    public void update(Pose pose, Vector velocity, boolean shootP, boolean enableTurret, boolean enableShooter) {
+    public void update(Pose pose, Vector velocity, boolean shootP) {
         updateValues(pose, velocity);
-        if(enableTurret) {
-            updateTurret();
-        }
-        if(enableShooter) {
-            updateShooter(shootP);
-        }
-    }
-    public void update(Pose pose, Vector velocity, boolean shootP, boolean enableTurret, boolean enableShooter, double vel, double hoodPosition, double rec) {
-        updateValues(pose, velocity);
-        if(enableTurret) {
-            updateTurret();
-        }
-        if(enableShooter) {
-            updateShooter(shootP, vel, hoodPosition, rec);
-        }
+        updateTurret();
+        updateShooter(shootP);
     }
 
     // region ===== POSE / VELOCITY =====
@@ -225,16 +213,16 @@ public class TurretShooter {
         GOAL_POSE_VECTOR    = GOAL_POSE.getAsVector().minus(velocity);
         shooterToGoalVector = GOAL_POSE_VECTOR.minus(currentPose.getAsVector());
 
-        // Look up hood, RPM, and recoil from the distance table
         double dist = shooterToGoalVector.getMagnitude();
-//        hoodPos    = interpolate(dist, 1);
-//        shooterVel = interpolate(dist, 2);
-//        recoil     = interpolate(dist, 3);
+        // RPM from linear equation; hood and recoil from ceil lookup table
+        shooterVel = rpmFromDistance(dist);
+        hoodPos    = lookupCeil(dist, 1);
+        recoil     = lookupCeil(dist, 2);
 
         addTelemetry("DistanceToGoal", dist);
-        addTelemetry("Hood (table)",   String.format("%.3f", hoodPos));
-        addTelemetry("RPM (table)",    String.format("%.0f", interpolate(dist, 2)));
-        addTelemetry("Recoil (table)", String.format("%.3f", recoil));
+        addTelemetry("Hood",           String.format("%.3f", hoodPos));
+        addTelemetry("RPM",            String.format("%.0f", shooterVel));
+        addTelemetry("Recoil",         String.format("%.3f", recoil));
         addTelemetry("Shoot",          shoot);
     }
 
@@ -256,27 +244,6 @@ public class TurretShooter {
             setHoodPosition(hoodPos - RECOIL);
         } else {
             setHoodPosition(hoodPos);
-        }
-    }
-
-    public void updateShooter(boolean shootP, double vel, double hoodPosition, double rec) {
-        setShooterVelocity(vel);
-        setRecoil(rec);
-
-        // Latch shoot true on rising edge of shootP; keep latched for SHOOT_LATCH_SECS
-        if (shootP && !shoot) {
-            shoot = true;
-            shootTimer.reset();
-        }
-        if (shoot && shootTimer.seconds() >= SHOOT_LATCH_SECS) {
-            shoot = false;
-        }
-
-        // Hood: pull back by recoil amount only after RECOIL_DELAY_SECS into the shoot latch
-        if (shoot && shootTimer.seconds() >= RECOIL_DELAY_SECS) {
-            setHoodPosition(hoodPosition - rec);
-        } else {
-            setHoodPosition(hoodPosition);
         }
     }
 
@@ -320,6 +287,13 @@ public class TurretShooter {
 
         getMotor(MotorNames.leftShooter ).setPower(power);
         getMotor(MotorNames.rightShooter).setPower(power);
+
+        if (dashboard != null) {
+            dashboard.getTelemetry().addData("Shooter Target",   targetVelocity);
+            dashboard.getTelemetry().addData("Shooter Velocity", currentVelocity);
+            dashboard.getTelemetry().addData("Shooter Power",    power);
+            dashboard.getTelemetry().update();
+        }
 
         addTelemetry("Shooter Target",   targetVelocity);
         addTelemetry("Shooter Velocity", currentVelocity);

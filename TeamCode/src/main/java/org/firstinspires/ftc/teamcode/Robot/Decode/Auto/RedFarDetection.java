@@ -73,10 +73,6 @@ public class RedFarDetection extends OpMode {
         switch (pathState) {
             case 0:
                 if(!follower.isBusy()) {
-                    turretShooter.setTurretPosition(0.66);
-                    turretShooter.setShooterVelocity(2070);
-                    turretShooter.setRecoil(0.28);
-                    turretShooter.setHoodPosition(1.0);
                     if (turretShooter.getMotor(TurretShooter.MotorNames.leftShooter).getVelocity() > 1950) {
                         setPathState(1);
                         shoot = true;
@@ -150,8 +146,8 @@ public class RedFarDetection extends OpMode {
         follower.update();
         autonomousPathUpdate();
 
-        intakeSpindexer.update(shoot, ready);
-        turretShooter.update(follower.getPose(), follower.getVelocity(), shoot, enableTurret, enableShooter);
+        intakeSpindexer.update(shoot, ready, false);
+        turretShooter.update(follower.getPose(), follower.getVelocity(), shoot);
 
         // Feedback to Driver Hub for debugging
         telemetry.addData("path state", pathState);

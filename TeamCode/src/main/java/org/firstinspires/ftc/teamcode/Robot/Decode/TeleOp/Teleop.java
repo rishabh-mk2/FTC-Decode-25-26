@@ -67,6 +67,8 @@ public class Teleop extends OpMode {
         runtime.reset();
     }
 
+    boolean expel = false;
+
     @Override
     public void loop() {
 
@@ -75,19 +77,31 @@ public class Teleop extends OpMode {
         follower.setTeleOpDrive(
                 -gamepad1.left_stick_y,
                 -gamepad1.left_stick_x,
-                -gamepad1.right_stick_x * 0.58,
+                -gamepad1.right_stick_x * 0.45,
                 true
         );
 
+        // REHOME POSIITON
+        if(gamepad1.dpadUpWasReleased()) {
+            follower.  setPose(new Pose(143 - 9.1, 8.1, Math.toRadians(0)));
+        }
+
+//        if(gamepad1.dpadLeftWasReleased()) {
+//            expel = !expel;
+//        }
 
 
         // --- INTAKE / SPINDEXER ---x
         boolean shoot = gamepad1.xWasReleased();
         boolean ready = gamepad1.yWasReleased();
-        intakeSpindexer.update(shoot, ready);
+
+//        intakeSpindexer.update(shoot, ready, expel);
+        if(gamepad1.dpadLeftWasReleased()) {
+            intakeSpindexer.rehomeSpindexer();
+        }
 
         // --- SHOOTER VELOCITY PID (runs every loop) ---
-        turretShooter.update(follower.getPose(), follower.getVelocity(), shoot, true, true, shooterVel, hoodPos, recoil);
+        turretShooter.update(follower.getPose(), follower.getVelocity(), shoot);
 
         dashboard.getTelemetry().addData("shooter target", targetVelocity);
         dashboard.getTelemetry().addData("shooter velocity", turretShooter.getMotor(TurretShooter.MotorNames.leftShooter).getVelocity());
@@ -95,6 +109,7 @@ public class Teleop extends OpMode {
         dashboard.getTelemetry().update();
 
         // --- TELEMETRY ---
+        telemetry.addData("Expel?", expel);
         telemetry.addData("Runtime", runtime.seconds());
         telemetry.addData("Current", intakeSpindexer.getMotor(IntakeSpindexer.MotorNames.intake).getCurrent(CurrentUnit.AMPS));
         telemetry.addData("Ball Count", intakeSpindexer.getConfirmedBallCount());
