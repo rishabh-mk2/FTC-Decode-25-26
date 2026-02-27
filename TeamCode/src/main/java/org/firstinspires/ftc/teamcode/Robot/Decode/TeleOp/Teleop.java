@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.Robot.Decode.TeleOp;
 
 import static org.firstinspires.ftc.teamcode.Robot.Decode.Robot.TurretShooter.targetVelocity;
-import static org.firstinspires.ftc.teamcode.Robot.Decode.Robot.IntakeSpindexer.intakeTargetVelocity;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -86,19 +85,16 @@ public class Teleop extends OpMode {
             follower.  setPose(new Pose(143 - 9.1, 8.1, Math.toRadians(0)));
         }
 
-//        if(gamepad1.dpadLeftWasReleased()) {
-//            expel = !expel;
-//        }
+        if(gamepad1.dpadLeftWasReleased()) {
+            expel = !expel;
+        }
 
 
         // --- INTAKE / SPINDEXER ---x
         boolean shoot = gamepad1.xWasReleased();
         boolean ready = gamepad1.yWasReleased();
 
-//        intakeSpindexer.update(shoot, ready, expel);
-        if(gamepad1.dpadLeftWasReleased()) {
-            intakeSpindexer.rehomeSpindexer();
-        }
+        intakeSpindexer.update(ready, shoot, expel);
 
         // --- SHOOTER VELOCITY PID (runs every loop) ---
         turretShooter.update(follower.getPose(), follower.getVelocity(), shoot);
@@ -112,7 +108,7 @@ public class Teleop extends OpMode {
         telemetry.addData("Expel?", expel);
         telemetry.addData("Runtime", runtime.seconds());
         telemetry.addData("Current", intakeSpindexer.getMotor(IntakeSpindexer.MotorNames.intake).getCurrent(CurrentUnit.AMPS));
-        telemetry.addData("Ball Count", intakeSpindexer.getConfirmedBallCount());
+//        telemetry.addData("Ball Count", intakeSpindexer.getConfirmedBallCount());
         telemetry.addData("Spindexer State", intakeSpindexer.getSpindexerState());
         telemetry.addData("X", follower.getPose().getX());
         telemetry.addData("Y", follower.getPose().getY());

@@ -227,7 +227,8 @@ public class TurretShooter {
     }
 
     public void updateShooter(boolean shootP) {
-        setShooterVelocity(shooterVel);
+//        setShooterVelocity(shooterVel);
+        setShooterVelocity(500);
         setRecoil(recoil);
 
         // Latch shoot true on rising edge of shootP; keep latched for SHOOT_LATCH_SECS
