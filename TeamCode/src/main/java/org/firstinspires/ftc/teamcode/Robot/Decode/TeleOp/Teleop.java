@@ -67,26 +67,40 @@ public class Teleop extends OpMode {
     }
 
     boolean expel = false;
+    boolean slowMode = false;
 
     @Override
     public void loop() {
 
         // --- DRIVE ---
         follower.update();
-        follower.setTeleOpDrive(
-                -gamepad1.left_stick_y,
-                -gamepad1.left_stick_x,
-                -gamepad1.right_stick_x * 0.45,
-                true
-        );
+        if(!slowMode) {
+            follower.setTeleOpDrive(
+                    -gamepad1.left_stick_y,
+                    -gamepad1.left_stick_x,
+                    -gamepad1.right_stick_x * 0.45,
+                    true
+            );
+        } else {
+            follower.setTeleOpDrive(
+                    -gamepad1.left_stick_y * 0.25,
+                    -gamepad1.left_stick_x * 0.25,
+                    -gamepad1.right_stick_x * 0.45 * 0.4,
+                    true
+            );
+        }
+
 
         // REHOME POSIITON
         if(gamepad1.dpadUpWasReleased()) {
-            follower.  setPose(new Pose(143 - 9.1, 8.1, Math.toRadians(0)));
+            follower.setPose(new Pose(143 - 2.1, 12.1, Math.toRadians(0)));
+        }
+        if(gamepad1.dpadDownWasReleased()) {
+            follower.setPose(new Pose(7.05, 8.1, Math.toRadians(0)));
         }
 
         if(gamepad1.dpadLeftWasReleased()) {
-            expel = !expel;
+            slowMode = !slowMode;
         }
 
 
@@ -94,7 +108,7 @@ public class Teleop extends OpMode {
         boolean shoot = gamepad1.xWasReleased();
         boolean ready = gamepad1.yWasReleased();
 
-        intakeSpindexer.update(ready, shoot, expel);
+        intakeSpindexer.update(ready, shoot);
 
         // --- SHOOTER VELOCITY PID (runs every loop) ---
         turretShooter.update(follower.getPose(), follower.getVelocity(), shoot);

@@ -51,7 +51,7 @@ public class IntakeSpindexer {
     public static double INTAKE_REVERSE_SECS = 0.4;
 
     // How far forward (ticks) to advance spindexer when ready to shoot
-    public static double READY_OFFSET = 160;
+    public static double READY_OFFSET = 170;
 
     // endregion
 
@@ -93,6 +93,9 @@ public class IntakeSpindexer {
     private boolean           fullExpelling = false;
     private boolean           fullExpelDone = false;
     private final ElapsedTime fullExpelTimer = new ElapsedTime();
+
+    private boolean           readyExpelling = false;
+    private final ElapsedTime readyExpelTimer = new ElapsedTime();
 
     // endregion
 
@@ -141,7 +144,7 @@ public class IntakeSpindexer {
     public int            getBallCount()             { return ballCount;                       }
     public SpindexerState getSpindexerState()        { return spindexerState;                 }
 
-    public void update(boolean triggerReady, boolean triggerShoot, boolean triggerExpel) {
+    public void update(boolean triggerReady, boolean triggerShoot) {
 
         spindexerPID.setPID(p, i, d);
         loopCounter++;
@@ -159,9 +162,6 @@ public class IntakeSpindexer {
 
         boolean full = ballCount >= 3;
 
-        // --- Manual expel toggle ---
-        manualExpel = triggerExpel;
-
         // --- Block servo: close if full, or if explicitly closed by a state transition ---
         if (full) blockClosed = true;
         getServo(ServoNames.spindexerBlock).setPosition(blockClosed ? BLOCK_CLOSED : BLOCK_OPEN);
@@ -169,6 +169,8 @@ public class IntakeSpindexer {
         // --- State transitions ---
         if (triggerReady && spindexerState != SpindexerState.SHOOTING) {
             blockClosed     = true;
+            readyExpelling   = true;
+            readyExpelTimer.reset();
             spindexerHome   = getMotor(MotorNames.spindexer).getCurrentPosition();
             spindexerTarget = spindexerHome + READY_OFFSET;
             spindexerState  = SpindexerState.READY_TO_SHOOT;
@@ -224,9 +226,9 @@ public class IntakeSpindexer {
 
     private void runIntake() {
 
-        // 0. Manual expel override — highest priority
-        if (manualExpel) {
-            getMotor(MotorNames.intake).setPower(-1.0);
+        if (readyExpelling) {
+            getMotor(MotorNames.intake).setPower(-0.5);
+            if (readyExpelTimer.seconds() >= INTAKE_REVERSE_SECS) readyExpelling = false;
             return;
         }
 

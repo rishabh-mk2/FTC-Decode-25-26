@@ -219,6 +219,7 @@ public class TurretShooter {
         hoodPos    = lookupCeil(dist, 1);
         recoil     = lookupCeil(dist, 2);
 
+
         addTelemetry("DistanceToGoal", dist);
         addTelemetry("Hood",           String.format("%.3f", hoodPos));
         addTelemetry("RPM",            String.format("%.0f", shooterVel));
@@ -227,8 +228,7 @@ public class TurretShooter {
     }
 
     public void updateShooter(boolean shootP) {
-//        setShooterVelocity(shooterVel);
-        setShooterVelocity(500);
+        setShooterVelocity(shooterVel);
         setRecoil(recoil);
 
         // Latch shoot true on rising edge of shootP; keep latched for SHOOT_LATCH_SECS
