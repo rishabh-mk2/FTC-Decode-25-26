@@ -4,19 +4,18 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Robot.Decode.Alliance;
 import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.IntakeSpindexer;
 import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.TurretShooter;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Red Far Detectiom")
-public class RedFarDetection extends OpMode {
+@Autonomous(name = "Red Close")
+public class RedClose extends OpMode {
 
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
@@ -30,70 +29,51 @@ public class RedFarDetection extends OpMode {
     boolean enableShooter = false;
     private int pathState;
 
-    private final Pose startPose = new Pose(101.875, 8.1, Math.toRadians(0));
+    private final Pose startPose = new Pose(112.4, 132.2, Math.toRadians(90));
 
-    private PathChain intake1_1, intake1_2, intake1_3,intake1_4, shoot1, intake2, shoot2;
+    private PathChain shoot1, intake1, shoot2, intake2, shoot3;
 
     public void buildPaths() {
-        intake1_1 = follower.pathBuilder().addPath(
-                        new BezierLine(
-                                new Pose(101.875, 8.1),
-                                new Pose(122, 7.9)
-                        )
-                ).setConstantHeadingInterpolation(Math.toRadians(0))
-                .setGlobalDeceleration(15.0)
-                .build();
-        intake1_2 = follower.pathBuilder().addPath(
-                        new BezierLine(
-                                new Pose(122, 7.9),
-                                new Pose(133, 7.9)
-                        )
-                ).setConstantHeadingInterpolation(Math.toRadians(0))
-                .setGlobalDeceleration()
-                .build();
-
-        intake1_3 = follower.pathBuilder().addPath(
-                        new BezierLine(
-                                new Pose(133, 7.9),
-                                new Pose(128, 7.9)
-                        )
-                ).setConstantHeadingInterpolation(Math.toRadians(0))
-                .setGlobalDeceleration()
-                .build();
-
-        intake1_4 = follower.pathBuilder().addPath(
-                        new BezierLine(
-                                new Pose(128, 7.9),
-                                new Pose(133, 7.9)
-                        )
-                ).setConstantHeadingInterpolation(Math.toRadians(0))
-                .setGlobalDeceleration()
-                .build();
-
-
         shoot1 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(133, 7.9),
-                                new Pose(91.75, 15.5)
+                                new Pose(112.4, 132.2),
+                                new Pose(105, 95)
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(0))
+                ).setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(-38))
                 .build();
-        intake2 = follower.pathBuilder()
+        intake1 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(91.75, 15.5),
-                                new Pose(90.31836734693877, 35.461224489795924),
-                                new Pose(125, 36)
+                                new Pose(105.000, 95),
+                                new Pose(102.400, 65.624),
+                                new Pose(127, 71.5)
                         )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
         shoot2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(125, 36),
-                                new Pose(91.75, 15.5)
+                                new Pose(127, 71.5),
+                                new Pose(96, 86)
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(0))
+                ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(20))
+                .build();
+        intake2 = follower.pathBuilder().addPath(
+                        new BezierCurve(
+                                new Pose(96, 86),
+                                new Pose (103.4967, 68),
+                                new Pose(135.25, 67.9)
+                        )
+                ).setLinearHeadingInterpolation(Math.toRadians(20), Math.toRadians(31))
+                .setBrakingStart(25)
+                .setBrakingStrength(4.0)
+                .build();
+        shoot3 = shoot2 = follower.pathBuilder().addPath(
+                        new BezierLine(
+                                new Pose(135.25, 67.9),
+                                new Pose(96, 86)
+                        )
+                ).setConstantHeadingInterpolation(Math.toRadians(31))
                 .build();
     }
 
@@ -102,37 +82,37 @@ public class RedFarDetection extends OpMode {
             case 0:
                 if(!follower.isBusy()) {
                     setPathState(1);
-                    ready = true;
+                    follower.followPath(shoot1, 1.0, true);
                 }
                 break;
             case 1:
                 if(!follower.isBusy()) {
-                    ready = false;
-                    // TODO: Check For Velocity Not Time
-                    if(pathTimer.getElapsedTimeSeconds() > 2.0) {
+                    if(pathTimer.getElapsedTimeSeconds() > 1.5) {
                         setPathState(2);
                     }
                 }
                 break;
             case 2:
                 if(!follower.isBusy()) {
-                    shoot = true;
                     setPathState(3);
+                    shoot = true;
                 }
                 break;
             case 3:
                 if(!follower.isBusy()) {
                     shoot = false;
-                    // TODO: Check For Velocity Not Time
-                    if(pathTimer.getElapsedTimeSeconds() > 0.6) {
+                    if(pathTimer.getElapsedTimeSeconds() > 0.75) {
                         setPathState(4);
                     }
                 }
                 break;
             case 4:
                 if(!follower.isBusy()) {
-                    follower.followPath(intake1_1, 0.8, true);
+                    turretShooter.hoodPos = 0.84;
+                    turretShooter.shooterVel = 1643.976;
                     setPathState(5);
+                    intakeSpindexer.manualOverrideSpindexerBlock(false);
+                    follower.followPath(intake1, 0.7, true);
                 }
                 break;
             case 5:
@@ -144,95 +124,142 @@ public class RedFarDetection extends OpMode {
                 break;
             case 6:
                 if(!follower.isBusy()) {
-                    follower.followPath(intake1_2, 0.4, true);
+                    follower.followPath(shoot2, 0.9, true);
                     setPathState(7);
                 }
                 break;
             case 7:
                 if(!follower.isBusy()) {
-                    follower.followPath(intake1_3, 0.4, true);
-                    setPathState(8);
+                    intakeSpindexer.manualOverrideSpindexerBlock(true);
+                    if(pathTimer.getElapsedTimeSeconds() > 1.5) {
+                        setPathState(8);
+                    }
                 }
                 break;
             case 8:
                 if(!follower.isBusy()) {
-                    follower.followPath(intake1_4, 0.4, true);
+                    shoot = true;
                     setPathState(9);
                 }
                 break;
             case 9:
                 if(!follower.isBusy()) {
-                    if(pathTimer.getElapsedTimeSeconds() > 1.25) {
+                    shoot = false;
+                    if(pathTimer.getElapsedTimeSeconds() > 0.75) {
                         setPathState(10);
+                        intakeSpindexer.manualOverrideSpindexerBlock(false);
                     }
                 }
                 break;
             case 10:
                 if(!follower.isBusy()) {
-                    ready = true;
+                    follower.followPath(intake2, 0.8, true);
                     setPathState(11);
                 }
                 break;
             case 11:
                 if(!follower.isBusy()) {
-                    ready = false;
-                    setPathState(12);
+                    if(intakeSpindexer.getBallCount() == 3 || pathTimer.getElapsedTimeSeconds() > 4.5) {
+                        follower.followPath(shoot3, 0.8, true);
+                        setPathState(12);
+                    }
                 }
                 break;
             case 12:
                 if(!follower.isBusy()) {
-                    follower.followPath(shoot1, 0.9, true);
-                    setPathState(13);
+                    intakeSpindexer.manualOverrideSpindexerBlock(true);
+                    if(pathTimer.getElapsedTimeSeconds() > 0.75) {
+                        setPathState(13);
+                    }
                 }
                 break;
             case 13:
                 if(!follower.isBusy()) {
-                    if(pathTimer.getElapsedTimeSeconds() > 0.3) {
-                        setPathState(14);
-                    }
+                    shoot = true;
+                    setPathState(14);
                 }
                 break;
             case 14:
                 if(!follower.isBusy()) {
-                    shoot = true;
-                    setPathState(15);
+                    shoot = false;
+                    if(pathTimer.getElapsedTimeSeconds() > 0.75) {
+                        setPathState(15);
+                        intakeSpindexer.manualOverrideSpindexerBlock(false);
+                    }
                 }
                 break;
             case 15:
                 if(!follower.isBusy()) {
-                    shoot = false;
+                    follower.followPath(intake2, 0.8, true);
                     setPathState(16);
                 }
                 break;
             case 16:
                 if(!follower.isBusy()) {
-                    if(pathTimer.getElapsedTimeSeconds() > 0.6) {
+                    if(intakeSpindexer.getBallCount() == 3 || pathTimer.getElapsedTimeSeconds() > 4.5) {
+                        follower.followPath(shoot3, 0.8, true);
                         setPathState(17);
                     }
                 }
                 break;
             case 17:
                 if(!follower.isBusy()) {
-                    follower.followPath(intake2, 0.7, true);
-                    setPathState(18);
+                    intakeSpindexer.manualOverrideSpindexerBlock(true);
+                    if(pathTimer.getElapsedTimeSeconds() > 0.75) {
+                        setPathState(18);
+                    }
                 }
                 break;
             case 18:
                 if(!follower.isBusy()) {
-                    ready = true;
+                    shoot = true;
                     setPathState(19);
                 }
                 break;
             case 19:
                 if(!follower.isBusy()) {
-                    ready = false;
-                    setPathState(20);
+                    shoot = false;
+                    if(pathTimer.getElapsedTimeSeconds() > 0.75) {
+                        setPathState(20);
+                        intakeSpindexer.manualOverrideSpindexerBlock(false);
+                    }
                 }
                 break;
             case 20:
                 if(!follower.isBusy()) {
-                    follower.followPath(shoot2, 0.9, true);
-                    setPathState(-1);
+                    follower.followPath(intake2, 0.8, true);
+                    setPathState(21);
+                }
+                break;
+            case 21:
+                if(!follower.isBusy()) {
+                    if(intakeSpindexer.getBallCount() == 3 || pathTimer.getElapsedTimeSeconds() > 4.5) {
+                        follower.followPath(shoot3, 0.8, true);
+                        setPathState(22);
+                    }
+                }
+                break;
+            case 22:
+                if(!follower.isBusy()) {
+                    intakeSpindexer.manualOverrideSpindexerBlock(true);
+                    if(pathTimer.getElapsedTimeSeconds() > 0.75) {
+                        setPathState(23);
+                    }
+                }
+                break;
+            case 23:
+                if(!follower.isBusy()) {
+                    shoot = true;
+                    setPathState(24);
+                }
+                break;
+            case 24:
+                if(!follower.isBusy()) {
+                    shoot = false;
+                    if(pathTimer.getElapsedTimeSeconds() > 0.75) {
+                        setPathState(25);
+                        intakeSpindexer.manualOverrideSpindexerBlock(false);
+                    }
                 }
                 break;
         }
@@ -257,7 +284,7 @@ public class RedFarDetection extends OpMode {
         autonomousPathUpdate();
 
         intakeSpindexer.update(ready, shoot);
-        turretShooter.update(follower.getPose(), follower.getVelocity(), shoot, true, false, false);
+        turretShooter.update(follower.getPose(), follower.getVelocity(), shoot, false, false, true);
 
         // Feedback to Driver Hub for debugging
         telemetry.addData("path state", pathState);
@@ -284,6 +311,11 @@ public class RedFarDetection extends OpMode {
         intakeSpindexer = new IntakeSpindexer(this);
         turretShooter   = new TurretShooter(this, alliance);
 
+        intakeSpindexer.manualOverrideSpindexerBlock(true);
+        intakeSpindexer.setSpindexerBlockPosition();
+
+        turretShooter.hoodPos = 0.8;
+        turretShooter.shooterVel = 1561.8458;
     }
 
     /**

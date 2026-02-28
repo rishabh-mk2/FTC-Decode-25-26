@@ -187,21 +187,21 @@ public class TurretShooter {
 
     // endregion
 
-    public void update(Pose pose, Vector velocity, boolean shootP) {
-        updateValues(pose, velocity);
+    public void update(Pose pose, Vector velocity, boolean shootP, boolean autoVel, boolean autoHood, boolean autoRecoil) {
+        updateValues(pose, velocity, autoVel, autoHood, autoRecoil);
         updateTurret();
-        updateShooter(shootP);
+        updateShooter(shootP, autoVel, autoHood, autoRecoil);
     }
 
     // region ===== POSE / VELOCITY =====
 
     // Computed each loop from the lookup table — used by updateShooter()
-    private double hoodPos    = 0.0;
-    private double shooterVel = 0.0;
-    private double recoil     = 0.0;
+    public double hoodPos    = 0.0;
+    public double shooterVel = 0.0;
+    public double recoil     = 0.0;
 
     /** Call every loop with the robot's current field pose and velocity vector. */
-    public void updateValues(Pose pose, Vector velocity) {
+    public void updateValues(Pose pose, Vector velocity, boolean autoVel, boolean autoHood, boolean autoRecoil) {
         robotVelocity = velocity;
 
         // Translate the raw pose 1.9 inches forward along the robot's heading
@@ -215,9 +215,9 @@ public class TurretShooter {
 
         double dist = shooterToGoalVector.getMagnitude();
         // RPM from linear equation; hood and recoil from ceil lookup table
-        shooterVel = rpmFromDistance(dist);
-        hoodPos    = lookupCeil(dist, 1);
-        recoil     = lookupCeil(dist, 2);
+        if(autoVel) {shooterVel = rpmFromDistance(dist);}
+        if(autoHood) {hoodPos    = lookupCeil(dist, 1);}
+        if(autoRecoil) {recoil     = lookupCeil(dist, 2);}
 
 
         addTelemetry("DistanceToGoal", dist);
@@ -227,9 +227,9 @@ public class TurretShooter {
         addTelemetry("Shoot",          shoot);
     }
 
-    public void updateShooter(boolean shootP) {
+    public void updateShooter(boolean shootP, boolean autoVel, boolean autoHood, boolean autoRecoil) {
         setShooterVelocity(shooterVel);
-        setRecoil(recoil);
+        if(autoRecoil) {setRecoil(recoil);}
 
         // Latch shoot true on rising edge of shootP; keep latched for SHOOT_LATCH_SECS
         if (shootP && !shoot) {

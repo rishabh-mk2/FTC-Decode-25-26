@@ -111,7 +111,7 @@ public class Teleop extends OpMode {
         intakeSpindexer.update(ready, shoot);
 
         // --- SHOOTER VELOCITY PID (runs every loop) ---
-        turretShooter.update(follower.getPose(), follower.getVelocity(), shoot);
+        turretShooter.update(follower.getPose(), follower.getVelocity(), shoot, true, true, true);
 
         dashboard.getTelemetry().addData("shooter target", targetVelocity);
         dashboard.getTelemetry().addData("shooter velocity", turretShooter.getMotor(TurretShooter.MotorNames.leftShooter).getVelocity());

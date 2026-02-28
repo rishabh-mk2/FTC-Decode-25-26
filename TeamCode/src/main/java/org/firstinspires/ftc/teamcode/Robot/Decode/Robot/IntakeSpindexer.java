@@ -34,6 +34,8 @@ public class IntakeSpindexer {
 
     PIDController spindexerPID;
 
+    private boolean manualBlockOverride = false;
+
     // endregion
 
     // region ===== TUNABLE CONSTANTS =====
@@ -144,6 +146,14 @@ public class IntakeSpindexer {
     public int            getBallCount()             { return ballCount;                       }
     public SpindexerState getSpindexerState()        { return spindexerState;                 }
 
+    public void manualOverrideSpindexerBlock(boolean forceClose) {
+        manualBlockOverride = forceClose;
+    }
+
+    public void setSpindexerBlockPosition() {
+        getServo(ServoNames.spindexerBlock).setPosition((blockClosed || manualBlockOverride) ? BLOCK_CLOSED : BLOCK_OPEN);
+    }
+
     public void update(boolean triggerReady, boolean triggerShoot) {
 
         spindexerPID.setPID(p, i, d);
@@ -164,7 +174,7 @@ public class IntakeSpindexer {
 
         // --- Block servo: close if full, or if explicitly closed by a state transition ---
         if (full) blockClosed = true;
-        getServo(ServoNames.spindexerBlock).setPosition(blockClosed ? BLOCK_CLOSED : BLOCK_OPEN);
+        setSpindexerBlockPosition();
 
         // --- State transitions ---
         if (triggerReady && spindexerState != SpindexerState.SHOOTING) {
@@ -176,7 +186,7 @@ public class IntakeSpindexer {
             spindexerState  = SpindexerState.READY_TO_SHOOT;
         }
 
-        if (triggerShoot && spindexerState == SpindexerState.READY_TO_SHOOT) {
+        if (triggerShoot) {
             shootTimer.reset();
             spindexerState = SpindexerState.SHOOTING;
         }
