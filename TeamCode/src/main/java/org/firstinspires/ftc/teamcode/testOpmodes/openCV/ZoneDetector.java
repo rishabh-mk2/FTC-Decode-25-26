@@ -8,8 +8,12 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
+import org.firstinspires.ftc.teamcode.Robot.Decode.Alliance;
 import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.core.Point;
+
+import java.util.List;
 
 /**
  * Outputs an integer 1 - 5 based on most populated zone
@@ -30,24 +34,36 @@ import org.opencv.core.Point;
  * detector.close();
  **/
 public class ZoneDetector {
-    private final VisionPortal visionPortal;
-    private final ROIProcessor roi;
+    private final VisionPortal     visionPortal;
+    private final ROIProcessorRed  roiRED;
+    private final ROIProcessorBlue roiBLUE;
+    private final Alliance         alliance;
     public OpMode      opmode;
     public Telemetry   telemetry;
     public HardwareMap hardwareMap;
-    ExposureControl    exposureControl;
 
-    public ZoneDetector(OpMode opMode) {
+    public ZoneDetector(OpMode opMode, Alliance alliance) {
         this.opmode      = opMode;
         this.telemetry   = opMode.telemetry;
         this.hardwareMap = opMode.hardwareMap;
+        this.alliance    = alliance;
 
-        roi = new ROIProcessor();
+        VisionProcessor processor;
+        if (alliance == Alliance.RED) {
+            roiRED    = new ROIProcessorRed();
+            roiBLUE   = null;
+            processor = roiRED;
+        } else {
+            roiBLUE   = new ROIProcessorBlue();
+            roiRED    = null;
+            processor = roiBLUE;
+        }
+
         visionPortal = new VisionPortal.Builder()
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
                 .setCameraResolution(new Size(640, 480))
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
-                .addProcessor(roi)
+                .addProcessor(processor)
                 .enableLiveView(true)
                 .build();
     }
@@ -55,22 +71,18 @@ public class ZoneDetector {
     public int getZone() {
         int[] counts = new int[7];
 
-        for (Point p : roi.getPurpleCenters()) {
-            int zone = roi.getROIIndexForPoint(p);
+        List<Point> purpleCenters = (alliance == Alliance.RED) ? roiRED.getPurpleCenters() : roiBLUE.getPurpleCenters();
+        List<Point> greenCenters  = (alliance == Alliance.RED) ? roiRED.getGreenCenters()  : roiBLUE.getGreenCenters();
+
+        for (Point p : purpleCenters) {
+            int zone = (alliance == Alliance.RED) ? roiRED.getROIIndexForPoint(p) : roiBLUE.getROIIndexForPoint(p);
             if (zone >= 1 && zone <= 6) counts[zone]++;
         }
-        for (Point p : roi.getGreenCenters()) {
-            int zone = roi.getROIIndexForPoint(p);
+        for (Point p : greenCenters) {
+            int zone = (alliance == Alliance.RED) ? roiRED.getROIIndexForPoint(p) : roiBLUE.getROIIndexForPoint(p);
             if (zone >= 1 && zone <= 6) counts[zone]++;
         }
 
-        // checks each pair of zones
-        // outputs zone with greatest frequency
-        // example: zone1 + zone 2 = 3           example 2: zone 1 + zone 2 = 4
-        // example contd: zone 2 + zone 3 = 4    example 2: zone 2 + zone 3 = 2
-        // output of above: 2                    example 2: 1
-
-        // essentially outputs the smaller zone number of the pair
         int bestPair  = 0;
         int bestCount = 0;
         for (int i = 1; i <= 5; i++) {

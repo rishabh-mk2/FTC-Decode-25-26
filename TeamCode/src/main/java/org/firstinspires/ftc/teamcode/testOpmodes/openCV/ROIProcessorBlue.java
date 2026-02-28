@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Disabled
-public class ROIProcessor implements VisionProcessor {
+public class ROIProcessorBlue implements VisionProcessor {
     private static final Scalar PURPLE_LOW_HSV  = new Scalar(130, 50, 50);
     private static final Scalar PURPLE_HIGH_HSV = new Scalar(170, 255, 255);
     private static final Scalar GREEN_LOW_HSV   = new Scalar(40, 50, 50);
@@ -57,37 +57,38 @@ public class ROIProcessor implements VisionProcessor {
 
     @Override
     public void init(int width, int height, CameraCalibration calibration) {
+        // All x-coordinates mirrored: new_x = 640 - old_x
         Point[] zone1 = {
-                new Point(183,  67), new Point(183,   0),
-                new Point(217,   0), new Point(217,  67),
-                new Point(  0, 313), new Point(  0, 178),
+                new Point(457,  67), new Point(457,   0),
+                new Point(423,   0), new Point(423,  67),
+                new Point(640, 313), new Point(640, 178),
         };
         Point[] zone2 = {
-                new Point(217,  67), new Point(217,   0),
-                new Point(267,   0), new Point(267,  67),
-                new Point( 33, 480), new Point(  0, 480),
-                new Point(  0, 313),
+                new Point(423,  67), new Point(423,   0),
+                new Point(373,   0), new Point(373,  67),
+                new Point(607, 480), new Point(640, 480),
+                new Point(640, 313),
         };
         Point[] zone3 = {
-                new Point(267,  67), new Point(267,   0),
-                new Point(300,   0), new Point(300,  67),
-                new Point(283, 347), new Point(260, 347),
-                new Point(120, 480), new Point( 33, 480),
+                new Point(373,  67), new Point(373,   0),
+                new Point(340,   0), new Point(340,  67),
+                new Point(357, 347), new Point(380, 347),
+                new Point(520, 480), new Point(607, 480),
         };
         Point[] zone4 = {
-                new Point(300,  67), new Point(300,   0),
-                new Point(333,   0), new Point(333,  67),
-                new Point(442, 325), new Point(283, 347),
+                new Point(340,  67), new Point(340,   0),
+                new Point(307,   0), new Point(307,  67),
+                new Point(198, 325), new Point(357, 347),
         };
         Point[] zone5 = {
-                new Point(333,  67), new Point(333,   0),
-                new Point(383,   0), new Point(383,  67),
-                new Point(600, 311), new Point(442, 325),
+                new Point(307,  67), new Point(307,   0),
+                new Point(257,   0), new Point(257,  67),
+                new Point( 40, 311), new Point(198, 325),
         };
         Point[] zone6 = {
-                new Point(383,  67), new Point(383,   0),
-                new Point(640,   0), new Point(640, 298),
-                new Point(600, 311),
+                new Point(257,  67), new Point(257,   0),
+                new Point(  0,   0), new Point(  0, 298),
+                new Point( 40, 311),
         };
 
         roi1MOP.fromArray(zone1); roi1MOP.convertTo(roi1Boundary2f, CvType.CV_32F);

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.testOpmodes.openCV;
+package org.firstinspires.ftc.teamcode.testOpmodes.randomStuff;
 
 import android.util.Size;
 
@@ -16,12 +16,12 @@ import java.util.List;
 public class customProcessorHough extends LinearOpMode {
 
     private VisionPortal visionPortal;
-    private ROIProcessorHoughRed processor;
+    private uselessHoughShit processor;
 
     @Override
     public void runOpMode() {
 
-        processor = new ROIProcessorHoughRed();
+        processor = new uselessHoughShit();
 
         visionPortal = new VisionPortal.Builder()
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))

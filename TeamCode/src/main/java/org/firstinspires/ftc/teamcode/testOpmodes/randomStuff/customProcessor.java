@@ -1,12 +1,11 @@
-package org.firstinspires.ftc.teamcode.testOpmodes.openCV;
+package org.firstinspires.ftc.teamcode.testOpmodes.randomStuff;
 
 import android.util.Size;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.testOpmodes.openCV.ROIProcessor;
+import org.firstinspires.ftc.teamcode.testOpmodes.openCV.ROIProcessorRed;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.Point;
@@ -19,11 +18,11 @@ import java.util.List;
 public class customProcessor extends LinearOpMode {
 
     private VisionPortal visionPortal;
-    private ROIProcessor roiProcessor;
+    private ROIProcessorRed roiProcessor;
 
     @Override
     public void runOpMode() {
-        roiProcessor = new ROIProcessor();
+        roiProcessor = new ROIProcessorRed();
 
         visionPortal = new VisionPortal.Builder()
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
