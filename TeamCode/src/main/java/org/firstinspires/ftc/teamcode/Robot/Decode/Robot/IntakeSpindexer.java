@@ -205,7 +205,7 @@ public class IntakeSpindexer {
 
             case SHOOTING:
                 getMotor(MotorNames.spindexer).setPower(-0.7);
-                if (shootTimer.seconds() >= 0.6) {
+                if (shootTimer.seconds() >= 0.8) {
                     ballCount       = 0;
                     blockClosed     = false;
                     fullExpelling = false;
@@ -235,6 +235,11 @@ public class IntakeSpindexer {
     // region ===== INTAKE =====
 
     private void runIntake() {
+
+        if (manualBlockOverride) {
+            getMotor(MotorNames.intake).setPower(-0.2);
+            return;
+        }
 
         if (readyExpelling) {
             getMotor(MotorNames.intake).setPower(-0.5);
