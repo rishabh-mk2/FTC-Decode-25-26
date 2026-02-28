@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.testOpmodes.openCV;
+package org.firstinspires.ftc.teamcode.testOpmodes.randomStuff;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Disabled
-public class ROIProcessorHoughRed implements VisionProcessor {
+public class uselessHoughShit implements VisionProcessor {
 
     private static final double SCALE = 0.5; // was 0.5
     private static final double INV_SCALE = 1.0 / SCALE;
