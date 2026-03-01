@@ -19,8 +19,8 @@ import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.TurretShooter;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Config
-@TeleOp(name = "Red TeleOp", group = "TeleOp")
-public class RedTeleop extends OpMode {
+@TeleOp(name = "Blue Far TeleOp", group = "TeleOp")
+public class BlueFarTeleop extends OpMode {
 
     private final ElapsedTime runtime = new ElapsedTime();
 
@@ -30,10 +30,10 @@ public class RedTeleop extends OpMode {
     IntakeSpindexer  intakeSpindexer;
     TurretShooter    turretShooter;
 
-    Pose startPose = new Pose(72, 72, Math.toRadians(45));
+    Pose startPose = new Pose(11.5, 12, Math.toRadians(180));
 
     // Change to Alliance.BLUE if needed
-    Alliance alliance = Alliance.RED;
+    Alliance alliance = Alliance.BLUE;
 
     public static double shooterVel = 0.0;
     public static double hoodPos = 1.0;
@@ -107,11 +107,11 @@ public class RedTeleop extends OpMode {
             dtCurrent = frontLeft.getCurrent(CurrentUnit.AMPS) + backLeft.getCurrent(CurrentUnit.AMPS) + backRight.getCurrent(CurrentUnit.AMPS) + frontRight.getCurrent(CurrentUnit.AMPS);
         }
 
-        if(gamepad1.dpadUpWasReleased()) {
-            follower.setPose(new Pose(141.5 - 8.5, 8.1, Math.toRadians(0)));
-        }
         if(gamepad1.dpadDownWasReleased()) {
-            follower.setPose(new Pose(7.0, 8.1, Math.toRadians(0)));
+            follower.setPose(new Pose(141.5 - 7.0 - 10.0, 8.1 + 10.0, Math.toRadians(180)));
+        }
+        if(gamepad1.dpadUpWasReleased()) {
+            follower.setPose(new Pose(15, 15, Math.toRadians(180)));
         }
 
         if(dtCurrent > 25) {
