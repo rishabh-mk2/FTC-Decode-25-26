@@ -60,6 +60,8 @@ public class ZoneDetector {
             processor = roiBLUE;
         }
 
+
+
         visionPortal = new VisionPortal.Builder()
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
                 .setCameraResolution(new Size(640, 480))
