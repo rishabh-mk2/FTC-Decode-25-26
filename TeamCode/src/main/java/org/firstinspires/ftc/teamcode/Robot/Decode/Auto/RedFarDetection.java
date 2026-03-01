@@ -274,7 +274,7 @@ public class RedFarDetection extends OpMode {
         buildPaths();
         follower.setStartingPose(startPose);
 
-        intakeSpindexer = new IntakeSpindexer(this);
+        intakeSpindexer = new IntakeSpindexer(this, false);
         turretShooter   = new TurretShooter(this, alliance);
 
         intakeSpindexer.manualOverrideSpindexerBlock(true);

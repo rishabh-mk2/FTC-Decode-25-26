@@ -98,15 +98,17 @@ public class IntakeSpindexer {
 
     private boolean           readyExpelling = false;
     private final ElapsedTime readyExpelTimer = new ElapsedTime();
+    boolean teleop;
 
     // endregion
 
     // region ===== CONSTRUCTOR =====
 
-    public IntakeSpindexer(OpMode opMode) {
+    public IntakeSpindexer(OpMode opMode, boolean teleop) {
         this.opmode      = opMode;
         this.telemetry   = opMode.telemetry;
         this.hardwareMap = opMode.hardwareMap;
+        this.teleop = teleop;
 
         DcMotorsEx = new ArrayList<>();
         Servos     = new ArrayList<>();
@@ -160,7 +162,17 @@ public class IntakeSpindexer {
         loopCounter++;
 
         // Poll sensors every 10 loops
-        if (loopCounter % 10 == 0) updateSensors();
+        if(teleop) {
+            if (loopCounter % 25 == 0) {
+                updateSensors();
+            }
+        } else {
+            if (loopCounter % 10 == 0) {
+                updateSensors();
+            }
+        }
+
+
 
         // --- Ball count ---
         boolean seeFront = f1 < FRONT_THRESHOLD || f2 < FRONT_THRESHOLD;

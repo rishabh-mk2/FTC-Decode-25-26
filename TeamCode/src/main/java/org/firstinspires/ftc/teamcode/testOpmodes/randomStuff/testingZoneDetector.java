@@ -22,7 +22,7 @@ public class testingZoneDetector extends OpMode {
 
     @Override
     public void stop() {
-        detector.close();
+        detector.stop();
         super.stop();
     }
 }

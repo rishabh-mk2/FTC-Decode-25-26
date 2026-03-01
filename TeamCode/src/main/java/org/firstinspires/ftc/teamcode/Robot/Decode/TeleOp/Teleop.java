@@ -9,6 +9,7 @@ import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -40,14 +41,21 @@ public class Teleop extends OpMode {
     public static double hoodPos = 1.0;
     public static double recoil = 0.0;
     public static double turretPos = 0.5;
+    DcMotorEx frontLeft, backLeft, backRight, frontRight;
 
     @Override
     public void init() {
         follower        = Constants.createFollower(hardwareMap);
-        intakeSpindexer = new IntakeSpindexer(this);
+        intakeSpindexer = new IntakeSpindexer(this, true);
         turretShooter   = new TurretShooter(this, alliance);
 
         follower.setStartingPose(startPose);
+
+        frontLeft = hardwareMap.get(DcMotorEx.class, "lF");
+        backLeft = hardwareMap.get(DcMotorEx.class, "lR");
+        backRight = hardwareMap.get(DcMotorEx.class, "rR");
+        frontRight = hardwareMap.get(DcMotorEx.class, "rF");
+
 
         dashboard = FtcDashboard.getInstance();
 
@@ -71,6 +79,7 @@ public class Teleop extends OpMode {
 
     boolean manualBlock = false;
     double dtCurrent = 0.0;
+    double totalCurrent = 0.0;
     @Override
     public void loop() {
 
@@ -92,15 +101,23 @@ public class Teleop extends OpMode {
             );
         }
 
-        dtCurrent = follower.getClass().;
-
 
         // REHOME POSIITON
+
+        dtCurrent = frontLeft.getCurrent(CurrentUnit.AMPS) + backLeft.getCurrent(CurrentUnit.AMPS) + backRight.getCurrent(CurrentUnit.AMPS) + frontRight.getCurrent(CurrentUnit.AMPS);
+        totalCurrent = intakeSpindexer.getTotalCurrent() + turretShooter.getTotalCurrent() + dtCurrent;
+
         if(gamepad1.dpadUpWasReleased()) {
             follower.setPose(new Pose(143 - 2.1, 12.1, Math.toRadians(0)));
         }
         if(gamepad1.dpadDownWasReleased()) {
             follower.setPose(new Pose(7.05, 8.1, Math.toRadians(0)));
+        }
+
+        if(totalCurrent > 27) {
+            slowMode = true;
+        } else {
+            slowMode = false;
         }
 
         if(gamepad1.dpadLeftWasReleased()) {
@@ -140,6 +157,9 @@ public class Teleop extends OpMode {
         telemetry.addData("X", follower.getPose().getX());
         telemetry.addData("Y", follower.getPose().getY());
         telemetry.addData("Heading", follower.getPose().getHeading() * 180 / Math.PI);
+        telemetry.addData("INTAKE/SPINDEX CURRENT:", intakeSpindexer.getTotalCurrent());
+        telemetry.addData("TURRET/SHOOTER CURRENT:", turretShooter.getTotalCurrent());
+        telemetry.addData("DRIVETRAIN     CURRENT:", dtCurrent);
         telemetry.addData("TOTAL CURRENT:", intakeSpindexer.getTotalCurrent() + turretShooter.getTotalCurrent() + dtCurrent);
         telemetry.update();
     }
