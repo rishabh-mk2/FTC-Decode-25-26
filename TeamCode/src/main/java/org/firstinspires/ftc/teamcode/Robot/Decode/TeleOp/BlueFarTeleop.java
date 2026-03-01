@@ -80,6 +80,9 @@ public class BlueFarTeleop extends OpMode {
     double totalCurrent = 0.0;
 
     int loopCounter = 0;
+
+    boolean autovelocity = true;
+
     @Override
     public void loop() {
 
@@ -124,6 +127,18 @@ public class BlueFarTeleop extends OpMode {
             slowMode = !slowMode;
         }
 
+        if(gamepad2.dpadLeftWasReleased()) {
+            autovelocity = !autovelocity;
+        }
+
+        if(!autovelocity) {
+            if(gamepad2.dpadDownWasReleased()) {
+                turretShooter.shooterVel -= 25;
+            }
+            if(gamepad2.dpadUpWasReleased()) {
+                turretShooter.shooterVel += 25;
+            }
+        }
 
         // --- INTAKE / SPINDEXER ---x
         boolean shoot = gamepad1.xWasReleased();
@@ -141,7 +156,7 @@ public class BlueFarTeleop extends OpMode {
         intakeSpindexer.update(ready, shoot);
 
         // --- SHOOTER VELOCITY PID (runs every loop) ---
-        turretShooter.update(follower.getPose(), follower.getVelocity(), shoot, true, true, true);
+        turretShooter.update(follower.getPose(), follower.getVelocity(), shoot, autovelocity, true, true);
 
         dashboard.getTelemetry().addData("shooter target", targetVelocity);
         dashboard.getTelemetry().addData("shooter velocity", turretShooter.getMotor(TurretShooter.MotorNames.leftShooter).getVelocity());

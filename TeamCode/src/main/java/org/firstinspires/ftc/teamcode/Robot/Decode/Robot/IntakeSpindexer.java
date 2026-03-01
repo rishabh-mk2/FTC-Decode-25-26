@@ -172,8 +172,6 @@ public class IntakeSpindexer {
             }
         }
 
-
-
         // --- Ball count ---
         boolean seeFront = f1 < FRONT_THRESHOLD || f2 < FRONT_THRESHOLD;
         boolean seeBR    = br1 < BACK_THRESHOLD  || br2 < BACK_THRESHOLD;

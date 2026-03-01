@@ -30,6 +30,8 @@ public class BlueCloseTeleop extends OpMode {
     IntakeSpindexer  intakeSpindexer;
     TurretShooter    turretShooter;
 
+    boolean autovelocity = true;
+
     Pose startPose = new Pose(25, 70, Math.toRadians(270));
 
     // Change to Alliance.BLUE if needed
@@ -124,6 +126,18 @@ public class BlueCloseTeleop extends OpMode {
             slowMode = !slowMode;
         }
 
+        if(gamepad2.dpadLeftWasReleased()) {
+            autovelocity = !autovelocity;
+        }
+
+        if(!autovelocity) {
+            if(gamepad2.dpadDownWasReleased()) {
+                turretShooter.shooterVel -= 25;
+            }
+            if(gamepad2.dpadUpWasReleased()) {
+                turretShooter.shooterVel += 25;
+            }
+        }
 
         // --- INTAKE / SPINDEXER ---x
         boolean shoot = gamepad1.xWasReleased();
@@ -141,7 +155,7 @@ public class BlueCloseTeleop extends OpMode {
         intakeSpindexer.update(ready, shoot);
 
         // --- SHOOTER VELOCITY PID (runs every loop) ---
-        turretShooter.update(follower.getPose(), follower.getVelocity(), shoot, true, true, true);
+        turretShooter.update(follower.getPose(), follower.getVelocity(), shoot, autovelocity, true, true);
 
         dashboard.getTelemetry().addData("shooter target", targetVelocity);
         dashboard.getTelemetry().addData("shooter velocity", turretShooter.getMotor(TurretShooter.MotorNames.leftShooter).getVelocity());
