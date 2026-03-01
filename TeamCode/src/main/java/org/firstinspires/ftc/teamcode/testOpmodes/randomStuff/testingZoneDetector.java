@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Robot.Decode.Alliance;
-import org.firstinspires.ftc.teamcode.testOpmodes.openCV.ZoneDetector;
+import org.firstinspires.ftc.teamcode.Robot.Decode.Robot.ZoneDetector;
 
 @TeleOp(name = "Zone Detector", group = "Test")
 public class testingZoneDetector extends OpMode {

@@ -235,6 +235,10 @@ public class IntakeSpindexer {
 
     // endregion
 
+    public double getTotalCurrent() {
+        return getMotor(MotorNames.intake).getCurrent(CurrentUnit.AMPS) + getMotor(MotorNames.spindexer).getCurrent(CurrentUnit.AMPS);
+    }
+
     // region ===== INTAKE =====
 
     private void runIntake() {

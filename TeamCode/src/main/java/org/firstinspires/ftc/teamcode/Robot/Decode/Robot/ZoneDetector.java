@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.testOpmodes.openCV;
+package org.firstinspires.ftc.teamcode.Robot.Decode.Robot;
 
 import android.util.Size;
 
@@ -7,8 +7,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.teamcode.Robot.Decode.Alliance;
+import org.firstinspires.ftc.teamcode.testOpmodes.openCV.ROIProcessorBlue;
+import org.firstinspires.ftc.teamcode.testOpmodes.openCV.ROIProcessorRed;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.core.Point;
@@ -35,7 +36,7 @@ import java.util.List;
  **/
 public class ZoneDetector {
     private final VisionPortal     visionPortal;
-    private final ROIProcessorRed  roiRED;
+    private final ROIProcessorRed roiRED;
     private final ROIProcessorBlue roiBLUE;
     private final Alliance         alliance;
     public OpMode      opmode;
@@ -95,7 +96,7 @@ public class ZoneDetector {
         return bestPair;
     }
 
-    public void close() {
+    public void stop() {
         visionPortal.close();
     }
 }

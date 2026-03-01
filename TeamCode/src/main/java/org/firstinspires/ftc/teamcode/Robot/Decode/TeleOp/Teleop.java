@@ -70,6 +70,7 @@ public class Teleop extends OpMode {
     boolean slowMode = false;
 
     boolean manualBlock = false;
+    double dtCurrent = 0.0;
     @Override
     public void loop() {
 
@@ -90,6 +91,8 @@ public class Teleop extends OpMode {
                     true
             );
         }
+
+        dtCurrent = follower.getClass().;
 
 
         // REHOME POSIITON
@@ -137,6 +140,7 @@ public class Teleop extends OpMode {
         telemetry.addData("X", follower.getPose().getX());
         telemetry.addData("Y", follower.getPose().getY());
         telemetry.addData("Heading", follower.getPose().getHeading() * 180 / Math.PI);
+        telemetry.addData("TOTAL CURRENT:", intakeSpindexer.getTotalCurrent() + turretShooter.getTotalCurrent() + dtCurrent);
         telemetry.update();
     }
 

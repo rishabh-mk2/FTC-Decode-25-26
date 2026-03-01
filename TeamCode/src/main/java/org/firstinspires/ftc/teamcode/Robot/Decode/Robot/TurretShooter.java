@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Robot.Decode.Alliance;
 
 import java.util.ArrayList;
@@ -183,6 +184,10 @@ public class TurretShooter {
 
     public Servo getServo(ServoNames name) {
         return Servos.get(name.ordinal());
+    }
+
+    public double getTotalCurrent() {
+        return getMotor(MotorNames.leftShooter).getCurrent(CurrentUnit.AMPS) + getMotor(MotorNames.rightShooter).getCurrent(CurrentUnit.AMPS);
     }
 
     // endregion
