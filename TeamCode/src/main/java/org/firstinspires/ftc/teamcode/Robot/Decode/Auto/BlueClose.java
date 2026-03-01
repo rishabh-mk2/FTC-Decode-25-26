@@ -18,27 +18,109 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 public class BlueClose extends OpMode {
 
     private Follower follower;
-    private Timer pathTimer, opmodeTimer;
+    private Timer pathTimer, actionTimer, opmodeTimer;
     IntakeSpindexer intakeSpindexer;
     TurretShooter turretShooter;
 
     Alliance alliance = Alliance.BLUE;
     boolean shoot = false;
     boolean ready = false;
+    boolean enableTurret = false;
+    boolean enableShooter = false;
     private int pathState;
 
     private final Pose startPose = new Pose(29.1, 132.2, Math.toRadians(180));
 
-    private PathChain shoot1;
+    private PathChain shoot1, intake1, shoot2, intake2_1, intake2_2, shoot3, intake3, shoot4, park;
 
     public void buildPaths() {
-        shoot1 = follower.pathBuilder().addPath(
+        shoot1 = follower.pathBuilder()
+                .addPath(
                         new BezierLine(
-                                new Pose(29.1 , 132.2),
-                                new Pose(40.1, 95)
+                                new Pose(33.861, 135.935),
+                                new Pose(47.380, 92.816)
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
+
+        intake1 = follower.pathBuilder()
+                .addPath(
+                        new BezierCurve(
+                                new Pose(47.380, 92.816),
+                                new Pose(49.814, 53),
+                                new Pose(13.531, 55)
+                        )
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .build();
+
+        shoot2 = follower.pathBuilder()
+                .addPath(
+                        new BezierLine(
+                                new Pose(13.531, 55),
+                                new Pose(53, 70)
+                        )
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .build();
+
+        intake2_1 = follower.pathBuilder()
+                .addPath(
+                        new BezierLine(
+                                new Pose(53, 70),
+                                new Pose(10, 61.5)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(158)) // was 152
+                .build();
+        intake2_2 = follower.pathBuilder()
+                .addPath(
+                        new BezierLine(
+                                new Pose(10, 61.5),
+                                new Pose (2, 61.5)//was 2
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(158), Math.toRadians(158)) // was 152
+                .build();
+        shoot3 = follower.pathBuilder()
+                .addPath(
+                        new BezierLine(
+                                new Pose (2, 61.5),//was 2
+                                new Pose(49, 75.208)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(158), Math.toRadians(158)) // was 152
+                .build();
+        intake3 = follower.pathBuilder()
+                .addPath(
+                        new BezierLine(
+                                new Pose(49, 75.208),
+                                new Pose(10, 78)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(158), Math.toRadians(180))//152
+                .build();
+        shoot4 = follower.pathBuilder()
+                .addPath(
+                        new BezierLine(
+                                new Pose(10, 78),
+                                new Pose(48, 78)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
+                .build();
+
+        park = follower.pathBuilder()
+                .addPath(
+                        new BezierLine(
+                                new Pose(48, 78),
+                                new Pose(25, 70)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(270))
+                .build();
+
     }
 
     public void autonomousPathUpdate() {
@@ -46,7 +128,8 @@ public class BlueClose extends OpMode {
             case 0:
                 if(!follower.isBusy()) {
                     setPathState(1);
-                    follower.followPath(shoot1, 0.9, true);
+                    intakeSpindexer.manualOverrideSpindexerBlock(true);
+                    follower.followPath(shoot1, 1.0, true);
                 }
                 break;
             case 1:
@@ -65,14 +148,188 @@ public class BlueClose extends OpMode {
             case 3:
                 if(!follower.isBusy()) {
                     shoot = false;
-                    if(pathTimer.getElapsedTimeSeconds() > 0.9) {
+                    if(pathTimer.getElapsedTimeSeconds() > 0.75) {
                         setPathState(4);
                     }
                 }
                 break;
             case 4:
                 if(!follower.isBusy()) {
+                    turretShooter.hoodPos = 0.84;
+                    turretShooter.shooterVel = 1650;
+                    setPathState(5);
+                    intakeSpindexer.manualOverrideSpindexerBlock(false);
+                    follower.followPath(intake1, 0.75, true);
+                }
+                break;
+            case 5:
+                if(!follower.isBusy()) {
+                    if(pathTimer.getElapsedTimeSeconds() > 0.5) {
+                        setPathState(6);
+                    }
+                }
+                break;
+            case 6:
+                if(!follower.isBusy()) {
+                    follower.followPath(shoot2, 1.0, true);
+                    setPathState(7);
+                }
+                break;
+            case 7:
+                if(follower.getPose().getX() > 45) {
                     intakeSpindexer.manualOverrideSpindexerBlock(true);
+                    setPathState(8);
+                }
+                break;
+            case 8:
+                if(!follower.isBusy()) {
+                    if(pathTimer.getElapsedTimeSeconds() > 0.2) {
+                        setPathState(9);
+                    }
+                }
+                break;
+            case 9:
+                if(!follower.isBusy()) {
+                    shoot = true;
+                    setPathState(10);
+                }
+                break;
+            case 10:
+                if(!follower.isBusy()) {
+                    shoot = false;
+                    if(pathTimer.getElapsedTimeSeconds() > 0.75) {
+                        setPathState(11);
+                        intakeSpindexer.manualOverrideSpindexerBlock(false);
+                    }
+                }
+                break;
+            case 11:
+                if(!follower.isBusy()) {
+                    follower.followPath(intake2_1, 0.8, true);
+                    setPathState(12);
+                }
+                break;
+            case 12:
+                if(!follower.isBusy()) {
+                    follower.followPath(intake2_2, 0.4, true);
+                    setPathState(13);
+                }
+                break;
+            case 13:
+                if(!follower.isBusy()) {
+                    if(intakeSpindexer.getBallCount() == 3 || pathTimer.getElapsedTimeSeconds() > 4.0) {
+                        follower.followPath(shoot3, 0.8, true);
+                        setPathState(14);
+                    }
+                }
+                break;
+            case 14:
+                if(follower.getPose().getX() > 40) {
+                    intakeSpindexer.manualOverrideSpindexerBlock(true);
+                    setPathState(15);
+                }
+                break;
+            case 15:
+                if(!follower.isBusy()) {
+                    if(pathTimer.getElapsedTimeSeconds() > 0.5) {
+                        shoot = true;
+                        setPathState(16);
+                    }
+                }
+                break;
+            case 16:
+                if(!follower.isBusy()) {
+                    shoot = false;
+                    if(pathTimer.getElapsedTimeSeconds() > 0.1) {
+                        setPathState(17);
+                    }
+                }
+                break;
+            case 17:
+                if(!follower.isBusy()) {
+                    intakeSpindexer.manualOverrideSpindexerBlock(false);
+                    follower.followPath(intake2_1, 0.95, true);
+                    setPathState(18);
+                }
+                break;
+            case 18:
+                if(!follower.isBusy()) {
+                    follower.followPath(intake2_2, 0.4, true);
+                    setPathState(19);
+                }
+                break;
+            case 19:
+                if(!follower.isBusy()) {
+                    if(intakeSpindexer.getBallCount() == 3 || pathTimer.getElapsedTimeSeconds() > 4.0) {
+                        follower.followPath(shoot3, 0.95, true);
+                        setPathState(20);
+                    }
+                }
+                break;
+            case 20:
+                if(follower.getPose().getX() > 40) {
+                    intakeSpindexer.manualOverrideSpindexerBlock(true);
+                    setPathState(21);
+                }
+                break;
+            case 21:
+                if(!follower.isBusy()) {
+                    if(pathTimer.getElapsedTimeSeconds() > 0.1) {
+                        shoot = true;
+                        setPathState(22);
+                    }
+                }
+                break;
+            case 22:
+                if(!follower.isBusy()) {
+                    shoot = false;
+                    if(pathTimer.getElapsedTimeSeconds() > 0.75) {
+                        setPathState(23);
+                        intakeSpindexer.manualOverrideSpindexerBlock(false);
+                    }
+                }
+                break;
+            case 23:
+                if(!follower.isBusy()) {
+                    follower.followPath(intake3, 0.75, true);
+                    setPathState(24);
+                }
+                break;
+            case 24:
+                if(!follower.isBusy()) {
+                    if(pathTimer.getElapsedTimeSeconds() > 0.2) {
+                        follower.followPath(shoot4, 0.9, true);
+                        setPathState(25);
+                    }
+                }
+                break;
+            case 25:
+                if(!follower.isBusy()) {
+                    intakeSpindexer.manualOverrideSpindexerBlock(true);
+                    if(pathTimer.getElapsedTimeSeconds() > 1.75) {
+                        setPathState(26);
+                    }
+                }
+                break;
+            case 26:
+                if(!follower.isBusy()) {
+                    shoot = true;
+                    setPathState(27);
+                }
+                break;
+            case 27:
+                if(!follower.isBusy()) {
+                    shoot = false;
+                    if(pathTimer.getElapsedTimeSeconds() > 0.75) {
+                        setPathState(28);
+                        intakeSpindexer.manualOverrideSpindexerBlock(false);
+                    }
+                }
+                break;
+            case 28:
+                if(!follower.isBusy()) {
+                    follower.followPath(park, 1.0, true);
+                    setPathState(-1);
                 }
                 break;
         }
