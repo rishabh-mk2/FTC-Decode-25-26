@@ -214,6 +214,9 @@ public class IntakeSpindexer {
                     spindexerHome = Math.ceil(currentPos / 384.5) * 384.5;
                     spindexerTarget = spindexerHome;
                     spindexerState  = SpindexerState.INTAKING;
+                    if(manualBlockOverride) {
+                        manualBlockOverride = false;
+                    }
                 }
                 runIntake();
                 updateTelemetry(raw);
@@ -237,7 +240,7 @@ public class IntakeSpindexer {
     private void runIntake() {
 
         if (manualBlockOverride) {
-            getMotor(MotorNames.intake).setPower(-0.2);
+            getMotor(MotorNames.intake).setPower(-0.6);
             return;
         }
 
@@ -304,6 +307,7 @@ public class IntakeSpindexer {
         telemetry.addData("Block Closed",     blockClosed);
         telemetry.addData("Manual Expel",     manualExpel);
         telemetry.addData("Spindexer Pos",    getMotor(MotorNames.spindexer).getCurrentPosition());
+        telemetry.addData("Manual Override", manualBlockOverride);
         telemetry.addData("Spindexer Target", spindexerTarget);
         telemetry.addLine("=== DISTANCES ===");
         telemetry.addData("F",  String.format("%.1f / %.1f", f1, f2));

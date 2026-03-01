@@ -31,7 +31,7 @@ public class RedClose extends OpMode {
 
     private final Pose startPose = new Pose(112.4, 132.2, Math.toRadians(90));
 
-    private PathChain shoot1, intake1, shoot2, intake2, shoot3;
+    private PathChain shoot1, intake1, shoot2, intake2_1, intake2_2, shoot3;
 
     public void buildPaths() {
         shoot1 = follower.pathBuilder().addPath(
@@ -58,22 +58,31 @@ public class RedClose extends OpMode {
                         )
                 ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(20))
                 .build();
-        intake2 = follower.pathBuilder().addPath(
+        intake2_1 = follower.pathBuilder().addPath(
                         new BezierCurve(
                                 new Pose(96, 86),
                                 new Pose (103.4967, 68),
-                                new Pose(135.25, 67.9)
+                                new Pose(128, 67.5)
                         )
                 ).setLinearHeadingInterpolation(Math.toRadians(20), Math.toRadians(31))
                 .setBrakingStart(25)
                 .setBrakingStrength(4.0)
                 .build();
+        intake2_2 = follower.pathBuilder().addPath(
+                        new BezierLine(
+                                new Pose(128, 67.5),
+                                new Pose(136, 67.5)
+                        )
+                ).setLinearHeadingInterpolation(Math.toRadians(20), Math.toRadians(32))
+                .setBrakingStart(25)
+                .setBrakingStrength(4.0)
+                .build();
         shoot3 = shoot2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(135.25, 67.9),
+                                new Pose(135, 67.5),
                                 new Pose(96, 86)
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(31))
+                ).setConstantHeadingInterpolation(Math.toRadians(32))
                 .build();
     }
 
@@ -109,10 +118,10 @@ public class RedClose extends OpMode {
             case 4:
                 if(!follower.isBusy()) {
                     turretShooter.hoodPos = 0.84;
-                    turretShooter.shooterVel = 1643.976;
+                    turretShooter.shooterVel = 1650;
                     setPathState(5);
                     intakeSpindexer.manualOverrideSpindexerBlock(false);
-                    follower.followPath(intake1, 0.7, true);
+                    follower.followPath(intake1, 0.75, true);
                 }
                 break;
             case 5:
@@ -124,7 +133,7 @@ public class RedClose extends OpMode {
                 break;
             case 6:
                 if(!follower.isBusy()) {
-                    follower.followPath(shoot2, 0.9, true);
+                    follower.followPath(shoot2, 1.0, true);
                     setPathState(7);
                 }
                 break;
@@ -153,7 +162,13 @@ public class RedClose extends OpMode {
                 break;
             case 10:
                 if(!follower.isBusy()) {
-                    follower.followPath(intake2, 0.8, true);
+                    follower.followPath(intake2_1, 0.8, true);
+                    setPathState(25);
+                }
+                break;
+            case 25:
+                if(!follower.isBusy()) {
+                    follower.followPath(intake2_2, 0.4, true);
                     setPathState(11);
                 }
                 break;
@@ -190,14 +205,20 @@ public class RedClose extends OpMode {
                 break;
             case 15:
                 if(!follower.isBusy()) {
-                    follower.followPath(intake2, 0.8, true);
+                    follower.followPath(intake2_1, 0.95, true);
+                    setPathState(26);
+                }
+                break;
+            case 26:
+                if(!follower.isBusy()) {
+                    follower.followPath(intake2_2, 0.4, true);
                     setPathState(16);
                 }
                 break;
             case 16:
                 if(!follower.isBusy()) {
                     if(intakeSpindexer.getBallCount() == 3 || pathTimer.getElapsedTimeSeconds() > 4.5) {
-                        follower.followPath(shoot3, 0.8, true);
+                        follower.followPath(shoot3, 0.95, true);
                         setPathState(17);
                     }
                 }
@@ -227,14 +248,20 @@ public class RedClose extends OpMode {
                 break;
             case 20:
                 if(!follower.isBusy()) {
-                    follower.followPath(intake2, 0.8, true);
+                    follower.followPath(intake2_1, 0.95, true);
+                    setPathState(27);
+                }
+                break;
+            case 27:
+                if(!follower.isBusy()) {
+                    follower.followPath(intake2_2, 0.4, true);
                     setPathState(21);
                 }
                 break;
             case 21:
                 if(!follower.isBusy()) {
                     if(intakeSpindexer.getBallCount() == 3 || pathTimer.getElapsedTimeSeconds() > 4.5) {
-                        follower.followPath(shoot3, 0.8, true);
+                        follower.followPath(shoot3, 0.95, true);
                         setPathState(22);
                     }
                 }
@@ -257,7 +284,7 @@ public class RedClose extends OpMode {
                 if(!follower.isBusy()) {
                     shoot = false;
                     if(pathTimer.getElapsedTimeSeconds() > 0.75) {
-                        setPathState(25);
+                        setPathState(-1);
                         intakeSpindexer.manualOverrideSpindexerBlock(false);
                     }
                 }
@@ -315,7 +342,7 @@ public class RedClose extends OpMode {
         intakeSpindexer.setSpindexerBlockPosition();
 
         turretShooter.hoodPos = 0.8;
-        turretShooter.shooterVel = 1561.8458;
+        turretShooter.shooterVel = 1650;
     }
 
     /**

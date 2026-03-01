@@ -69,6 +69,7 @@ public class Teleop extends OpMode {
     boolean expel = false;
     boolean slowMode = false;
 
+    boolean manualBlock = false;
     @Override
     public void loop() {
 
@@ -106,7 +107,16 @@ public class Teleop extends OpMode {
 
         // --- INTAKE / SPINDEXER ---x
         boolean shoot = gamepad1.xWasReleased();
-        boolean ready = gamepad1.yWasReleased();
+        boolean ready = gamepad1.bWasReleased();
+        if(gamepad1.yWasReleased()) {
+            manualBlock = !manualBlock;
+        }
+        if(manualBlock) {
+            intakeSpindexer.manualOverrideSpindexerBlock(true);
+            intakeSpindexer.setSpindexerBlockPosition();
+        } else {
+            intakeSpindexer.manualOverrideSpindexerBlock(false);
+        }
 
         intakeSpindexer.update(ready, shoot);
 
