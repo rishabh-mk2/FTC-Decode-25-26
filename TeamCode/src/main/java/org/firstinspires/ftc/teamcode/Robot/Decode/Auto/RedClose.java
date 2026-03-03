@@ -71,7 +71,7 @@ public class RedClose extends OpMode {
         intake2_2 = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(128, 67.5),
-                                new Pose(136, 67.5)
+                                new Pose(137.5, 67.5)
                         )
                 ).setLinearHeadingInterpolation(Math.toRadians(20), Math.toRadians(32))
                 .setBrakingStart(25)
@@ -79,7 +79,7 @@ public class RedClose extends OpMode {
                 .build();
         shoot3 = shoot2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(135, 67.5),
+                                new Pose(137.5, 67.5),
                                 new Pose(96, 86)
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(32))
